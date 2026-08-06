@@ -1,0 +1,388 @@
+[
+  {
+    "id": "new.flow.17860322",
+    "version": 1,
+    "name": "New flow",
+    "start": "",
+    "steps": [],
+    "published": false,
+    "created_at": "0001-01-01T00:00:00Z"
+  },
+  {
+    "id": "new.flow.17860301",
+    "version": 1,
+    "name": "New flow",
+    "start": "",
+    "steps": [],
+    "published": false,
+    "created_at": "0001-01-01T00:00:00Z"
+  },
+  {
+    "id": "demo.smoke",
+    "version": 1,
+    "name": "Smoke Demo",
+    "start": "end",
+    "steps": [
+      {
+        "id": "end",
+        "type": "end"
+      }
+    ],
+    "published": true,
+    "created_at": "0001-01-01T00:00:00Z"
+  },
+  {
+    "id": "wf_trivial",
+    "version": 1,
+    "name": "Trivial",
+    "start": "end",
+    "steps": [
+      {
+        "id": "end",
+        "type": "end"
+      }
+    ],
+    "published": true,
+    "created_at": "0001-01-01T00:00:00Z"
+  },
+  {
+    "id": "notif.daily_review_v1",
+    "version": 1,
+    "name": "Daily Approval Review Reminder",
+    "description": "Wait 24 h then notify approvers to review active durable grants (E4/E11).",
+    "start": "wait_day",
+    "steps": [
+      {
+        "id": "wait_day",
+        "type": "wait_duration",
+        "next": "notify_review",
+        "inputs": {
+          "duration": "24h"
+        }
+      },
+      {
+        "id": "notify_review",
+        "type": "action",
+        "next": "done",
+        "action": "notify_escalation",
+        "inputs": {
+          "audience": [
+            "{{approver_audience}}"
+          ],
+          "override_prefs": false,
+          "record_ref": "{{record_ref}}",
+          "template_id": "review_reminder"
+        }
+      },
+      {
+        "id": "done",
+        "type": "end"
+      }
+    ],
+    "published": true,
+    "created_at": "0001-01-01T00:00:00Z"
+  },
+  {
+    "id": "notif.approval_deadline_v1",
+    "version": 1,
+    "name": "Approval with Deadline Heads-Up",
+    "description": "Approval gate with pre-deadline notification (E6) + timeout escalation (E5).",
+    "start": "request_approval",
+    "steps": [
+      {
+        "id": "request_approval",
+        "type": "manual_approval",
+        "inputs": {
+          "assignee": "{{approver_role}}",
+          "due_in": "{{sla_duration}}",
+          "form_schema": {
+            "properties": {
+              "decision": {
+                "enum": [
+                  "approve",
+                  "reject"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "decision"
+            ],
+            "type": "object"
+          }
+        },
+        "branches": {
+          "approved": {
+            "next": "dispatch_approved"
+          },
+          "rejected": {
+            "next": "dispatch_rejected"
+          },
+          "timeout": {
+            "next": "deadline_lead_wait"
+          }
+        }
+      },
+      {
+        "id": "deadline_lead_wait",
+        "type": "wait_duration",
+        "next": "deadline_notify",
+        "inputs": {
+          "duration": "{{deadline_lead}}"
+        }
+      },
+      {
+        "id": "deadline_notify",
+        "type": "action",
+        "next": "escalate_wait",
+        "action": "notify_escalation",
+        "inputs": {
+          "audience": [
+            "{{approver_role}}"
+          ],
+          "override_prefs": true,
+          "record_ref": "{{record_ref}}",
+          "template_id": "deadline_coming_up"
+        }
+      },
+      {
+        "id": "escalate_wait",
+        "type": "wait_duration",
+        "next": "escalate_notify",
+        "inputs": {
+          "duration": "{{escalation_delay}}"
+        }
+      },
+      {
+        "id": "escalate_notify",
+        "type": "action",
+        "next": "re_request_approval",
+        "action": "notify_escalation",
+        "inputs": {
+          "audience": [
+            "{{escalation_group}}"
+          ],
+          "override_prefs": true,
+          "record_ref": "{{record_ref}}",
+          "template_id": "escalation_overdue"
+        }
+      },
+      {
+        "id": "re_request_approval",
+        "type": "manual_approval",
+        "inputs": {
+          "assignee": "{{escalation_group}}",
+          "due_in": "{{escalation_sla}}"
+        },
+        "branches": {
+          "approved": {
+            "next": "dispatch_approved"
+          },
+          "rejected": {
+            "next": "dispatch_rejected"
+          }
+        }
+      },
+      {
+        "id": "dispatch_approved",
+        "type": "action",
+        "next": "done",
+        "action": "notify_approval_outcome",
+        "inputs": {
+          "outcome": "approved",
+          "record_ref": "{{record_ref}}"
+        }
+      },
+      {
+        "id": "dispatch_rejected",
+        "type": "action",
+        "next": "done",
+        "action": "notify_approval_outcome",
+        "inputs": {
+          "outcome": "rejected",
+          "record_ref": "{{record_ref}}"
+        }
+      },
+      {
+        "id": "done",
+        "type": "end"
+      }
+    ],
+    "published": true,
+    "created_at": "0001-01-01T00:00:00Z"
+  },
+  {
+    "id": "notif.scheduled_v1",
+    "version": 1,
+    "name": "Scheduled Notification",
+    "description": "Wait until the caller-supplied send_at timestamp then dispatch an inbox notification.",
+    "start": "wait_send_at",
+    "steps": [
+      {
+        "id": "wait_send_at",
+        "type": "wait_until",
+        "next": "send_inbox",
+        "inputs": {
+          "timestamp": "{{send_at}}"
+        }
+      },
+      {
+        "id": "send_inbox",
+        "type": "action",
+        "next": "done",
+        "action": "notify_inbox",
+        "inputs": {
+          "audience": "{{audience}}",
+          "record_ref": "{{record_ref}}",
+          "template_id": "{{template_id}}"
+        }
+      },
+      {
+        "id": "done",
+        "type": "end"
+      }
+    ],
+    "published": true,
+    "created_at": "0001-01-01T00:00:00Z"
+  },
+  {
+    "id": "notif.approval_escalate_v1",
+    "version": 1,
+    "name": "Approval with Escalation",
+    "description": "Request approval; escalate on timeout; notify outcome on resolution.",
+    "start": "request_approval",
+    "steps": [
+      {
+        "id": "request_approval",
+        "type": "manual_approval",
+        "inputs": {
+          "assignee": "{{approver_role}}",
+          "due_in": "{{sla_duration}}",
+          "form_schema": {
+            "properties": {
+              "decision": {
+                "enum": [
+                  "approve",
+                  "reject"
+                ],
+                "type": "string"
+              }
+            },
+            "required": [
+              "decision"
+            ],
+            "type": "object"
+          }
+        },
+        "branches": {
+          "approved": {
+            "next": "dispatch_approved"
+          },
+          "rejected": {
+            "next": "dispatch_rejected"
+          },
+          "timeout": {
+            "next": "escalate_wait"
+          }
+        }
+      },
+      {
+        "id": "escalate_wait",
+        "type": "wait_duration",
+        "next": "escalate_notify",
+        "inputs": {
+          "duration": "{{escalation_delay}}"
+        }
+      },
+      {
+        "id": "escalate_notify",
+        "type": "action",
+        "next": "re_request_approval",
+        "action": "notify_escalation",
+        "inputs": {
+          "audience": [
+            "{{escalation_group}}"
+          ],
+          "record_ref": "{{record_ref}}",
+          "template_id": "escalation_overdue"
+        }
+      },
+      {
+        "id": "re_request_approval",
+        "type": "manual_approval",
+        "inputs": {
+          "assignee": "{{escalation_group}}",
+          "due_in": "{{escalation_sla}}"
+        },
+        "branches": {
+          "approved": {
+            "next": "dispatch_approved"
+          },
+          "rejected": {
+            "next": "dispatch_rejected"
+          }
+        }
+      },
+      {
+        "id": "dispatch_approved",
+        "type": "action",
+        "next": "done",
+        "action": "notify_approval_outcome",
+        "inputs": {
+          "outcome": "approved",
+          "record_ref": "{{record_ref}}"
+        }
+      },
+      {
+        "id": "dispatch_rejected",
+        "type": "action",
+        "next": "done",
+        "action": "notify_approval_outcome",
+        "inputs": {
+          "outcome": "rejected",
+          "record_ref": "{{record_ref}}"
+        }
+      },
+      {
+        "id": "done",
+        "type": "end"
+      }
+    ],
+    "published": true,
+    "created_at": "0001-01-01T00:00:00Z"
+  },
+  {
+    "id": "notif.digest_v1",
+    "version": 1,
+    "name": "Notification Digest",
+    "description": "Scheduled digest: pause until send_at then dispatch notify_digest.",
+    "start": "wait_send_at",
+    "steps": [
+      {
+        "id": "wait_send_at",
+        "type": "wait_until",
+        "next": "send_digest",
+        "inputs": {
+          "timestamp": "{{send_at}}"
+        }
+      },
+      {
+        "id": "send_digest",
+        "type": "action",
+        "next": "done",
+        "action": "notify_digest",
+        "inputs": {
+          "bundle_id": "{{bundle_id}}",
+          "template_id": "{{template_id}}",
+          "user_id": "{{user_id}}"
+        }
+      },
+      {
+        "id": "done",
+        "type": "end"
+      }
+    ],
+    "published": true,
+    "created_at": "0001-01-01T00:00:00Z"
+  }
+]
