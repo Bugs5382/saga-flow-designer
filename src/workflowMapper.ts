@@ -44,14 +44,22 @@ import {
 // Non-empty stages, all step config, branch/child lane nesting, merge targets
 // and terminal flags round-trip; empty pre/end stages are re-synthesised.
 
-// A pointer into the flat step list: the first step of a branch lane.
+/**
+ * A pointer into the flat step list: the first step of a branch lane.
+ *
+ * @since 1.0.0
+ */
 export interface EngineBranchPointer {
   next: string;
 }
 
-// The engine-flat definition. `id` is the business workflowId; `workflowId` is
-// present on the host read path (a distinct field) and preferred for `key` when
-// available.
+/**
+ * The engine-flat definition. `id` is the business workflowId; `workflowId` is
+ * present on the host read path (a distinct field) and preferred for `key` when
+ * available.
+ *
+ * @since 1.0.0
+ */
 export interface EngineDefinition {
   description?: string;
   id: string;
@@ -63,9 +71,13 @@ export interface EngineDefinition {
   workflowId?: string;
 }
 
-// The engine's flat step. Engine-meaningful keys: id, type, action, next,
-// branches (a MAP), inputs. Designer metadata (label, note, collapsed, stage)
-// rides along untouched by the engine.
+/**
+ * The engine's flat step. Engine-meaningful keys: id, type, action, next,
+ * branches (a MAP), inputs. Designer metadata (label, note, collapsed, stage)
+ * rides along untouched by the engine.
+ *
+ * @since 1.0.0
+ */
 export interface EngineStep {
   action?: string;
   branches?: Record<string, EngineBranchPointer>;
@@ -107,10 +119,14 @@ const linkTrail = (steps: EngineStep[]): void => {
   }
 };
 
-// UI nested WorkflowDef → engine-flat definition JSON (the `definition` Map the
-// host's save mutation accepts). `id` is the engine business id
-// (WorkflowDef.key); the storage UUID (WorkflowDef.id) is the server's concern
-// and is threaded by the gateway, not embedded here.
+/**
+ * UI nested WorkflowDef → engine-flat definition JSON (the `definition` Map the
+ * host's save mutation accepts). `id` is the engine business id
+ * (WorkflowDef.key); the storage UUID (WorkflowDef.id) is the server's concern
+ * and is threaded by the gateway, not embedded here.
+ *
+ * @since 1.0.0
+ */
 export const flattenDefinition = (ui: WorkflowDef): EngineDefinition => {
   const steps: EngineStep[] = [];
 
@@ -250,11 +266,15 @@ const regroupStages = (
   return [preStage, ...work, ...pre.slice(1), ...end.slice(1), endStage];
 };
 
-// Engine-flat definition → UI nested WorkflowDef.
-//   - `key`  ← engine.workflowId (business id), falling back to engine.id.
-//   - `id`   ← storageId (the host's storage UUID) when supplied, else the
-//              business id. The gateway always passes the storage UUID so
-//              getWorkflow(id)/run linkage resolves against it.
+/**
+ * Engine-flat definition → UI nested WorkflowDef.
+ *   - `key`  ← engine.workflowId (business id), falling back to engine.id.
+ *   - `id`   ← storageId (the host's storage UUID) when supplied, else the
+ *              business id. The gateway always passes the storage UUID so
+ *              getWorkflow(id)/run linkage resolves against it.
+ *
+ * @since 1.0.0
+ */
 export const expandDefinition = (
   engine: EngineDefinition,
   storageId?: string,

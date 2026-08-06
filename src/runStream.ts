@@ -19,7 +19,11 @@ import type {
 
 // --- WS frame envelopes ----------------------------------------------------
 
-// The engine's SagaRunEvent — one recorded state transition.
+/**
+ * The engine's SagaRunEvent — one recorded state transition.
+ *
+ * @since 1.0.0
+ */
 export interface SagaRunEventFrame {
   actor?: string;
   attempt?: number;
@@ -33,7 +37,11 @@ export interface SagaRunEventFrame {
   to_state?: string;
 }
 
-// The engine's SagaRun snapshot (only the fields the UI folds).
+/**
+ * The engine's SagaRun snapshot (only the fields the UI folds).
+ *
+ * @since 1.0.0
+ */
 export interface SagaRunFrame {
   current_step: string;
   definition_id: string;
@@ -42,21 +50,40 @@ export interface SagaRunFrame {
   workflow_id: string;
 }
 
-// Resolves a step id to its authored label/verb (from the loaded WorkflowDef).
-// The host may supply one; absent it, the fold falls back to the raw step id.
+/**
+ * Resolves a step id to its authored label/verb (from the loaded WorkflowDef).
+ * The host may supply one; absent it, the fold falls back to the raw step id.
+ *
+ * @since 1.0.0
+ */
 export interface StepMeta {
   label: string;
   verb: string;
 }
 
+/**
+ * A function that resolves a step id to its authored label/verb.
+ *
+ * @since 1.0.0
+ */
 export type StepResolver = (stepId: string) => StepMeta | undefined;
+
+/**
+ * One parsed stream frame: a run snapshot or an event.
+ *
+ * @since 1.0.0
+ */
 export type StreamFrame =
   | { data: SagaRunEventFrame; type: "event" }
   | { data: SagaRunFrame; type: "run" };
 
 // --- Enum mappers (engine → UI) --------------------------------------------
 
-// Engine RunState → UI RunStatus.
+/**
+ * Engine RunState → UI RunStatus.
+ *
+ * @since 1.0.0
+ */
 export const mapRunState = (state: string): RunStatus => {
   switch (state) {
     case "cancelled": {
@@ -78,7 +105,11 @@ export const mapRunState = (state: string): RunStatus => {
   }
 };
 
-// Engine EventType → UI RunEvent.kind.
+/**
+ * Engine EventType → UI RunEvent.kind.
+ *
+ * @since 1.0.0
+ */
 export const mapEventKind = (eventType: string): RunEvent["kind"] => {
   switch (eventType) {
     case "run.cancelled": {
@@ -106,8 +137,12 @@ export const mapEventKind = (eventType: string): RunEvent["kind"] => {
   }
 };
 
-// Engine EventType → UI StepRunStatus, for events that carry a step_id. Returns
-// undefined for events that do not move a step's status.
+/**
+ * Engine EventType → UI StepRunStatus, for events that carry a step_id. Returns
+ * undefined for events that do not move a step's status.
+ *
+ * @since 1.0.0
+ */
 export const mapStepStatus = (eventType: string): StepRunStatus | undefined => {
   switch (eventType) {
     // The engine's queued/dispatched state maps to the UI's `waiting`.
@@ -158,8 +193,12 @@ const eventRunStatus = (eventType: string): RunStatus | undefined => {
 
 const TERMINAL = new Set(["run.cancelled", "run.failed", "run.succeeded"]);
 
-// A concise, human-readable message derived from the event type, enriched with
-// the step id and any state transition it carries.
+/**
+ * A concise, human-readable message derived from the event type, enriched with
+ * the step id and any state transition it carries.
+ *
+ * @since 1.0.0
+ */
 export const eventMessage = (event: SagaRunEventFrame): string => {
   const parts = [event.event_type];
   if (event.step_id) parts.push(event.step_id);
@@ -177,7 +216,11 @@ const durationBetween = (start: string, end: string): number | undefined => {
 
 // --- Seed ------------------------------------------------------------------
 
-// An empty Run for a run id — the snapshot/event frames fill it in.
+/**
+ * An empty Run for a run id — the snapshot/event frames fill it in.
+ *
+ * @since 1.0.0
+ */
 export const seedRun = (runId: string): Run => ({
   events: [],
   id: runId,
@@ -293,7 +336,11 @@ const foldEventFrame = (
   };
 };
 
-// Fold ONE frame into a new immutable Run.
+/**
+ * Fold ONE frame into a new immutable Run.
+ *
+ * @since 1.0.0
+ */
 export const foldFrame = (
   run: Run,
   frame: StreamFrame,
@@ -303,7 +350,11 @@ export const foldFrame = (
     ? foldRunFrame(run, frame.data)
     : foldEventFrame(run, frame.data, resolveStep);
 
-// Fold a sequence of frames left-to-right.
+/**
+ * Fold a sequence of frames left-to-right.
+ *
+ * @since 1.0.0
+ */
 export const foldFrames = (
   run: Run,
   frames: StreamFrame[],

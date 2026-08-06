@@ -5,17 +5,32 @@ import type { WorkflowDef } from "./workflowData";
 // the same UI runs against whichever adapter the host wires in — an in-process
 // data source or a remote gateway. ONE adapter per run — no per-call fallback.
 
+/**
+ * A single validation finding against a definition, optionally tied to a step.
+ *
+ * @since 1.0.0
+ */
 export interface ValidationIssue {
   level: "error" | "warning";
   message: string;
   stepId?: string;
 }
 
+/**
+ * The outcome of validating a definition: `ok` plus the list of issues.
+ *
+ * @since 1.0.0
+ */
 export interface ValidationResult {
   issues: ValidationIssue[];
   ok: boolean;
 }
 
+/**
+ * Data-source port the UI talks to for definitions and runs.
+ *
+ * @since 1.0.0
+ */
 export interface WorkflowGateway {
   // Mint a fresh draft flow (e.g. a skeleton with an empty Stage 1, or a POST of
   // an empty definition to the engine). Returns the created def so the caller

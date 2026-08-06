@@ -18,6 +18,11 @@ import {
   type WorkflowDef,
 } from "./workflowData";
 
+/**
+ * A reference token an author can drop into an expression/value field.
+ *
+ * @since 1.0.0
+ */
 export interface Pill {
   kind: PillKind;
   label: string;
@@ -25,10 +30,19 @@ export interface Pill {
   ref: string; // the token inserted, e.g. "record.priority" or "vars.priority"
 }
 
+/**
+ * Where a pill comes from: a record field, a node output, or a trigger input.
+ *
+ * @since 1.0.0
+ */
 export type PillKind = "field" | "output" | "trigger";
 
-// The pills a trigger contributes: the source record's fields + a couple of
-// trigger metadata inputs.
+/**
+ * The pills a trigger contributes: the source record's fields + a couple of
+ * trigger metadata inputs.
+ *
+ * @since 1.0.0
+ */
 export const triggerPills = (workflow: WorkflowDef): Pill[] => {
   const pills: Pill[] = [];
   const rec = workflow.trigger.recordType
@@ -60,8 +74,12 @@ export const triggerPills = (workflow: WorkflowDef): Pill[] => {
   return pills;
 };
 
-// The variable pills a single node PRODUCES (its outputs). Positional scope adds
-// these for downstream nodes on the same trail.
+/**
+ * The variable pills a single node PRODUCES (its outputs). Positional scope adds
+ * these for downstream nodes on the same trail.
+ *
+ * @since 1.0.0
+ */
 export const stepOutputPills = (step: Step): Pill[] => {
   const c = step.config;
   const mk = (name: string): Pill => ({
@@ -126,9 +144,13 @@ export const stepOutputPills = (step: Step): Pill[] => {
   }
 };
 
-// Compute the pills in scope for a target node id: trigger pills + the outputs
-// of every node that lies at or above it on its enclosing trail(s). Walks the
-// stage/step tree and accumulates outputs along the path to the target.
+/**
+ * Compute the pills in scope for a target node id: trigger pills + the outputs
+ * of every node that lies at or above it on its enclosing trail(s). Walks the
+ * stage/step tree and accumulates outputs along the path to the target.
+ *
+ * @since 1.0.0
+ */
 export const pillsInScopeFor = (
   workflow: WorkflowDef,
   targetId?: string,
@@ -169,11 +191,21 @@ export const pillsInScopeFor = (
 // verbs are legal. The palette flags illegal verbs; drag/insert reject them; the
 // path validator enforces the same rules.
 
+/**
+ * Whether a verb may be placed in a slot, with a reason when not.
+ *
+ * @since 1.0.0
+ */
 export interface Legality {
   ok: boolean;
   reason?: string;
 }
 
+/**
+ * The slot facts a legality check needs: scope, position, and stage context.
+ *
+ * @since 1.0.0
+ */
 export interface SlotContext {
   // Does the workflow contain an emit_signal anywhere (for wait_for_signal)?
   hasEmitSignal: boolean;
@@ -185,6 +217,11 @@ export interface SlotContext {
   scope: Pill[];
 }
 
+/**
+ * Decide whether a verb is legal in a given slot.
+ *
+ * @since 1.0.0
+ */
 export const verbLegalAt = (spec: VerbSpec, ctx: SlotContext): Legality => {
   // The pre-stage runs BEFORE the first work stage — it exists to shape the
   // trigger payload, so it accepts data-manipulation verbs only (the Data
@@ -209,7 +246,11 @@ export const verbLegalAt = (spec: VerbSpec, ctx: SlotContext): Legality => {
   return { ok: true };
 };
 
-// Does the workflow contain an emit_signal anywhere?
+/**
+ * Does the workflow contain an emit_signal anywhere?
+ *
+ * @since 1.0.0
+ */
 export const workflowHasEmitSignal = (workflow: WorkflowDef): boolean => {
   let has = false;
   const walk = (steps: Step[]): void => {
@@ -223,7 +264,11 @@ export const workflowHasEmitSignal = (workflow: WorkflowDef): boolean => {
   return has;
 };
 
-// Helper: which pill refs a step references in its config (for scope checks).
+/**
+ * Which pill refs a step references in its config (for scope checks).
+ *
+ * @since 1.0.0
+ */
 export const referencedPills = (step: Step): string[] => {
   const refs: string[] = [];
   const re = /\b(?:record|vars|trigger|item)\.[A-Za-z0-9_]+/g;
@@ -234,8 +279,12 @@ export const referencedPills = (step: Step): string[] => {
   return [...new Set(refs)];
 };
 
-// Convenience: find the stage a step id lives in (top level only — nodes in
-// lanes report their owning stage).
+/**
+ * Find the stage a step id lives in (top level only — nodes in lanes report
+ * their owning stage).
+ *
+ * @since 1.0.0
+ */
 export const stageOfStep = (
   workflow: WorkflowDef,
   stepId: string,
@@ -251,6 +300,11 @@ export const stageOfStep = (
   return workflow.stages.find((stage) => contains(stage.steps));
 };
 
+/**
+ * Whether a verb terminates its trail.
+ *
+ * @since 1.0.0
+ */
 export const isTerminalVerb = (type: VerbName): boolean =>
   TERMINAL_VERBS.has(type);
 
@@ -258,12 +312,22 @@ export const isTerminalVerb = (type: VerbName): boolean =>
 // The entry-point nodes a rejoining (merge) lane can target, with the data
 // contract each declares. Loops synthesise an implicit entry at their body head;
 // the pickable set here is the AUTHOR-PLACED `entry` verbs anywhere in the flow.
+/**
+ * An entry-point node a rejoining lane can target, with its declared contract.
+ *
+ * @since 1.0.0
+ */
 export interface EntryPoint {
   inputs: string[]; // declared input names (the contract)
   name: string;
   stepId: string;
 }
 
+/**
+ * The author-placed `entry` verbs anywhere in the flow, with their contracts.
+ *
+ * @since 1.0.0
+ */
 export const entryPoints = (workflow: WorkflowDef): EntryPoint[] => {
   const found: EntryPoint[] = [];
   const walk = (steps: Step[]): void => {
@@ -282,6 +346,11 @@ export const entryPoints = (workflow: WorkflowDef): EntryPoint[] => {
   return found;
 };
 
+/**
+ * Find an entry point by its step id.
+ *
+ * @since 1.0.0
+ */
 export const findEntryPoint = (
   workflow: WorkflowDef,
   entryId: string,

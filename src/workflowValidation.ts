@@ -268,6 +268,11 @@ const enumerateWorkflow = (workflow: WorkflowDef): Path[] => {
 };
 
 // --- VALIDATION -------------------------------------------------------------
+/**
+ * Run the structural, in-process checks over a definition and return the issues.
+ *
+ * @since 1.0.0
+ */
 export const validateWorkflow = (workflow: WorkflowDef): ValidationResult => {
   const issues: ValidationIssue[] = [];
 

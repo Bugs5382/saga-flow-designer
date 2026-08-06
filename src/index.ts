@@ -1,9 +1,14 @@
-// Package entry / public API surface.
-//
-// The dependency-free logic core of the Flow Designer: the workflow + run
-// domain model and verb catalog, the gateway seam interface, the flatten/expand
-// engine mapper, the live run-stream fold, pill-scope + placement helpers, and
-// structural validation. Pure TypeScript — no React, no transport.
+/**
+ * Package entry / public API surface.
+ *
+ * The dependency-free logic core of the Flow Designer: the workflow + run
+ * domain model and verb catalog, the gateway seam interface, the flatten/expand
+ * engine mapper, the live run-stream fold, pill-scope + placement helpers, and
+ * structural validation. Pure TypeScript — no React, no transport.
+ *
+ * @packageDocumentation
+ * @since 1.0.0
+ */
 
 // Workflow domain model, verb catalog, and (de)serialisation helpers.
 export * from "./workflowData";

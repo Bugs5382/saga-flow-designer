@@ -14,23 +14,27 @@
 // Each stage holds an ordered `steps` sequence (the step nodes).
 // The gateway seam is where a real flatten/expand mapper lives.
 
-// A branch lane inside a decision/switch step, or a child lane inside
-// parallel/foreach/while/try_catch. `caseLabel` is the human label (e.g. "TRUE"
-// / "P1"), `cond` a CEL-ish expression (empty = default/else).
-//
-// TERMINATION MODEL (control-flow redesign):
-//   Every lane DEFAULTS TO END (terminal). There is NO implicit fall-through or
-//   auto-rejoin — merging back is always an explicit choice, even for parallel.
-//   * `terminal` — undefined = use the owner-type default (laneDefaultsTerminal).
-//     A terminal lane truly ENDS on its own end-cap; control does not flow out
-//     of it into a sibling, a join, or the main flow.
-//   * `merge` — set on a NON-terminal decision/switch/parallel/join lane: the
-//     explicit sub-entry point it rejoins to + the data contract it supplies.
-//     Required whenever such a lane is non-terminal (validated).
-//   EXCEPTIONS (loops): a foreach/while body lane and a try_catch TRY lane
-//   default to REJOIN (loop back / continue) rather than end — see
-//   laneDefaultsTerminal / laneSemantics. A try_catch CATCH lane is ALWAYS
-//   terminal (forced, non-configurable).
+/**
+ * A branch lane inside a decision/switch step, or a child lane inside
+ * parallel/foreach/while/try_catch. `caseLabel` is the human label (e.g. "TRUE"
+ * / "P1"), `cond` a CEL-ish expression (empty = default/else).
+ *
+ * TERMINATION MODEL (control-flow redesign):
+ *   Every lane DEFAULTS TO END (terminal). There is NO implicit fall-through or
+ *   auto-rejoin — merging back is always an explicit choice, even for parallel.
+ *   * `terminal` — undefined = use the owner-type default (laneDefaultsTerminal).
+ *     A terminal lane truly ENDS on its own end-cap; control does not flow out
+ *     of it into a sibling, a join, or the main flow.
+ *   * `merge` — set on a NON-terminal decision/switch/parallel/join lane: the
+ *     explicit sub-entry point it rejoins to + the data contract it supplies.
+ *     Required whenever such a lane is non-terminal (validated).
+ *   EXCEPTIONS (loops): a foreach/while body lane and a try_catch TRY lane
+ *   default to REJOIN (loop back / continue) rather than end — see
+ *   laneDefaultsTerminal / laneSemantics. A try_catch CATCH lane is ALWAYS
+ *   terminal (forced, non-configurable).
+ *
+ * @since 1.0.0
+ */
 export interface Branch {
   caseLabel: string;
   cond?: string;
@@ -40,22 +44,36 @@ export interface Branch {
   terminal?: boolean;
 }
 
-// Where a rejoining (non-terminal) lane merges back to. A merge is ALWAYS
-// explicit — there is no implicit fall-through / auto-rejoin. It targets a
-// specific entry-point node (`entryId`, an `entry` verb's step id) and supplies
-// a data mapping fulfilling that entry's declared input contract:
-//   inputs[<entry-declared-name>] = <CEL / pill expression the lane provides>.
+/**
+ * Where a rejoining (non-terminal) lane merges back to. A merge is ALWAYS
+ * explicit — there is no implicit fall-through / auto-rejoin. It targets a
+ * specific entry-point node (`entryId`, an `entry` verb's step id) and supplies
+ * a data mapping fulfilling that entry's declared input contract:
+ *   inputs[<entry-declared-name>] = <CEL / pill expression the lane provides>.
+ *
+ * @since 1.0.0
+ */
 export interface MergeTarget {
   entryId: string;
   inputs: Record<string, string>;
 }
 
+/**
+ * A field of a record type, in scope as a pill under record.<name>.
+ *
+ * @since 1.0.0
+ */
 export interface RecordField {
   label: string;
   name: string;
   type: string;
 }
 
+/**
+ * An ordered section of a workflow holding a sequence of steps.
+ *
+ * @since 1.0.0
+ */
 export interface Stage {
   id: string;
   kind: StageKind;
@@ -63,11 +81,20 @@ export interface Stage {
   steps: Step[];
 }
 
+/**
+ * The kind of a stage: the pre-stage, a work stage, or the end-stage.
+ *
+ * @since 1.0.0
+ */
 export type StageKind = "end-stage" | "pre-stage" | "stage";
 
-// A single node. `config` is the per-verb inputs bag (maps to engine
-// Step.Inputs). decision/switch use `branches`; parallel/foreach/while/try_catch
-// use `children` (each child is a lane = its own step sequence).
+/**
+ * A single node. `config` is the per-verb inputs bag (maps to engine
+ * Step.Inputs). decision/switch use `branches`; parallel/foreach/while/try_catch
+ * use `children` (each child is a lane = its own step sequence).
+ *
+ * @since 1.0.0
+ */
 export interface Step {
   branches?: Branch[];
   children?: Branch[];
@@ -83,6 +110,11 @@ export interface Step {
   type: VerbName;
 }
 
+/**
+ * What starts a workflow: the trigger kind and its parameters.
+ *
+ * @since 1.0.0
+ */
 export interface Trigger {
   eventType?: string;
   fromState?: string;
@@ -94,9 +126,18 @@ export interface Trigger {
   toState?: string;
 }
 
+/**
+ * How a workflow is triggered.
+ *
+ * @since 1.0.0
+ */
 export type TriggerKind = "cron" | "event" | "manual" | "record";
 
-// A config field descriptor drives the RIGHT-hand node config form.
+/**
+ * A config field descriptor that drives the RIGHT-hand node config form.
+ *
+ * @since 1.0.0
+ */
 export interface VerbField {
   // For expression fields: insertable CEL example snippets shown under the
   // editor (click to insert) so it's obvious you can compute/calc here.
@@ -110,6 +151,11 @@ export interface VerbField {
   placeholder?: string;
 }
 
+/**
+ * The palette group a verb belongs to.
+ *
+ * @since 1.0.0
+ */
 export type VerbGroup =
   | "Actions"
   | "Boundary"
@@ -122,12 +168,16 @@ export type VerbGroup =
   | "Signals"
   | "Waits";
 
-// The verbs the engine can dispatch (engine/verbs/registry.go), plus three
-// first-class BOUNDARY verbs the designer places explicitly:
-//   - end   : normal successful completion of a trail (terminal).
-//   - cancel: cancel the saga — abort + compensation semantics (terminal).
-//   - entry : an entry point that declares a data contract; a rejoining lane
-//             (merge target) must target an entry and supply its declared inputs.
+/**
+ * The verbs the engine can dispatch (engine/verbs/registry.go), plus three
+ * first-class BOUNDARY verbs the designer places explicitly:
+ *   - end   : normal successful completion of a trail (terminal).
+ *   - cancel: cancel the saga — abort + compensation semantics (terminal).
+ *   - entry : an entry point that declares a data contract; a rejoining lane
+ *             (merge target) must target an entry and supply its declared inputs.
+ *
+ * @since 1.0.0
+ */
 export type VerbName =
   | "action"
   | "assert"
@@ -163,10 +213,19 @@ export type VerbName =
   | "webhook"
   | "while";
 
-// Where a verb comes from: a base go-saga verb, or a registered 3rd-party
-// extension contributed by a vendor plug-in.
+/**
+ * Where a verb comes from: a base go-saga verb, or a registered 3rd-party
+ * extension contributed by a vendor plug-in.
+ *
+ * @since 1.0.0
+ */
 export type VerbSource = "base" | "third_party";
 
+/**
+ * The catalog entry for a verb: palette metadata plus its config fields.
+ *
+ * @since 1.0.0
+ */
 export interface VerbSpec {
   // Catalog metadata surfaced in the palette ⓘ info dialog.
   description: string;
@@ -183,6 +242,11 @@ export interface VerbSpec {
   vendor?: string;
 }
 
+/**
+ * The authored workflow definition: stages, trigger, lifecycle, and metadata.
+ *
+ * @since 1.0.0
+ */
 export interface WorkflowDef {
   description?: string;
   // A disabled flow keeps its definition but never fires. Toggled at the
@@ -209,8 +273,20 @@ export interface WorkflowDef {
 // record fields are in scope as pills (record.<field>). A host build would pull
 // these from its record schema registry via the gateway.
 
+/**
+ * The publishing lifecycle status of a workflow.
+ *
+ * @since 1.0.0
+ */
 export type WorkflowStatus = "archived" | "draft" | "published";
 
+/**
+ * Example field lists per record type — the trigger's record type declares
+ * which record fields are in scope as pills (record.<field>). A host build
+ * would pull these from its record schema registry via the gateway.
+ *
+ * @since 1.0.0
+ */
 export const RECORD_TYPES: Record<
   string,
   { fields: RecordField[]; label: string }
@@ -263,9 +339,13 @@ export const RECORD_TYPES: Record<
 };
 
 // --- VERB CATALOG -----------------------------------------------------------
-// Data-driven so the LEFT palette + RIGHT config form + ⓘ info dialog render
-// from one source. Field sets approximate each verb's Inputs shape.
-
+/**
+ * The base verb catalog. Data-driven so the LEFT palette + RIGHT config form +
+ * ⓘ info dialog render from one source. Field sets approximate each verb's
+ * Inputs shape.
+ *
+ * @since 1.0.0
+ */
 export const VERB_CATALOG: VerbSpec[] = [
   // Boundary (entry / terminals) ---------------------------------------------
   // Grouped at the TOP: the endpoints of a trail. Entry declares a data
@@ -1091,9 +1171,13 @@ export const VERB_CATALOG: VerbSpec[] = [
 ];
 
 // --- 3RD-PARTY / EXTENSION CATALOG -----------------------------------------
-// Registered extension verbs contributed by vendor plug-ins. Same VerbSpec
-// shape; `source: "third_party"` + a vendor. All map onto the base `action`
-// dispatch at runtime, but appear as first-class verbs in the palette.
+/**
+ * Registered extension verbs contributed by vendor plug-ins. Same VerbSpec
+ * shape; `source: "third_party"` + a vendor. All map onto the base `action`
+ * dispatch at runtime, but appear as first-class verbs in the palette.
+ *
+ * @since 1.0.0
+ */
 export const THIRD_PARTY_CATALOG: VerbSpec[] = [
   {
     description:
@@ -1207,15 +1291,29 @@ export const THIRD_PARTY_CATALOG: VerbSpec[] = [
   },
 ];
 
-// The palette renders 3rd-party verbs by a synthetic key (name + vendor) since
-// several share the base `action`/`http_request` name.
+/**
+ * A synthetic palette key (name + vendor) for a 3rd-party verb, since several
+ * share the base `action`/`http_request` name.
+ *
+ * @since 1.0.0
+ */
 export const thirdPartyKey = (spec: VerbSpec): string =>
   `${spec.vendor ?? "ext"}::${spec.label}`;
 
+/**
+ * The base catalog indexed by verb name.
+ *
+ * @since 1.0.0
+ */
 export const VERB_BY_NAME: Record<VerbName, VerbSpec> = Object.fromEntries(
   VERB_CATALOG.map((verb) => [verb.name, verb]),
 ) as Record<VerbName, VerbSpec>;
 
+/**
+ * The order the palette lists verb groups.
+ *
+ * @since 1.0.0
+ */
 export const VERB_GROUP_ORDER: VerbGroup[] = [
   "Boundary",
   "Control",
@@ -1231,7 +1329,11 @@ export const VERB_GROUP_ORDER: VerbGroup[] = [
   "Ops",
 ];
 
-// Verbs whose canvas card renders a "pause / human" styling.
+/**
+ * Verbs whose canvas card renders a "pause / human" styling.
+ *
+ * @since 1.0.0
+ */
 export const PAUSE_VERBS = new Set<VerbName>([
   "collect_input",
   "manual_approval",
@@ -1241,10 +1343,19 @@ export const PAUSE_VERBS = new Set<VerbName>([
   "wait_until",
 ]);
 
-// Verbs that render labelled branch lanes side by side.
+/**
+ * Verbs that render labelled branch lanes side by side.
+ *
+ * @since 1.0.0
+ */
 export const BRANCH_VERBS = new Set<VerbName>(["decision", "switch"]);
-// Verbs that render fan-out child lanes (loops render their body as one lane;
-// map's body lane is optional).
+
+/**
+ * Verbs that render fan-out child lanes (loops render their body as one lane;
+ * map's body lane is optional).
+ *
+ * @since 1.0.0
+ */
 export const FANOUT_VERBS = new Set<VerbName>([
   "foreach",
   "map",
@@ -1252,15 +1363,30 @@ export const FANOUT_VERBS = new Set<VerbName>([
   "try_catch",
   "while",
 ]);
-// Verbs that terminate their trail (nothing may run after them on that trail).
-// `end` = normal completion; `cancel` = abort+compensate; `error` = raise.
+
+/**
+ * Verbs that terminate their trail (nothing may run after them on that trail).
+ * `end` = normal completion; `cancel` = abort+compensate; `error` = raise.
+ *
+ * @since 1.0.0
+ */
 export const TERMINAL_VERBS = new Set<VerbName>(["cancel", "end", "error"]);
-// Loop constructs whose body loops back to an entry node at the body head
-// (also where the canvas renders the teal loop-entry node). `map` iterates a
-// collection per-item like foreach, so it is a loop too (its per-item child
-// body is OPTIONAL — a plain map has no body).
+
+/**
+ * Loop constructs whose body loops back to an entry node at the body head
+ * (also where the canvas renders the teal loop-entry node). `map` iterates a
+ * collection per-item like foreach, so it is a loop too (its per-item child
+ * body is OPTIONAL — a plain map has no body).
+ *
+ * @since 1.0.0
+ */
 export const LOOP_VERBS = new Set<VerbName>(["foreach", "map", "while"]);
-// Verbs whose lanes can carry an explicit merge target (rejoin to a sub-entry).
+
+/**
+ * Verbs whose lanes can carry an explicit merge target (rejoin to a sub-entry).
+ *
+ * @since 1.0.0
+ */
 export const MERGEABLE_OWNERS = new Set<VerbName>([
   "collect_input",
   "decision",
@@ -1269,22 +1395,39 @@ export const MERGEABLE_OWNERS = new Set<VerbName>([
   "parallel",
   "switch",
 ]);
-// Default max iterations for a `while` loop when maxIterations is unset.
+
+/**
+ * Default max iterations for a `while` loop when maxIterations is unset.
+ *
+ * @since 1.0.0
+ */
 export const WHILE_DEFAULT_MAX_ITERATIONS = 50;
 
-// The role of a lane within its owner (used to force try/catch semantics).
+/**
+ * The role of a lane within its owner (used to force try/catch semantics).
+ *
+ * @since 1.0.0
+ */
 export type LaneRole = "branch" | "catch" | "try";
 
 // --- LANE SEMANTICS ---------------------------------------------------------
-// The termination semantics of ONE lane, given its owner verb + role.
-//   "end"        : terminal — renders an End cap; NO merge target.
-//   "merge"      : non-terminal — MUST name an explicit merge target (sub-entry).
-//   "loop-back"  : non-terminal — loops back to the construct's entry node
-//                  (foreach/while body, try_catch TRY). No merge target.
-//   "forced-end" : always terminal, non-configurable (try_catch CATCH).
+/**
+ * The termination semantics of ONE lane, given its owner verb + role.
+ *   "end"        : terminal — renders an End cap; NO merge target.
+ *   "merge"      : non-terminal — MUST name an explicit merge target (sub-entry).
+ *   "loop-back"  : non-terminal — loops back to the construct's entry node
+ *                  (foreach/while body, try_catch TRY). No merge target.
+ *   "forced-end" : always terminal, non-configurable (try_catch CATCH).
+ *
+ * @since 1.0.0
+ */
 export type LaneSemantics = "end" | "forced-end" | "loop-back" | "merge";
 
-// Determine a lane's role from the owner verb + its position.
+/**
+ * Determine a lane's role from the owner verb + its position.
+ *
+ * @since 1.0.0
+ */
 export const laneRoleFor = (
   ownerType: VerbName,
   laneIndex: number,
@@ -1293,11 +1436,15 @@ export const laneRoleFor = (
   return "branch";
 };
 
-// Whether a lane defaults to TERMINAL (end) when `terminal` is undefined.
-//   decision/switch/parallel/join lanes  → default END (true).
-//   foreach/while body                   → default REJOIN/loop-back (false).
-//   try_catch TRY                        → default REJOIN (false).
-//   try_catch CATCH                      → forced END (true).
+/**
+ * Whether a lane defaults to TERMINAL (end) when `terminal` is undefined.
+ *   decision/switch/parallel/join lanes  → default END (true).
+ *   foreach/while body                   → default REJOIN/loop-back (false).
+ *   try_catch TRY                        → default REJOIN (false).
+ *   try_catch CATCH                      → forced END (true).
+ *
+ * @since 1.0.0
+ */
 export const laneDefaultsTerminal = (
   ownerType: VerbName,
   role: LaneRole,
@@ -1307,8 +1454,12 @@ export const laneDefaultsTerminal = (
   return true;
 };
 
-// The EFFECTIVE terminal flag for a lane (owner-type default when unset; CATCH
-// is always terminal regardless of the stored flag).
+/**
+ * The EFFECTIVE terminal flag for a lane (owner-type default when unset; CATCH
+ * is always terminal regardless of the stored flag).
+ *
+ * @since 1.0.0
+ */
 export const laneIsTerminal = (
   ownerType: VerbName,
   role: LaneRole,
@@ -1318,7 +1469,11 @@ export const laneIsTerminal = (
   return branch.terminal ?? laneDefaultsTerminal(ownerType, role);
 };
 
-// The full semantics of a lane (drives canvas terminus + validation).
+/**
+ * The full semantics of a lane (drives canvas terminus + validation).
+ *
+ * @since 1.0.0
+ */
 export const laneSemantics = (
   ownerType: VerbName,
   role: LaneRole,
@@ -1332,20 +1487,33 @@ export const laneSemantics = (
   return "merge";
 };
 
-// Verbs that require a matching emit somewhere in the workflow.
+/**
+ * Verbs that require a matching emit somewhere in the workflow.
+ *
+ * @since 1.0.0
+ */
 export const SIGNAL_WAIT_VERBS = new Set<VerbName>(["wait_for_signal"]);
 
 // --- SET_VAR ASSIGNMENTS (one or many) --------------------------------------
-// set_var supports one OR many assignments. Rows are stored as a JSON string in
-// config.assignments; the legacy single {name,value} pair is still read for
-// back-compat. Empty rows (no name) are ignored for outputs/validation.
+/**
+ * One set_var assignment row. set_var supports one OR many assignments; rows are
+ * stored as a JSON string in config.assignments, with a legacy single
+ * {name,value} pair still read for back-compat. Empty rows (no name) are ignored
+ * for outputs/validation.
+ *
+ * @since 1.0.0
+ */
 export interface Assignment {
   name: string;
   value: string;
 }
 
-// Read the assignment rows for a set_var step, tolerating both the new
-// config.assignments JSON array AND the legacy single {name,value}.
+/**
+ * Read the assignment rows for a set_var step, tolerating both the new
+ * config.assignments JSON array AND the legacy single {name,value}.
+ *
+ * @since 1.0.0
+ */
 export const setVarAssignments = (step: Step): Assignment[] => {
   const raw = step.config.assignments;
   if (raw) {
@@ -1371,17 +1539,25 @@ export const setVarAssignments = (step: Step): Assignment[] => {
   return [];
 };
 
-// Serialize assignment rows back into the config.assignments JSON string.
+/**
+ * Serialize assignment rows back into the config.assignments JSON string.
+ *
+ * @since 1.0.0
+ */
 export const serializeAssignments = (rows: Assignment[]): string =>
   JSON.stringify(rows);
 
-// Who a human task is assigned to. `ref` meaning by kind:
-//   user   → a user directory id/handle
-//   group  → a user directory group id (the context-scoped unit; assignment
-//            groups are Groups)
-//   record → a record-relative path (e.g. record.assignment_group.manager)
-//   cel    → a raw CEL expression resolving to the eligible set
-// `filter` is an optional CEL condition narrowing the resolved set.
+/**
+ * Who a human task is assigned to. `ref` meaning by kind:
+ *   user   → a user directory id/handle
+ *   group  → a user directory group id (the context-scoped unit; assignment
+ *            groups are Groups)
+ *   record → a record-relative path (e.g. record.assignment_group.manager)
+ *   cel    → a raw CEL expression resolving to the eligible set
+ * `filter` is an optional CEL condition narrowing the resolved set.
+ *
+ * @since 1.0.0
+ */
 export interface AssignTarget {
   filter?: string;
   kind: AssignTargetKind;
@@ -1391,12 +1567,26 @@ export interface AssignTarget {
 // --- HUMAN-TASK CONFIG (manual_approval + collect_input) --------------------
 // Structured config is JSON-encoded into the string config map (the set_var
 // precedent). These types + (de)serializers are the single source of truth.
+/**
+ * How an assignment target is resolved.
+ *
+ * @since 1.0.0
+ */
 export type AssignTargetKind = "cel" | "group" | "record" | "user";
 
+/**
+ * The decision rule for a human approval gate.
+ *
+ * @since 1.0.0
+ */
 export type DecisionRule = "quorum" | "single" | "unanimous";
 
-// One pre-breach escalation step. Fires at afterPct (% of dueIn) OR afterAbs
-// (absolute offset like "24h"); notifies and/or reassigns to `target`.
+/**
+ * One pre-breach escalation step. Fires at afterPct (% of dueIn) OR afterAbs
+ * (absolute offset like "24h"); notifies and/or reassigns to `target`.
+ *
+ * @since 1.0.0
+ */
 export interface Escalation {
   action: "notify_reassign" | "notify" | "reassign";
   afterAbs?: string;
@@ -1413,29 +1603,56 @@ const parseJson = <T>(raw: string | undefined): T | undefined => {
   }
 };
 
-// Read a JSON-encoded AssignTarget from config[key] (e.g. "assignee").
+/**
+ * Read a JSON-encoded AssignTarget from config[key] (e.g. "assignee").
+ *
+ * @since 1.0.0
+ */
 export const readAssignTarget = (
   step: Step,
   key: string,
 ): AssignTarget | undefined => parseJson<AssignTarget>(step.config[key]);
 
+/**
+ * Serialize an AssignTarget to its JSON config string.
+ *
+ * @since 1.0.0
+ */
 export const writeAssignTarget = (target: AssignTarget): string =>
   JSON.stringify(target);
 
-// Read the JSON-encoded Escalation from config.escalation.
+/**
+ * Read the JSON-encoded Escalation from config.escalation.
+ *
+ * @since 1.0.0
+ */
 export const readEscalation = (step: Step): Escalation | undefined =>
   parseJson<Escalation>(step.config.escalation);
 
+/**
+ * Serialize an Escalation to its JSON config string.
+ *
+ * @since 1.0.0
+ */
 export const writeEscalation = (esc: Escalation): string => JSON.stringify(esc);
 
 // --- INLINE FIELDS (collect_input) ------------------------------------------
-// A one-off inline field for a collect_input with no pre-authored form.
+/**
+ * A one-off inline field for a collect_input with no pre-authored form.
+ *
+ * @since 1.0.0
+ */
 export interface InlineField {
   label?: string;
   name: string;
   type: string; // "text" | "number" | "date" | "bool" | "select"
 }
 
+/**
+ * Read the JSON-encoded inline fields for a collect_input step.
+ *
+ * @since 1.0.0
+ */
 export const readInlineFields = (step: Step): InlineField[] => {
   const parsed = parseJson<unknown>(step.config.inlineFields);
   if (!Array.isArray(parsed)) return [];
@@ -1450,12 +1667,21 @@ export const readInlineFields = (step: Step): InlineField[] => {
     }));
 };
 
+/**
+ * Serialize inline fields to their JSON config string.
+ *
+ * @since 1.0.0
+ */
 export const writeInlineFields = (rows: InlineField[]): string =>
   JSON.stringify(rows);
 
-// The ref strings a human-task step produces as variable outputs. Used by both
-// workflowScope.stepOutputPills and workflowValidation.stepOutputs so the two
-// can never drift apart.
+/**
+ * The ref strings a human-task step produces as variable outputs. Used by both
+ * workflowScope.stepOutputPills and workflowValidation.stepOutputs so the two
+ * can never drift apart.
+ *
+ * @since 1.0.0
+ */
 export const humanTaskOutputRefs = (step: Step): string[] => {
   if (step.type === "manual_approval") {
     return [
@@ -1478,8 +1704,12 @@ export const humanTaskOutputRefs = (step: Step): string[] => {
 };
 
 // --- WAIT DURATION COMBO ----------------------------------------------------
-// A structured duration authored as year/month/week/day/hour/min/sec fields and
-// composed into an ISO-8601 duration string. Capped at 365 days total.
+/**
+ * A structured duration authored as year/month/week/day/hour/min/sec fields and
+ * composed into an ISO-8601 duration string. Capped at 365 days total.
+ *
+ * @since 1.0.0
+ */
 export interface DurationParts {
   days: number;
   hours: number;
@@ -1490,6 +1720,11 @@ export interface DurationParts {
   years: number;
 }
 
+/**
+ * An all-zero DurationParts.
+ *
+ * @since 1.0.0
+ */
 export const EMPTY_DURATION: DurationParts = {
   days: 0,
   hours: 0,
@@ -1500,8 +1735,12 @@ export const EMPTY_DURATION: DurationParts = {
   years: 0,
 };
 
-// The ordered fields of the duration combo (key + label + max), used to render
-// the number inputs. `years` maxes at 1 and total is capped at 365 days.
+/**
+ * The ordered fields of the duration combo (key + label + max), used to render
+ * the number inputs. `years` maxes at 1 and total is capped at 365 days.
+ *
+ * @since 1.0.0
+ */
 export const DURATION_FIELDS: {
   key: keyof DurationParts;
   label: string;
@@ -1527,21 +1766,45 @@ const SECONDS_PER: Record<keyof DurationParts, number> = {
   years: 365 * 86_400,
 };
 
+/**
+ * The maximum wait duration, in days.
+ *
+ * @since 1.0.0
+ */
 export const MAX_DURATION_DAYS = 365;
+
+/**
+ * The maximum wait duration, in seconds.
+ *
+ * @since 1.0.0
+ */
 export const MAX_DURATION_SECONDS = MAX_DURATION_DAYS * 86_400;
 
-// Total (approximate) seconds a DurationParts represents — for the cap check.
+/**
+ * Total (approximate) seconds a DurationParts represents — for the cap check.
+ *
+ * @since 1.0.0
+ */
 export const durationTotalSeconds = (parts: DurationParts): number =>
   (Object.keys(SECONDS_PER) as (keyof DurationParts)[]).reduce(
     (sum, key) => sum + (parts[key] || 0) * SECONDS_PER[key],
     0,
   );
 
+/**
+ * Whether a DurationParts exceeds the 365-day cap.
+ *
+ * @since 1.0.0
+ */
 export const durationExceedsCap = (parts: DurationParts): boolean =>
   durationTotalSeconds(parts) > MAX_DURATION_SECONDS;
 
-// Compose the parts into an ISO-8601 duration string (e.g. P1Y2M3DT4H5M6S).
-// Returns "" for an all-zero duration.
+/**
+ * Compose the parts into an ISO-8601 duration string (e.g. P1Y2M3DT4H5M6S).
+ * Returns "" for an all-zero duration.
+ *
+ * @since 1.0.0
+ */
 export const composeIsoDuration = (parts: DurationParts): string => {
   const datePart = `${parts.years ? `${parts.years}Y` : ""}${parts.months ? `${parts.months}M` : ""}${parts.weeks ? `${parts.weeks}W` : ""}${parts.days ? `${parts.days}D` : ""}`;
   const timePart = `${parts.hours ? `${parts.hours}H` : ""}${parts.minutes ? `${parts.minutes}M` : ""}${parts.seconds ? `${parts.seconds}S` : ""}`;
@@ -1549,8 +1812,12 @@ export const composeIsoDuration = (parts: DurationParts): string => {
   return `P${datePart}${timePart ? `T${timePart}` : ""}`;
 };
 
-// Parse a stored duration back into parts. Reads the structured per-unit config
-// keys the panel writes (duration_years, …); falls back to all-zero.
+/**
+ * Parse a stored duration back into parts. Reads the structured per-unit config
+ * keys the panel writes (duration_years, …); falls back to all-zero.
+ *
+ * @since 1.0.0
+ */
 export const parseDurationParts = (
   config: Record<string, string>,
 ): DurationParts => ({
@@ -1563,14 +1830,22 @@ export const parseDurationParts = (
   years: Number(config.duration_years) || 0,
 });
 
-// Parse an entry verb's declared input-contract names (comma-separated).
+/**
+ * Parse an entry verb's declared input-contract names (comma-separated).
+ *
+ * @since 1.0.0
+ */
 export const entryDeclaredInputs = (step: Step): string[] =>
   (step.config.inputs ?? "")
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean);
 
-// A one-line config summary shown on each canvas card.
+/**
+ * A one-line config summary shown on each canvas card.
+ *
+ * @since 1.0.0
+ */
 export const stepSummary = (step: Step): string => {
   const c = step.config;
   switch (step.type) {
@@ -1654,6 +1929,11 @@ export const stepSummary = (step: Step): string => {
   }
 };
 
+/**
+ * A one-line summary of a trigger.
+ *
+ * @since 1.0.0
+ */
 export const triggerSummary = (trigger: Trigger): string => {
   switch (trigger.kind) {
     case "cron": {
