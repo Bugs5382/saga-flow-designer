@@ -1,0 +1,62 @@
+{
+  "name": "@bugs5382/saga-flow-designer",
+  "version": "0.0.0",
+  "description": "React components and utilities for visualising and editing saga-orchestration workflows and runs.",
+  "license": "Apache-2.0",
+  "author": "Bugs5382",
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bugs5382/saga-flow-designer.git"
+  },
+  "homepage": "https://github.com/Bugs5382/saga-flow-designer#readme",
+  "bugs": {
+    "url": "https://github.com/Bugs5382/saga-flow-designer/issues"
+  },
+  "keywords": [
+    "react",
+    "workflow",
+    "saga",
+    "flow",
+    "react-flow"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "lint": "eslint ."
+  },
+  "peerDependencies": {
+    "@xyflow/react": ">=12",
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "eslint": "^9.17.0",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.19.0",
+    "vitest": "^2.1.8"
+  }
+}
