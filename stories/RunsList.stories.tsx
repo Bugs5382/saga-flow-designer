@@ -15,10 +15,10 @@
  */
 import type { Meta, StoryObj } from "@storybook/react";
 
-import type { WorkflowDefinition } from "../workflowData";
+import type { WorkflowDefinition } from "../src/workflowData";
 
-import { exampleRuns, exampleWorkflows } from "../mock";
-import { RunsList } from "./RunsList";
+import { RunsList } from "../src/components/RunsList";
+import { exampleRuns, exampleWorkflows } from "../src/mock";
 
 // The global execution-history table, fed directly from the example seed. The
 // mixed statuses (succeeded / running / paused / failed) show off the status

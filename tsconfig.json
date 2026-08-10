@@ -18,6 +18,6 @@
     "declaration": true,
     "noEmit": true
   },
-  "include": ["src"],
+  "include": ["src", "tests", "stories"],
   "exclude": ["dist", "node_modules"]
 }

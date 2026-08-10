@@ -24,7 +24,7 @@ import "@xyflow/react/dist/style.css";
 import "../src/styles/theme.css";
 import "./tailwind.css";
 // The alternate brand's `--sfd-*` overrides, shared with the Theming story.
-import { altBrandTokens } from "../src/components/Theming.stories";
+import { altBrandTokens } from "../stories/Theming.stories";
 
 const preview: Preview = {
   decorators: [

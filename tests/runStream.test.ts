@@ -15,7 +15,7 @@
  */
 import { describe, expect, it } from "vitest";
 
-import { stepRunsById } from "./runData";
+import { stepRunsById } from "../src/runData";
 import {
   foldFrames,
   mapEventKind,
@@ -24,7 +24,7 @@ import {
   seedRun,
   type StepResolver,
   type StreamFrame,
-} from "./runStream";
+} from "../src/runStream";
 
 // The fold is the correctness gate: a scripted engine frame sequence must fold
 // into the exact Run the UI renders — status transitions, appended events,

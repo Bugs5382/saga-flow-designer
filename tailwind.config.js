@@ -26,7 +26,12 @@
 import sfdPreset from "./tailwind.preset";
 
 export default {
-  content: ["./src/**/*.{ts,tsx}", "./.storybook/**/*.{ts,tsx}", "./demo/**/*.{html,ts,tsx}"],
+  content: [
+    "./src/**/*.{ts,tsx}",
+    "./stories/**/*.{ts,tsx}",
+    "./.storybook/**/*.{ts,tsx}",
+    "./demo/**/*.{html,ts,tsx}",
+  ],
   plugins: [],
   presets: [sfdPreset],
 };

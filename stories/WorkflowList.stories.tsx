@@ -15,8 +15,8 @@
  */
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { exampleWorkflows } from "../mock";
-import { WorkflowList } from "./WorkflowList";
+import { WorkflowList } from "../src/components/WorkflowList";
+import { exampleWorkflows } from "../src/mock";
 
 // The definitions table with its per-row lifecycle menu. Wiring the lifecycle
 // callbacks (create / delete / restore / enable) surfaces the full menu; the

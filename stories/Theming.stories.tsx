@@ -16,9 +16,9 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import type { CSSProperties, ReactNode } from "react";
 
-import { createMockGateway, exampleWorkflows } from "../mock";
-import { FlowDesigner } from "./FlowDesigner";
-import { WorkflowList } from "./WorkflowList";
+import { FlowDesigner } from "../src/components/FlowDesigner";
+import { WorkflowList } from "../src/components/WorkflowList";
+import { createMockGateway, exampleWorkflows } from "../src/mock";
 
 // Proof that the components are restyled purely by overriding the package's
 // `--sfd-*` CSS variables — the same knob a consumer turns. The default look
