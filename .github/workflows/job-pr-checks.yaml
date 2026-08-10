@@ -46,7 +46,7 @@ jobs:
             # Exception: the verb catalog carries emoji glyphs as functional
             # palette-icon DATA (rendered in the designer), not decoration.
             case "$f" in
-              .github/*|*.md|NOTES.txt|*/NOTES.txt|website/*) : ;;
+              .github/*|*.md|*.mdx|NOTES.txt|*/NOTES.txt|website/*) : ;;
               src/workflowData.ts|*/workflowData.ts) : ;;
               *) e="$(gov_find_emoji < "$f")"; [ -n "$e" ] && { echo "emoji not allowed in $f:"; echo "$e"; fail=1; } ;;
             esac
