@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+
+# Docusaurus build output + cache
+build/
+.docusaurus/
+
+# Generated TypeDoc API reference (regenerated on every build)
+docs/api/
+
+# Misc
+.DS_Store
+*.log
+
+# Lockfile omitted (CI uses `npm install`); its random hashes tripped the
+# public-repo hygiene scan. Regenerated on install.
+package-lock.json
