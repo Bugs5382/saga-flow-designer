@@ -1,0 +1,55 @@
+name: Release and Publish
+# Fires when the maintainer publishes a stable GitHub Release (which also creates
+# the vX.Y.Z tag). By then the Release Manager (job-version-bump.yaml) has bumped
+# package.json and written CHANGELOG.md on main, so this workflow just rebuilds
+# the package and publishes it to the public npm registry. Stable-only:
+# prereleases are not shipped, and there is no manual-dispatch path that could
+# publish off a release.
+on:
+  release:
+    types:
+      - released
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  Publish:
+    name: 🚀 Publish to npm
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          registry-url: 'https://registry.npmjs.org'
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      # Scoped package -> --access public. --provenance signs the published
+      # tarball with the GitHub OIDC token (needs id-token: write). Idempotent:
+      # skip if this exact version is already on the registry (retry-safe).
+      - name: Publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          NAME=$(node -p "require('./package.json').name")
+          if npm view "${NAME}@${VERSION}" version >/dev/null 2>&1; then
+            echo "${NAME}@${VERSION} already published -- skipping."
+          else
+            npm publish --provenance --access public
+          fi
