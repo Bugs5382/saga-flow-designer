@@ -5,7 +5,7 @@ This package is engine-agnostic, but it pairs naturally with the
 which exposes exactly the HTTP surface the components need. You implement a
 `WorkflowGateway` over go-saga's REST/WebSocket API and inject it.
 
-A complete, runnable adapter lives in [`demo/httpGateway.ts`](./demo/httpGateway.ts).
+A complete, runnable adapter lives in [`demo/httpGateway.ts`](../examples/httpGateway.ts).
 
 ---
 
@@ -113,7 +113,7 @@ export const createGoSagaGateway = (base: string): WorkflowGateway => ({
   `GET /api/v1/sagas/{id}`.
 - **Live** — `GET /api/v1/sagas/{run_id}/stream` is a WebSocket emitting
   `{type:"run"|"event", data}` frames; fold them with `seedRun` / `foldFrame`
-  (see [`demo/httpGateway.ts`](./demo/httpGateway.ts)).
+  (see [`demo/httpGateway.ts`](../examples/httpGateway.ts)).
 
 ## 3. Mount it
 
@@ -127,7 +127,7 @@ const gateway = createGoSagaGateway("/gs"); // proxied to the engine (avoid CORS
 
 ## 4. Try it — the bundled demo
 
-The `demo/` app can run against a live go-saga engine instead of the mock:
+The `examples/` app can run against a live go-saga engine instead of the mock:
 
 ```sh
 VITE_GS_BASE=/gs VITE_GS_TARGET=http://localhost:8080 npm run demo

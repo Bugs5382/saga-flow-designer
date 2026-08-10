@@ -75,7 +75,7 @@ const gateway: WorkflowGateway = {
   app shell + router (the package provides no shell).
 - **[USING_WITH_GO_SAGA.md](./USING_WITH_GO_SAGA.md)** — run a real
   [go-saga](https://github.com/Bugs5382/go-saga-orchestration) engine standalone
-  and adapt it, with the runnable example in [`demo/httpGateway.ts`](./demo/httpGateway.ts).
+  and adapt it, with the runnable example in [`examples/httpGateway.ts`](./examples/httpGateway.ts).
 - Storybook **Guides → Gateway Contract** — the interface, live.
 
 ## 🎨 Theming
@@ -116,7 +116,7 @@ npm run demo             # standalone FlowDesigner (mock; or VITE_GS_BASE for go
 ```
 
 Source lives in `src/`, tests in `tests/`, Storybook stories + MDX guides in
-`stories/`, and the standalone demo in `demo/`. License headers are managed with
+`stories/`, and the standalone demo in `examples/`. License headers are managed with
 [golic](https://github.com/Bugs5382/golic) via [go-task](https://taskfile.dev):
 `task license` verifies, `task license:fix` applies.
 

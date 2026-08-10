@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// Tailwind config for the demo/storybook tooling ONLY. The library itself ships
-// no compiled CSS; this generates the utilities the components use when they are
-// rendered in Storybook or the standalone demo.
+// Tailwind config for the Storybook + examples tooling ONLY. The library itself
+// ships no compiled CSS; this generates the utilities the components use when
+// they are rendered in Storybook or the standalone example app.
 //
 // It applies the package's OWN shipped preset (`tailwind.preset.ts`), so every
 // palette colour the components use — the `coral` accent plus the neutral/status
@@ -30,7 +30,7 @@ export default {
     "./src/**/*.{ts,tsx}",
     "./stories/**/*.{ts,tsx}",
     "./.storybook/**/*.{ts,tsx}",
-    "./demo/**/*.{html,ts,tsx}",
+    "./examples/**/*.{html,ts,tsx}",
   ],
   plugins: [],
   presets: [sfdPreset],

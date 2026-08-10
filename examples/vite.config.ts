@@ -22,7 +22,7 @@ import { defineConfig } from "vite";
 export default defineConfig({
   build: { outDir: "dist" },
   plugins: [react()],
-  root: "demo",
+  root: "examples",
   // When running against a real go-saga engine (VITE_GS_BASE=/gs), proxy /gs to
   // the engine's cmd/api so the browser calls stay same-origin (no CORS). Point
   // at a different engine with VITE_GS_TARGET.

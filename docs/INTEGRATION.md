@@ -135,4 +135,4 @@ wrapper class) — no dependency on your design system, no fork:
 ```
 
 See the Storybook **Guides → Theming** page for a live brand-swap, and
-`src/styles/theme.css` for the full variable list.
+`../src/styles/theme.css` for the full variable list.

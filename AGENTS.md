@@ -27,8 +27,8 @@ Consumers implement `WorkflowGateway` and mount the components. Respect these:
   design system.
 - `createMockGateway()` is for demos/tests only — never a real backend.
 
-See `USING_WITH_GO_SAGA.md` and `INTEGRATION.md` for worked integrations, and `demo/httpGateway.ts`
-for a runnable real-engine adapter.
+See `docs/USING_WITH_GO_SAGA.md` and `docs/INTEGRATION.md` for worked integrations, and
+`examples/httpGateway.ts` for a runnable real-engine adapter.
 
 ## Layout
 
@@ -38,7 +38,7 @@ for a runnable real-engine adapter.
 - `src/styles/theme.css` - default `--sfd-*` token values.
 - `tests/` - `vitest` unit tests + fixtures.
 - `stories/` - Storybook stories (`*.stories.tsx`) + MDX guides (`*.mdx`).
-- `demo/` - standalone Vite demo (mock, or a real go-saga engine via `VITE_GS_BASE`).
+- `examples/` - standalone Vite demo (mock, or a real go-saga engine via `VITE_GS_BASE`).
 - `tailwind.preset.ts` - the shipped Tailwind preset (colour names -> CSS variables).
 
 ## Build, test, lint
