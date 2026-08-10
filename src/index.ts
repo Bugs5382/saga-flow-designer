@@ -31,6 +31,10 @@
 // The React component layer: embeddable, props-driven Flow Designer surfaces.
 export * from "./components";
 
+// In-memory mock gateway + generic example seed. Ships as a public export so
+// consumers can spin up the designer instantly with no host or backend.
+export * from "./mock";
+
 // Run / execution-history domain model + formatting helpers.
 export * from "./runData";
 
