@@ -39,39 +39,37 @@ import { RunsList, RunDetail } from "@bugs5382/saga-flow-designer";
 `RunDetail` subscribes to `gateway.subscribeRun(runId, …)` for live updates and
 unsubscribes on unmount — no polling.
 
-## 🎨 Styling (current)
+## 🎨 Styling
 
-The components use Tailwind utility classes and expect one custom palette color,
-`coral`. In your Tailwind config:
+The components use Tailwind utility classes, and every colour they use resolves
+to a `--sfd-*` CSS variable for which the package ships its own default. Two
+files ship for this: `theme.css` (the default variable values) and a Tailwind
+preset (maps the colour names to those variables).
+
+Import the default tokens and the React Flow stylesheet once in your app entry:
+
+```ts
+import "@bugs5382/saga-flow-designer/theme.css";
+import "@xyflow/react/dist/style.css";
+```
+
+Add the preset to your Tailwind config and include the package in the content
+scan:
 
 ```js
 // tailwind.config.js
-export default {
+module.exports = {
+  presets: [require("@bugs5382/saga-flow-designer/tailwind-preset")],
   content: [
     "./src/**/*.{ts,tsx}",
     "./node_modules/@bugs5382/saga-flow-designer/dist/**/*.{js,cjs}",
   ],
-  theme: {
-    extend: {
-      colors: {
-        coral: {
-          /* 50–700 — your accent scale */
-        },
-      },
-    },
-  },
 };
 ```
 
-Also import the React Flow stylesheet once in your app:
-
-```ts
-import "@xyflow/react/dist/style.css";
-```
-
-> A swappable CSS-variable token layer is planned so you can restyle without
-> touching component internals. Until then, the `coral` color above is the one
-> value you define; everything else uses Tailwind defaults.
+That renders the shipped default palette. To rebrand, override any `--sfd-*`
+variables — the package depends on no external design system. See
+**Guides → Theming** for the full guide.
 
 ## 🔌 Connecting a real backend
 

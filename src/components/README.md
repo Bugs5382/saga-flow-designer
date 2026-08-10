@@ -29,14 +29,24 @@ routing and layout around them.
 
 ## Styling contract (Tailwind — read this)
 
-The components are styled with **Tailwind CSS utility classes**. For this slice
-the package **does not ship its own compiled CSS**; a consuming app is expected
-to run Tailwind and include these files in its `content` scan so the utilities
-are generated, for example:
+The components are styled with **Tailwind CSS utility classes**, and every colour
+they use resolves to a `--sfd-*` CSS variable for which the package ships its own
+default value — so the palette is swappable without touching the components and
+depends on no external design system. Two files ship for this:
+
+- `@bugs5382/saga-flow-designer/theme.css` — a `:root` block with the default
+  value of every `--sfd-*` variable.
+- `@bugs5382/saga-flow-designer/tailwind-preset` — a Tailwind preset mapping each
+  colour name (`slate`, `coral`, `teal`, `indigo`, …) to its variable in channel
+  form, so opacity modifiers keep working.
+
+A consuming app imports `theme.css` once, adds the preset, and includes the
+package in its Tailwind `content` scan so the utilities are generated:
 
 ```js
 // tailwind.config.js
-export default {
+module.exports = {
+  presets: [require("@bugs5382/saga-flow-designer/tailwind-preset")],
   content: [
     "./src/**/*.{ts,tsx}",
     "./node_modules/@bugs5382/saga-flow-designer/dist/**/*.{js,cjs}",
@@ -44,11 +54,9 @@ export default {
 };
 ```
 
-Some utilities reference project-defined palette tokens (`coral`, `teal`,
-`slate`, `indigo`, …). `slate`/`indigo`/`emerald`/`rose`/`amber`/`sky`/`zinc`
-are Tailwind defaults; **`coral` is a custom colour** the consumer must define in
-their Tailwind theme (any accent colour works). A shipped-CSS / design-token
-strategy that removes the Tailwind assumption is a planned follow-up.
+To rebrand, override any `--sfd-*` variables (globally or scoped to a subtree).
+Any variable left alone keeps the package default. See the **Guides → Theming**
+Storybook page for the full guide and a live default-vs-alternate demo.
 
 The React Flow canvas additionally pulls in `@xyflow/react/dist/style.css`
 (imported by `FlowCanvasRF`), so consumers must be able to import CSS from

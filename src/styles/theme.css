@@ -1,0 +1,106 @@
+/*
+ * saga-flow-designer default theme tokens.
+ *
+ * Every palette colour the components use resolves to one of these CSS
+ * variables (see the shipped Tailwind preset, `tailwind.preset.ts`). The values
+ * below are the package's OWN defaults and depend on no external brand: a host
+ * restyles the components purely by overriding the `--sfd-*` variables it cares
+ * about, either globally on `:root` or scoped to a subtree.
+ *
+ * Each value is the colour's R G B channels, space-separated (no `rgb(...)`
+ * wrapper), so the preset can compose them with Tailwind opacity modifiers as
+ * `rgb(var(--sfd-<name>) / <alpha-value>)`. The defaults equal the exact colours
+ * the components shipped with before tokenisation, so the default look is
+ * unchanged: the neutral/accent scales are Tailwind's stock palette and `coral`
+ * is the package's original custom accent scale.
+ *
+ * Import once in your app:  import "@bugs5382/saga-flow-designer/theme.css";
+ */
+:root {
+  /* Slate — primary neutral (text, surfaces, borders). */
+  --sfd-slate-50: 248 250 252;
+  --sfd-slate-100: 241 245 249;
+  --sfd-slate-200: 226 232 240;
+  --sfd-slate-300: 203 213 225;
+  --sfd-slate-400: 148 163 184;
+  --sfd-slate-500: 100 116 139;
+  --sfd-slate-600: 71 85 105;
+  --sfd-slate-700: 51 65 85;
+  --sfd-slate-800: 30 41 59;
+  --sfd-slate-900: 15 23 42;
+
+  /* Zinc — secondary neutral (muted chrome). */
+  --sfd-zinc-100: 244 244 245;
+  --sfd-zinc-200: 228 228 231;
+  --sfd-zinc-300: 212 212 216;
+  --sfd-zinc-400: 161 161 170;
+  --sfd-zinc-500: 113 113 122;
+
+  /* Coral — primary accent (the package's own custom scale). */
+  --sfd-coral-50: 255 245 242;
+  --sfd-coral-100: 255 230 223;
+  --sfd-coral-200: 255 201 186;
+  --sfd-coral-300: 255 164 140;
+  --sfd-coral-400: 255 122 87;
+  --sfd-coral-500: 255 86 48;
+  --sfd-coral-600: 237 67 34;
+  --sfd-coral-700: 196 50 26;
+
+  /* Teal — merge / branch accents. */
+  --sfd-teal-50: 240 253 250;
+  --sfd-teal-100: 204 251 241;
+  --sfd-teal-200: 153 246 228;
+  --sfd-teal-300: 94 234 212;
+  --sfd-teal-400: 45 212 191;
+  --sfd-teal-500: 20 184 166;
+  --sfd-teal-600: 13 148 136;
+  --sfd-teal-700: 15 118 110;
+  --sfd-teal-800: 17 94 89;
+
+  /* Emerald — success / completed status. */
+  --sfd-emerald-50: 236 253 245;
+  --sfd-emerald-100: 209 250 229;
+  --sfd-emerald-200: 167 243 208;
+  --sfd-emerald-300: 110 231 183;
+  --sfd-emerald-400: 52 211 153;
+  --sfd-emerald-500: 16 185 129;
+  --sfd-emerald-600: 5 150 105;
+  --sfd-emerald-700: 4 120 87;
+
+  /* Rose — error / failed status. */
+  --sfd-rose-50: 255 241 242;
+  --sfd-rose-100: 255 228 230;
+  --sfd-rose-200: 254 205 211;
+  --sfd-rose-300: 253 164 175;
+  --sfd-rose-400: 251 113 133;
+  --sfd-rose-500: 244 63 94;
+  --sfd-rose-600: 225 29 72;
+  --sfd-rose-700: 190 18 60;
+
+  /* Amber — warning / running status. */
+  --sfd-amber-50: 255 251 235;
+  --sfd-amber-100: 254 243 199;
+  --sfd-amber-200: 253 230 138;
+  --sfd-amber-300: 252 211 77;
+  --sfd-amber-400: 251 191 36;
+  --sfd-amber-500: 245 158 11;
+  --sfd-amber-600: 217 119 6;
+  --sfd-amber-700: 180 83 9;
+  --sfd-amber-800: 146 64 14;
+
+  /* Sky — informational accents. */
+  --sfd-sky-100: 224 242 254;
+  --sfd-sky-300: 125 211 252;
+  --sfd-sky-500: 14 165 233;
+  --sfd-sky-600: 2 132 199;
+  --sfd-sky-700: 3 105 161;
+
+  /* Indigo — secondary accent. */
+  --sfd-indigo-50: 238 242 255;
+  --sfd-indigo-200: 199 210 254;
+  --sfd-indigo-300: 165 180 252;
+  --sfd-indigo-400: 129 140 248;
+  --sfd-indigo-500: 99 102 241;
+  --sfd-indigo-600: 79 70 229;
+  --sfd-indigo-700: 67 56 202;
+}

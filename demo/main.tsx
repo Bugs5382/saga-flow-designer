@@ -18,6 +18,8 @@ import { createRoot } from "react-dom/client";
 // The React Flow canvas stylesheet + the Tailwind utilities the components use.
 import "@xyflow/react/dist/style.css";
 
+// The package's own default theme tokens (the `--sfd-*` CSS variables).
+import "../src/styles/theme.css";
 import "./index.css";
 import { createMockGateway, FlowDesigner } from "../src";
 

@@ -45,9 +45,10 @@ npm install react react-dom @xyflow/react
 ## 🎨 Theming
 
 The components ship their **own** default palette (independent of any brand).
-Styling uses Tailwind utilities today; see **Guides → Getting Started** for the
-current setup. A swappable design-token layer is on the roadmap so a host can
-restyle purely by overriding CSS variables.
+Every colour resolves to a `--sfd-*` CSS variable with a shipped default, so a
+host restyles purely by overriding those variables — no dependency on the host's
+design system. See **Guides → Theming** for the full guide and
+**Guides → Getting Started** for setup.
 
 Start with **Guides → Getting Started**, then wire your backend via
 **Guides → Gateway Contract**.
