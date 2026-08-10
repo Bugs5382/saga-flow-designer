@@ -106,6 +106,9 @@ const ThemeScope = ({
 );
 
 const meta: Meta = {
+  // altBrandTokens is a shared token map reused by the preview toolbar, not a
+  // story; keep Storybook from rendering it as one.
+  excludeStories: ["altBrandTokens"],
   parameters: { layout: "fullscreen" },
   // The theme swap is the subject; a props table adds nothing here.
   tags: ["!autodocs"],
