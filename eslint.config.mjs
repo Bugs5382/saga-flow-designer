@@ -16,7 +16,7 @@
 import { createESLintConfig } from "@the-rabbit-hole/eslint-config";
 
 export default [
-  { ignores: ["dist/**", "coverage/**", "docs/**", "node_modules/**"] },
+  { ignores: ["dist/**", "coverage/**", "docs/**", "node_modules/**", "website/**"] },
   ...createESLintConfig({
     rules: {
       // The canonical Apache-2.0 license header carried by every source file
