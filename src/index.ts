@@ -16,14 +16,20 @@
 /**
  * Package entry / public API surface.
  *
- * The dependency-free logic core of the Flow Designer: the workflow + run
+ * Two layers ship from here. The dependency-free logic core: the workflow + run
  * domain model and verb catalog, the gateway seam interface, the flatten/expand
  * engine mapper, the live run-stream fold, pill-scope + placement helpers, and
- * structural validation. Pure TypeScript — no React, no transport.
+ * structural validation (pure TypeScript — no transport). And the React
+ * component layer (`./components`): embeddable, props-driven Flow Designer
+ * surfaces that render the model, with `react`, `react-dom`, and `@xyflow/react`
+ * as peer dependencies.
  *
  * @packageDocumentation
  * @since 1.0.0
  */
+
+// The React component layer: embeddable, props-driven Flow Designer surfaces.
+export * from "./components";
 
 // Run / execution-history domain model + formatting helpers.
 export * from "./runData";

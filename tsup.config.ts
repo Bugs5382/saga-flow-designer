@@ -19,7 +19,10 @@ export default defineConfig({
   clean: true,
   dts: true,
   entry: ["src/index.ts"],
-  external: ["react", "react-dom", "@xyflow/react"],
+  // Keep peer deps external (never bundle them); the trailing regex also keeps
+  // subpath imports external — notably `@xyflow/react/dist/style.css`, so the
+  // consumer's bundler resolves and includes the canvas stylesheet.
+  external: ["react", "react-dom", "@xyflow/react", /^@xyflow\/react\//],
   format: ["esm", "cjs"],
   sourcemap: true,
   treeshake: true,
