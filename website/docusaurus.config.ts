@@ -73,6 +73,11 @@ const config: Config = {
         tsconfig: "../tsconfig.json",
         out: "docs/api",
         readme: "none",
+        // Only the public API from index.ts is documented; test files pull in
+        // library-only devDeps (vitest, node:fs) absent from the docs install,
+        // so exclude them and skip type-checking (the library CI type-checks).
+        exclude: ["**/*.test.ts", "**/*.test.tsx"],
+        skipErrorChecking: true,
         // Escape raw tags / brace syntax in doc-comments so the generated
         // Markdown is MDX-safe (e.g. record.<field>, {name, value}).
         sanitizeComments: true,
