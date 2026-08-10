@@ -30,6 +30,8 @@ const preview: Preview = {
   parameters: {
     layout: "fullscreen",
   },
+  // Generate an autodocs page for every component (props tables + description).
+  tags: ["autodocs"],
 };
 
 export default preview;

@@ -1,0 +1,79 @@
+import { Meta } from "@storybook/blocks";
+
+<Meta title="Guides/Getting Started" />
+
+# 🚀 Getting Started
+
+Mount the `FlowDesigner` with a gateway. The fastest way to see it working is
+the built-in mock gateway.
+
+## ▶️ With the mock gateway
+
+```tsx
+import { FlowDesigner, createMockGateway } from "@bugs5382/saga-flow-designer";
+
+const gateway = createMockGateway();
+
+export const Designer = () => (
+  <FlowDesigner
+    gateway={gateway}
+    definitionId="order.fulfillment"
+    onBack={() => history.back()}
+  />
+);
+```
+
+`createMockGateway()` returns a full in-memory `WorkflowGateway` seeded with
+example workflows and runs, including a `subscribeRun` that replays a run so
+`RunDetail` streams. Great for demos, tests, and Storybook.
+
+## 🧱 The run views
+
+```tsx
+import { RunsList, RunDetail } from "@bugs5382/saga-flow-designer";
+
+<RunsList runs={await gateway.listAllRuns()} onOpenRun={setRunId} />;
+<RunDetail runId={runId} gateway={gateway} onBack={() => setRunId(undefined)} />;
+```
+
+`RunDetail` subscribes to `gateway.subscribeRun(runId, …)` for live updates and
+unsubscribes on unmount — no polling.
+
+## 🎨 Styling (current)
+
+The components use Tailwind utility classes and expect one custom palette color,
+`coral`. In your Tailwind config:
+
+```js
+// tailwind.config.js
+export default {
+  content: [
+    "./src/**/*.{ts,tsx}",
+    "./node_modules/@bugs5382/saga-flow-designer/dist/**/*.{js,cjs}",
+  ],
+  theme: {
+    extend: {
+      colors: {
+        coral: {
+          /* 50–700 — your accent scale */
+        },
+      },
+    },
+  },
+};
+```
+
+Also import the React Flow stylesheet once in your app:
+
+```ts
+import "@xyflow/react/dist/style.css";
+```
+
+> A swappable CSS-variable token layer is planned so you can restyle without
+> touching component internals. Until then, the `coral` color above is the one
+> value you define; everything else uses Tailwind defaults.
+
+## 🔌 Connecting a real backend
+
+The mock gateway is only for demos. For a real app, implement the
+`WorkflowGateway` interface against your API — see **Guides → Gateway Contract**.

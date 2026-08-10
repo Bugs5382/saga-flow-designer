@@ -1,0 +1,103 @@
+import { Meta } from "@storybook/blocks";
+
+<Meta title="Guides/Gateway Contract" />
+
+# 🔌 The `WorkflowGateway` Contract
+
+`WorkflowGateway` is the single seam between the UI and your backend. Implement
+it once, inject it into the components, and the package stays free of any
+assumption about your transport (REST, GraphQL, a saga engine's HTTP API, …).
+
+## The interface
+
+```ts
+interface WorkflowGateway {
+  // Definitions
+  listWorkflows: () => Promise<WorkflowDefinition[]>;
+  getWorkflow: (id: string) => Promise<WorkflowDefinition | undefined>;
+  saveWorkflow: (workflow: WorkflowDefinition) => Promise<WorkflowDefinition>;
+  createWorkflow: () => Promise<WorkflowDefinition>;
+  deleteWorkflow: (id: string) => Promise<void>;
+  setWorkflowEnabled: (id: string, enabled: boolean) => Promise<WorkflowDefinition>;
+  restoreWorkflow: (id: string) => Promise<WorkflowDefinition>;
+  validateWorkflow: (workflow: WorkflowDefinition) => Promise<ValidationResult>;
+
+  // Runs
+  listAllRuns: () => Promise<Run[]>;
+  listRuns: (workflowId: string) => Promise<Run[]>;
+  getRun: (runId: string) => Promise<Run | undefined>;
+
+  // Live updates — returns an unsubscribe function
+  subscribeRun: (runId: string, onUpdate: (run: Run) => void) => () => void;
+}
+```
+
+Every method is a plain async function (or, for `subscribeRun`, a subscription
+that returns its own teardown). Return `undefined` from the single-item getters
+when nothing matches.
+
+## 🗺️ Definitions: nested vs flat
+
+The components work with the **nested** `WorkflowDefinition` (stages → steps →
+branch/child lanes). Many engines persist a **flat** definition (a step list
+with `next`/`branches` pointers). The package ships the mapper both ways, so
+your adapter can translate at the edge:
+
+```ts
+import { expandDefinition, flattenDefinition } from "@bugs5382/saga-flow-designer";
+
+// engine → UI
+const uiDef = expandDefinition(engineDef, storageId);
+// UI → engine (on save)
+const engineDef = flattenDefinition(uiDef);
+```
+
+## 📡 Live runs
+
+`subscribeRun` is how `RunDetail` shows a run progressing. Fold your backend's
+run snapshot + event stream into the `Run` model with the stream helpers:
+
+```ts
+import { seedRun, foldFrame } from "@bugs5382/saga-flow-designer";
+
+subscribeRun(runId, onUpdate) {
+  let run = seedRun(runId);
+  const socket = openYourStream(runId);        // WebSocket / SSE / polling
+  socket.onMessage((frame) => {
+    run = foldFrame(run, frame);               // frame: { type: "run" | "event", data }
+    onUpdate(run);
+  });
+  return () => socket.close();                  // unsubscribe
+}
+```
+
+## 🧪 A minimal adapter sketch
+
+```ts
+import type { WorkflowGateway } from "@bugs5382/saga-flow-designer";
+import { expandDefinition, flattenDefinition, validateWorkflow } from "@bugs5382/saga-flow-designer";
+
+export const createHttpGateway = (baseUrl: string): WorkflowGateway => ({
+  listWorkflows: async () =>
+    (await getJson(`${baseUrl}/workflows`)).map((d) => expandDefinition(d, d.id)),
+  getWorkflow: async (id) => {
+    const d = await getJson(`${baseUrl}/workflows/${id}`);
+    return d ? expandDefinition(d, id) : undefined;
+  },
+  saveWorkflow: async (wf) => {
+    const saved = await postJson(`${baseUrl}/workflows`, flattenDefinition(wf));
+    return expandDefinition(saved, saved.id);
+  },
+  validateWorkflow: async (wf) => validateWorkflow(wf), // or a server round-trip
+  listAllRuns: async () => (await getJson(`${baseUrl}/runs`)).map(toRun),
+  getRun: async (id) => toRun(await getJson(`${baseUrl}/runs/${id}`)),
+  subscribeRun: (id, onUpdate) => openRunStream(baseUrl, id, onUpdate),
+  // createWorkflow / deleteWorkflow / listRuns / setWorkflowEnabled / restoreWorkflow …
+});
+```
+
+Operations your backend doesn't support can throw a clear error; the UI hides or
+disables the corresponding affordances when a capability is absent.
+
+> 💡 For demos and tests, skip the adapter entirely and use
+> `createMockGateway()` — a fully in-memory implementation of this interface.
