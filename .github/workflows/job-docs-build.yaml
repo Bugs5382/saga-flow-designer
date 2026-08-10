@@ -2,15 +2,9 @@ name: Docs Build
 # Build the Docusaurus documentation site (website/) on every PR and on push to
 # main, so the docs never break silently.
 #
-# The site depends on the shared brand theme @the-rabbit-hole-tech/docs-theme,
-# which is published to GitHub Packages (not the public npm registry). Reading
-# from GitHub Packages requires authentication even for public packages, so this
-# build needs a token with the `read:packages` scope exposed as NODE_AUTH_TOKEN.
-#
-# REQUIRED REPO SECRET: PACKAGES_READ_TOKEN
-#   A Personal Access Token (classic) with ONLY the `read:packages` scope. Set
-#   it under Settings -> Secrets and variables -> Actions. Without it, npm
-#   install cannot fetch the theme and this build will fail with a 401.
+# The shared brand theme @the-rabbit-hole-tech/docs-theme is vendored into
+# website/vendor/ and consumed as a local file: dependency, so this build needs
+# no registry auth or secrets.
 on:
   pull_request:
     branches: [main]
@@ -35,15 +29,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          # Scope the private theme registry and wire NODE_AUTH_TOKEN so npm can
-          # read the package from GitHub Packages.
-          registry-url: https://npm.pkg.github.com
-          scope: '@the-rabbit-hole-tech'
       - name: Install
         run: npm install --no-audit --no-fund
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.PACKAGES_READ_TOKEN }}
       - name: Build
         run: npm run build
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.PACKAGES_READ_TOKEN }}
