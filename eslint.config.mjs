@@ -13,14 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { defineConfig } from "tsup";
+import { createESLintConfig } from "@the-rabbit-hole/eslint-config";
 
-export default defineConfig({
-  clean: true,
-  dts: true,
-  entry: ["src/index.ts"],
-  external: ["react", "react-dom", "@xyflow/react"],
-  format: ["esm", "cjs"],
-  sourcemap: true,
-  treeshake: true,
-});
+export default [
+  { ignores: ["dist/**", "coverage/**", "docs/**", "node_modules/**"] },
+  ...createESLintConfig({
+    rules: {
+      // The canonical Apache-2.0 license header carried by every source file
+      // uses http://www.apache.org/licenses/LICENSE-2.0 verbatim (Apache's
+      // official text). prefer-https must not rewrite that URL.
+      "unicorn/prefer-https": "off",
+    },
+  }),
+];
