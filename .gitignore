@@ -4,3 +4,8 @@ coverage/
 docs/api/
 .DS_Store
 plan/
+
+# The vendored docs-theme ships prebuilt; its dist/ is a committed dependency,
+# not our build output, so keep it tracked despite the dist/ rule above.
+!website/vendor/docs-theme/dist/
+!website/vendor/docs-theme/dist/**
