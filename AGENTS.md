@@ -27,7 +27,7 @@ Consumers implement `WorkflowGateway` and mount the components. Respect these:
   design system.
 - `createMockGateway()` is for demos/tests only — never a real backend.
 
-See `docs/USING_WITH_GO_SAGA.md` and `docs/INTEGRATION.md` for worked integrations, and
+See `website/docs/go-saga.md` and `website/docs/integration.md` for worked integrations, and
 `examples/httpGateway.ts` for a runnable real-engine adapter.
 
 ## Layout

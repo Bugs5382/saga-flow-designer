@@ -8,6 +8,8 @@ const sidebars: SidebarsConfig = {
     "intro",
     "gateway",
     "model",
+    "integration",
+    "go-saga",
     {
       type: "category",
       label: "API",

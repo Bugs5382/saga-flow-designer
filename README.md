@@ -71,11 +71,13 @@ const gateway: WorkflowGateway = {
 };
 ```
 
-- **[INTEGRATION.md](./INTEGRATION.md)** — mount the components inside your own
-  app shell + router (the package provides no shell).
-- **[USING_WITH_GO_SAGA.md](./USING_WITH_GO_SAGA.md)** — run a real
-  [go-saga](https://github.com/Bugs5382/go-saga-orchestration) engine standalone
-  and adapt it, with the runnable example in [`examples/httpGateway.ts`](./examples/httpGateway.ts).
+- **[Integrating into your app shell](https://bugs5382.github.io/saga-flow-designer/docs/integration)** —
+  mount the components inside your own app shell + router (the package provides
+  no shell).
+- **[Using with go-saga](https://bugs5382.github.io/saga-flow-designer/docs/go-saga)** —
+  run a real [go-saga](https://github.com/Bugs5382/go-saga-orchestration) engine
+  standalone and adapt it, with the runnable example in
+  [`examples/httpGateway.ts`](./examples/httpGateway.ts).
 - Storybook **Guides → Gateway Contract** — the interface, live.
 
 ## 🎨 Theming

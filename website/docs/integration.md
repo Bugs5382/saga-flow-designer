@@ -1,3 +1,8 @@
+---
+sidebar_position: 4
+title: Integrating into your app shell
+---
+
 # 🧩 Integrating into your app shell
 
 saga-flow-designer ships **components, not an application**. It has no shell, no
@@ -35,7 +40,7 @@ module.exports = {
 ## 2. Provide a gateway
 
 Implement `WorkflowGateway` against your backend (see
-[USING_WITH_GO_SAGA.md](./USING_WITH_GO_SAGA.md) for a real-engine adapter, or
+[Using with go-saga](./go-saga.md) for a real-engine adapter, or
 `createMockGateway()` to start). Create it once and pass it down:
 
 ```ts
@@ -135,4 +140,5 @@ wrapper class) — no dependency on your design system, no fork:
 ```
 
 See the Storybook **Guides → Theming** page for a live brand-swap, and
-`../src/styles/theme.css` for the full variable list.
+[`src/styles/theme.css`](https://github.com/Bugs5382/saga-flow-designer/blob/main/src/styles/theme.css)
+for the full variable list.
