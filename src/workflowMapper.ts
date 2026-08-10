@@ -1,10 +1,25 @@
+/*
+ * Copyright 2026 Shane
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import {
   type Branch,
   type Stage,
   type StageKind,
   type Step,
   type VerbName,
-  type WorkflowDef,
+  type WorkflowDefinition,
 } from "./workflowData";
 
 // --- FLATTEN / EXPAND MAPPER -------------------------------------------------
@@ -27,7 +42,7 @@ import {
 //   - The graph converges: several paths may point at the SAME downstream step
 //     (in-degree >= 2). Those convergence steps must appear exactly once.
 //
-// The UI-NESTED shape is `WorkflowDef` (workflowData.ts): ordered Stages, each a
+// The UI-NESTED shape is `WorkflowDefinition` (workflowData.ts): ordered Stages, each a
 // `Step[]`, decision/switch/human-gate steps holding `branches`, fan-out/loop
 // steps holding `children`, each lane its own `Step[]`. Only a `Branch` (lane)
 // can carry a `merge` (a rejoin pointer); a plain backbone step cannot. So a
@@ -93,12 +108,7 @@ export interface EngineStep {
 
 // Verbs whose lanes live under `branches` in the UI model (everything else that
 // has lanes uses `children`). Human gates fan out labelled outcome lanes too.
-const BRANCH_OWNERS = new Set<VerbName>([
-  "collect_input",
-  "decision",
-  "manual_approval",
-  "switch",
-]);
+const BRANCH_OWNERS = new Set<VerbName>(["collect_input", "decision", "manual_approval", "switch"]);
 
 // Terminal verbs get no `next` pointer — nothing runs after them on their trail.
 const TERMINALS = new Set<VerbName>(["cancel", "end", "error"]);
@@ -112,22 +122,22 @@ const hasLanes = (engine: EngineStep): boolean =>
 // Link an ordered engine-step trail with `next` pointers, skipping terminals and
 // branch owners (whose outflow travels through their branch map, not `next`).
 const linkTrail = (steps: EngineStep[]): void => {
-  for (let i = 0; i < steps.length - 1; i += 1) {
-    const current = steps[i];
+  for (let index = 0; index < steps.length - 1; index += 1) {
+    const current = steps[index];
     if (TERMINALS.has(current.type) || current.branches) continue;
-    current.next = steps[i + 1].id;
+    current.next = steps[index + 1].id;
   }
 };
 
 /**
- * UI nested WorkflowDef → engine-flat definition JSON (the `definition` Map the
+ * UI nested WorkflowDefinition → engine-flat definition JSON (the `definition` Map the
  * host's save mutation accepts). `id` is the engine business id
- * (WorkflowDef.key); the storage UUID (WorkflowDef.id) is the server's concern
+ * (WorkflowDefinition.key); the storage UUID (WorkflowDefinition.id) is the server's concern
  * and is threaded by the gateway, not embedded here.
  *
  * @since 1.0.0
  */
-export const flattenDefinition = (ui: WorkflowDef): EngineDefinition => {
+export const flattenDefinition = (ui: WorkflowDefinition): EngineDefinition => {
   const steps: EngineStep[] = [];
 
   // Emit a single UI step (recursing its lanes) into the flat list; return it.
@@ -163,8 +173,8 @@ export const flattenDefinition = (ui: WorkflowDef): EngineDefinition => {
     const laneSteps = lane.steps.map((s) => emitStep(s));
     linkTrail(laneSteps);
     if (lane.merge) {
-      const last = laneSteps[laneSteps.length - 1];
-      if (!TERMINALS.has(last.type) && !last.branches) {
+      const last = laneSteps.at(-1);
+      if (last && !TERMINALS.has(last.type) && !last.branches) {
         last.next = lane.merge.entryId;
       }
     }
@@ -203,7 +213,7 @@ interface TrailEnd {
 
 // Build a UI Step from an engine step WITHOUT its lanes (attached by the caller).
 const expandOne = (engine: EngineStep): Step => {
-  const config: Record<string, string> = { ...(engine.inputs ?? {}) };
+  const config: Record<string, string> = { ...engine.inputs };
   if (engine.action !== undefined) config.action = engine.action;
   const step: Step = {
     config,
@@ -219,11 +229,7 @@ const expandOne = (engine: EngineStep): Step => {
 // Group ordered top-level steps back into Stages by their stage annotation,
 // preserving encounter order, then bracket with a pre-stage first and an
 // end-stage last (synthesising empty ones when the annotations omitted them).
-const regroupStages = (
-  steps: Step[],
-  engineId: string,
-  byId: Map<string, EngineStep>,
-): Stage[] => {
+const regroupStages = (steps: Step[], engineId: string, byId: Map<string, EngineStep>): Stage[] => {
   const byStageId = new Map<string, Stage>();
   const order: string[] = [];
   let orphanCounter = 0;
@@ -245,9 +251,7 @@ const regroupStages = (
   const stages = order.map((id) => byStageId.get(id) as Stage);
   const pre = stages.filter((s) => s.kind === "pre-stage");
   const end = stages.filter((s) => s.kind === "end-stage");
-  const work = stages.filter(
-    (s) => s.kind !== "pre-stage" && s.kind !== "end-stage",
-  );
+  const work = stages.filter((s) => s.kind !== "pre-stage" && s.kind !== "end-stage");
 
   const preStage: Stage = pre[0] ?? {
     id: `${engineId}::pre`,
@@ -267,7 +271,7 @@ const regroupStages = (
 };
 
 /**
- * Engine-flat definition → UI nested WorkflowDef.
+ * Engine-flat definition → UI nested WorkflowDefinition.
  *   - `key`  ← engine.workflowId (business id), falling back to engine.id.
  *   - `id`   ← storageId (the host's storage UUID) when supplied, else the
  *              business id. The gateway always passes the storage UUID so
@@ -278,7 +282,7 @@ const regroupStages = (
 export const expandDefinition = (
   engine: EngineDefinition,
   storageId?: string,
-): WorkflowDef => {
+): WorkflowDefinition => {
   const byId = new Map(engine.steps.map((s) => [s.id, s] as const));
   const placed = new Set<string>();
 
@@ -288,11 +292,7 @@ export const expandDefinition = (
   // with no `next` (natural end), or an ALREADY-CLAIMED step (a convergence /
   // rejoin). For a lane (allowMerge) the rejoin ends the lane with a merge
   // pointing at that step; the backbone (no merge holder) simply stops.
-  const walkTrail = (
-    startId: string | undefined,
-    out: Step[],
-    allowMerge: boolean,
-  ): TrailEnd => {
+  const walkTrail = (startId: string | undefined, out: Step[], allowMerge: boolean): TrailEnd => {
     let cursor = startId;
     while (cursor !== undefined && cursor !== "") {
       if (placed.has(cursor)) {
@@ -306,18 +306,16 @@ export const expandDefinition = (
       if (hasLanes(engine)) {
         const lanes: Branch[] = [];
         const keys = Object.keys(engine.branches as object);
-        for (let i = 0; i < keys.length; i += 1) {
-          const caseLabel = keys[i];
+        for (const [index, caseLabel] of keys.entries()) {
           const laneSteps: Step[] = [];
           const end = walkTrail(
-            (engine.branches as Record<string, EngineBranchPointer>)[caseLabel]
-              .next,
+            (engine.branches as Record<string, EngineBranchPointer>)[caseLabel].next,
             laneSteps,
             true,
           );
           const lane: Branch = {
             caseLabel,
-            id: `${engine.id}::lane-${i}`,
+            id: `${engine.id}::lane-${index}`,
             steps: laneSteps,
           };
           if (end.merge) lane.merge = end.merge;

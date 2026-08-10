@@ -1,10 +1,19 @@
-import type {
-  Run,
-  RunEvent,
-  RunStatus,
-  StepRun,
-  StepRunStatus,
-} from "./runData";
+/*
+ * Copyright 2026 Shane
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import type { Run, RunEvent, RunStatus, StepRun, StepRunStatus } from "./runData";
 
 // Live run-stream accumulator + engine↔UI enum mappers.
 //
@@ -51,7 +60,7 @@ export interface SagaRunFrame {
 }
 
 /**
- * Resolves a step id to its authored label/verb (from the loaded WorkflowDef).
+ * Resolves a step id to its authored label/verb (from the loaded WorkflowDefinition).
  * The host may supply one; absent it, the fold falls back to the raw step id.
  *
  * @since 1.0.0
@@ -74,8 +83,7 @@ export type StepResolver = (stepId: string) => StepMeta | undefined;
  * @since 1.0.0
  */
 export type StreamFrame =
-  | { data: SagaRunEventFrame; type: "event" }
-  | { data: SagaRunFrame; type: "run" };
+  { data: SagaRunEventFrame; type: "event" } | { data: SagaRunFrame; type: "run" };
 
 // --- Enum mappers (engine → UI) --------------------------------------------
 
@@ -202,8 +210,7 @@ const TERMINAL = new Set(["run.cancelled", "run.failed", "run.succeeded"]);
 export const eventMessage = (event: SagaRunEventFrame): string => {
   const parts = [event.event_type];
   if (event.step_id) parts.push(event.step_id);
-  if (event.from_state && event.to_state)
-    parts.push(`${event.from_state} → ${event.to_state}`);
+  if (event.from_state && event.to_state) parts.push(`${event.from_state} → ${event.to_state}`);
   return parts.join(" · ");
 };
 
@@ -237,7 +244,7 @@ export const seedRun = (runId: string): Run => ({
 
 const foldRunFrame = (run: Run, data: SagaRunFrame): Run => ({
   ...run,
-  // workflowId = the storage/definition id (FK → WorkflowDef.id); workflowKey =
+  // workflowId = the storage/definition id (FK → WorkflowDefinition.id); workflowKey =
   // the engine business id — mirrors graphqlGateway.toRun.
   id: data.id || run.id,
   status: mapRunState(data.state),
@@ -255,8 +262,7 @@ const upsertStepRun = (
   const index = stepRuns.findIndex((sr) => sr.stepId === stepId);
   const error =
     status === "failed"
-      ? ((event.metadata?.error ?? event.metadata?.message ?? "step failed") as
-          string | undefined)
+      ? ((event.metadata?.error ?? event.metadata?.message ?? "step failed") as string | undefined)
       : undefined;
 
   if (index === -1) {
@@ -282,11 +288,7 @@ const upsertStepRun = (
   return next;
 };
 
-const foldEventFrame = (
-  run: Run,
-  event: SagaRunEventFrame,
-  resolveStep?: StepResolver,
-): Run => {
+const foldEventFrame = (run: Run, event: SagaRunEventFrame, resolveStep?: StepResolver): Run => {
   const runEvent: RunEvent = {
     actor: event.actor || "system",
     at: event.recorded_at,
@@ -294,35 +296,27 @@ const foldEventFrame = (
     message: eventMessage(event),
   };
 
-  const stepStatus = event.step_id
-    ? mapStepStatus(event.event_type)
-    : undefined;
+  const stepStatus = event.step_id ? mapStepStatus(event.event_type) : undefined;
   const stepRuns =
     event.step_id && stepStatus
       ? upsertStepRun(run.stepRuns, event, stepStatus, resolveStep)
       : run.stepRuns;
 
   // The taken trail grows when a step STARTS or SUCCEEDS (in order, deduped).
-  const onPath =
-    event.event_type === "step.started" ||
-    event.event_type === "step.succeeded";
+  const onPath = event.event_type === "step.started" || event.event_type === "step.succeeded";
   const path =
     event.step_id && onPath && !run.path.includes(event.step_id)
       ? [...run.path, event.step_id]
       : run.path;
 
   const startedAt =
-    !run.startedAt && event.event_type === "saga.started"
-      ? event.recorded_at
-      : run.startedAt;
+    !run.startedAt && event.event_type === "saga.started" ? event.recorded_at : run.startedAt;
   const status = eventRunStatus(event.event_type) ?? run.status;
 
   const terminal = TERMINAL.has(event.event_type);
   const finishedAt = terminal ? event.recorded_at : run.finishedAt;
   const durationMs =
-    terminal && startedAt
-      ? durationBetween(startedAt, event.recorded_at)
-      : run.durationMs;
+    terminal && startedAt ? durationBetween(startedAt, event.recorded_at) : run.durationMs;
 
   return {
     ...run,
@@ -341,11 +335,7 @@ const foldEventFrame = (
  *
  * @since 1.0.0
  */
-export const foldFrame = (
-  run: Run,
-  frame: StreamFrame,
-  resolveStep?: StepResolver,
-): Run =>
+export const foldFrame = (run: Run, frame: StreamFrame, resolveStep?: StepResolver): Run =>
   frame.type === "run"
     ? foldRunFrame(run, frame.data)
     : foldEventFrame(run, frame.data, resolveStep);
@@ -355,13 +345,8 @@ export const foldFrame = (
  *
  * @since 1.0.0
  */
-export const foldFrames = (
-  run: Run,
-  frames: StreamFrame[],
-  resolveStep?: StepResolver,
-): Run => {
+export const foldFrames = (run: Run, frames: StreamFrame[], resolveStep?: StepResolver): Run => {
   let accumulated = run;
-  for (const frame of frames)
-    accumulated = foldFrame(accumulated, frame, resolveStep);
+  for (const frame of frames) accumulated = foldFrame(accumulated, frame, resolveStep);
   return accumulated;
 };

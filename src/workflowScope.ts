@@ -1,3 +1,18 @@
+/*
+ * Copyright 2026 Shane
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 // Pill scope + verb placement legality for the Flow Designer.
 //
 // A "pill" is a reference token the author can drop into an expression/value
@@ -7,15 +22,15 @@
 
 import {
   entryDeclaredInputs,
-  humanTaskOutputRefs,
+  humanTaskOutputReferences,
   RECORD_TYPES,
-  setVarAssignments,
+  setVariableAssignments,
   type Stage,
   type Step,
   TERMINAL_VERBS,
   type VerbName,
   type VerbSpec,
-  type WorkflowDef,
+  type WorkflowDefinition,
 } from "./workflowData";
 
 /**
@@ -43,11 +58,9 @@ export type PillKind = "field" | "output" | "trigger";
  *
  * @since 1.0.0
  */
-export const triggerPills = (workflow: WorkflowDef): Pill[] => {
+export const triggerPills = (workflow: WorkflowDefinition): Pill[] => {
   const pills: Pill[] = [];
-  const rec = workflow.trigger.recordType
-    ? RECORD_TYPES[workflow.trigger.recordType]
-    : undefined;
+  const rec = workflow.trigger.recordType ? RECORD_TYPES[workflow.trigger.recordType] : undefined;
   if (rec) {
     for (const field of rec.fields)
       pills.push({
@@ -91,11 +104,11 @@ export const stepOutputPills = (step: Step): Pill[] => {
   switch (step.type) {
     case "collect_input":
     case "manual_approval": {
-      return humanTaskOutputRefs(step).map((ref) => ({
+      return humanTaskOutputReferences(step).map((reference) => ({
         kind: "output" as PillKind,
         label: `${step.label} output`,
         origin: step.label,
-        ref,
+        ref: reference,
       }));
     }
     case "filter":
@@ -134,7 +147,7 @@ export const stepOutputPills = (step: Step): Pill[] => {
     }
     case "set_var": {
       // One OR many assignments — every named row becomes a pill.
-      return setVarAssignments(step)
+      return setVariableAssignments(step)
         .filter((r) => r.name.trim())
         .map((r) => mk(r.name));
     }
@@ -151,10 +164,7 @@ export const stepOutputPills = (step: Step): Pill[] => {
  *
  * @since 1.0.0
  */
-export const pillsInScopeFor = (
-  workflow: WorkflowDef,
-  targetId?: string,
-): Pill[] => {
+export const pillsInScopeFor = (workflow: WorkflowDefinition, targetId?: string): Pill[] => {
   const scope: Pill[] = [...triggerPills(workflow)];
   if (!targetId) return scope;
 
@@ -222,23 +232,23 @@ export interface SlotContext {
  *
  * @since 1.0.0
  */
-export const verbLegalAt = (spec: VerbSpec, ctx: SlotContext): Legality => {
+export const verbLegalAt = (spec: VerbSpec, context: SlotContext): Legality => {
   // The pre-stage runs BEFORE the first work stage — it exists to shape the
   // trigger payload, so it accepts data-manipulation verbs only (the Data
   // group: set_var, transform, merge, filter, map). No actions, waits, or
   // control flow up here.
-  if (ctx.inPreStage && spec.group !== "Data")
+  if (context.inPreStage && spec.group !== "Data")
     return {
       ok: false,
       reason:
         "The Pre-Stage accepts only data steps — set variables, transform, merge, filter, map.",
     };
-  if (TERMINAL_VERBS.has(spec.name) && ctx.hasFollowing)
+  if (TERMINAL_VERBS.has(spec.name) && context.hasFollowing)
     return {
       ok: false,
       reason: `${spec.label} is terminal — nothing may run after it on this trail.`,
     };
-  if (spec.name === "wait_for_signal" && !ctx.hasEmitSignal)
+  if (spec.name === "wait_for_signal" && !context.hasEmitSignal)
     return {
       ok: false,
       reason: "wait_for_signal needs an emit_signal somewhere to deliver it.",
@@ -251,13 +261,12 @@ export const verbLegalAt = (spec: VerbSpec, ctx: SlotContext): Legality => {
  *
  * @since 1.0.0
  */
-export const workflowHasEmitSignal = (workflow: WorkflowDef): boolean => {
+export const workflowHasEmitSignal = (workflow: WorkflowDefinition): boolean => {
   let has = false;
   const walk = (steps: Step[]): void => {
     for (const step of steps) {
       if (step.type === "emit_signal") has = true;
-      for (const lane of [...(step.branches ?? []), ...(step.children ?? [])])
-        walk(lane.steps);
+      for (const lane of [...(step.branches ?? []), ...(step.children ?? [])]) walk(lane.steps);
     }
   };
   for (const stage of workflow.stages) walk(stage.steps);
@@ -270,13 +279,13 @@ export const workflowHasEmitSignal = (workflow: WorkflowDef): boolean => {
  * @since 1.0.0
  */
 export const referencedPills = (step: Step): string[] => {
-  const refs: string[] = [];
+  const references: string[] = [];
   const re = /\b(?:record|vars|trigger|item)\.[A-Za-z0-9_]+/g;
   for (const value of Object.values(step.config)) {
     const matches = value.match(re);
-    if (matches) refs.push(...matches);
+    if (matches) references.push(...matches);
   }
-  return [...new Set(refs)];
+  return [...new Set(references)];
 };
 
 /**
@@ -285,10 +294,7 @@ export const referencedPills = (step: Step): string[] => {
  *
  * @since 1.0.0
  */
-export const stageOfStep = (
-  workflow: WorkflowDef,
-  stepId: string,
-): Stage | undefined => {
+export const stageOfStep = (workflow: WorkflowDefinition, stepId: string): Stage | undefined => {
   const contains = (steps: Step[]): boolean => {
     for (const step of steps) {
       if (step.id === stepId) return true;
@@ -305,8 +311,7 @@ export const stageOfStep = (
  *
  * @since 1.0.0
  */
-export const isTerminalVerb = (type: VerbName): boolean =>
-  TERMINAL_VERBS.has(type);
+export const isTerminalVerb = (type: VerbName): boolean => TERMINAL_VERBS.has(type);
 
 // --- ENTRY POINTS -----------------------------------------------------------
 // The entry-point nodes a rejoining (merge) lane can target, with the data
@@ -328,7 +333,7 @@ export interface EntryPoint {
  *
  * @since 1.0.0
  */
-export const entryPoints = (workflow: WorkflowDef): EntryPoint[] => {
+export const entryPoints = (workflow: WorkflowDefinition): EntryPoint[] => {
   const found: EntryPoint[] = [];
   const walk = (steps: Step[]): void => {
     for (const step of steps) {
@@ -338,8 +343,7 @@ export const entryPoints = (workflow: WorkflowDef): EntryPoint[] => {
           name: step.config.name || step.label || step.id,
           stepId: step.id,
         });
-      for (const lane of [...(step.branches ?? []), ...(step.children ?? [])])
-        walk(lane.steps);
+      for (const lane of [...(step.branches ?? []), ...(step.children ?? [])]) walk(lane.steps);
     }
   };
   for (const stage of workflow.stages) walk(stage.steps);
@@ -352,7 +356,6 @@ export const entryPoints = (workflow: WorkflowDef): EntryPoint[] => {
  * @since 1.0.0
  */
 export const findEntryPoint = (
-  workflow: WorkflowDef,
+  workflow: WorkflowDefinition,
   entryId: string,
-): EntryPoint | undefined =>
-  entryPoints(workflow).find((e) => e.stepId === entryId);
+): EntryPoint | undefined => entryPoints(workflow).find((entry) => entry.stepId === entryId);

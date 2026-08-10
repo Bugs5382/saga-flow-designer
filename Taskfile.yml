@@ -1,0 +1,19 @@
+version: "3"
+# go-task drives golic, the Apache-2.0 license-header tool. golic ships no
+# built-in rule for the star-aligned Apache short header, so the header body +
+# `/* ... */` comment rules live in .golic.yaml; .licignore selects which files
+# are stamped.
+vars:
+  GOLIC_VERSION: v0.3.0
+  TEMPLATE_LIC: "apache-short"
+tasks:
+  license:
+    desc: Verify every source file carries the Apache-2.0 license header (CI; never writes).
+    cmds:
+      - go install github.com/Bugs5382/golic/cmd/golic@{{.GOLIC_VERSION}}
+      - golic inject -t {{.TEMPLATE_LIC}} --dry -x
+  license:fix:
+    desc: Inject the Apache-2.0 header into any source file missing it.
+    cmds:
+      - go install github.com/Bugs5382/golic/cmd/golic@{{.GOLIC_VERSION}}
+      - golic inject -t {{.TEMPLATE_LIC}}

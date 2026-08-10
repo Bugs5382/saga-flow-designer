@@ -1,20 +1,30 @@
+/*
+ * Copyright 2026 Shane
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { readFileSync } from "node:fs";
-
 import { describe, expect, it } from "vitest";
 
-import { type WorkflowDef } from "./workflowData";
-import {
-  type EngineDefinition,
-  expandDefinition,
-  flattenDefinition,
-} from "./workflowMapper";
+import { type WorkflowDefinition } from "./workflowData";
+import { type EngineDefinition, expandDefinition, flattenDefinition } from "./workflowMapper";
 
 // The REAL engine definitions (flat DAG shape) live in a TEST-ONLY fixture —
 // read here via fs so nothing imports it from a production code path. It carries
 // the hard cases: empty flows, a lone terminal, linear chains, and DAGs with
 // convergence/merge (branches point at shared downstream steps).
 const engineFixtures = JSON.parse(
-  readFileSync(new URL("./__engineDefs.fixture.json", import.meta.url), "utf8"),
+  readFileSync(new URL("__engineDefs.fixture.json", import.meta.url), "utf8"),
 ) as EngineDefinition[];
 
 // --- CORRECTNESS GATE -------------------------------------------------------
@@ -22,11 +32,9 @@ const engineFixtures = JSON.parse(
 // compared by {type, action, next, branches:{case -> next}} and inputs — while
 // IGNORING array order and every UI-only / designer-only field. Two definitions
 // with the same normalized graph are load->save equivalent for the engine.
-const normalizeGraph = (
-  def: EngineDefinition,
-): Record<string, unknown> => {
+const normalizeGraph = (definition: EngineDefinition): Record<string, unknown> => {
   const graph: Record<string, unknown> = {};
-  for (const step of def.steps) {
+  for (const step of definition.steps) {
     const branches: Record<string, string> = {};
     if (step.branches) {
       for (const caseLabel of Object.keys(step.branches)) {
@@ -34,10 +42,10 @@ const normalizeGraph = (
       }
     }
     graph[step.id] = {
-      action: step.action ?? null,
+      action: step.action ?? undefined,
       branches,
-      inputs: { ...(step.inputs ?? {}) },
-      next: step.next ?? null,
+      inputs: { ...step.inputs },
+      next: step.next ?? undefined,
       type: step.type,
     };
   }
@@ -48,20 +56,18 @@ const normalizeGraph = (
 // expand(engine) -> flatten -> must reproduce the SAME graph, including every
 // convergence / merge case. This is the definition of done.
 describe("workflowMapper engine round-trip (real defs)", () => {
-  it.each(engineFixtures.map((def) => [def.id, def] as const))(
+  it.each(engineFixtures.map((definition) => [definition.id, definition] as const))(
     "round-trips the %s engine definition",
-    (_id: string, def: EngineDefinition) => {
-      const reflattened = flattenDefinition(expandDefinition(def));
-      expect(normalizeGraph(reflattened)).toEqual(normalizeGraph(def));
+    (_id: string, definition: EngineDefinition) => {
+      const reflattened = flattenDefinition(expandDefinition(definition));
+      expect(normalizeGraph(reflattened)).toEqual(normalizeGraph(definition));
       // The engine `start` is preserved (or empty for an empty flow).
-      expect(reflattened.start).toBe(def.start ?? "");
+      expect(reflattened.start).toBe(definition.start ?? "");
     },
   );
 
   it("never crashes expanding a branches MAP and preserves convergence", () => {
-    const escalate = engineFixtures.find(
-      (d) => d.id === "notif.approval_escalate_v1",
-    );
+    const escalate = engineFixtures.find((d) => d.id === "notif.approval_escalate_v1");
     expect(escalate).toBeDefined();
     const ui = expandDefinition(escalate as EngineDefinition);
     const flat = flattenDefinition(ui);
@@ -77,9 +83,7 @@ describe("workflowMapper engine round-trip (real defs)", () => {
       rejected: { next: "dispatch_rejected" },
     });
     // Convergence steps appear EXACTLY once and both fan into `done`.
-    expect(flat.steps.filter((s) => s.id === "dispatch_approved")).toHaveLength(
-      1,
-    );
+    expect(flat.steps.filter((s) => s.id === "dispatch_approved")).toHaveLength(1);
     expect(flat.steps.filter((s) => s.id === "done")).toHaveLength(1);
     expect(byId.get("dispatch_approved")?.next).toBe("done");
     expect(byId.get("dispatch_rejected")?.next).toBe("done");
@@ -88,16 +92,16 @@ describe("workflowMapper engine round-trip (real defs)", () => {
 });
 
 // --- UI-AUTHORING ROUND-TRIP: designer tree -> save -> reload ----------------
-// A CANONICAL nested def is a fixed point of expand(flatten(x)): non-empty
+// A CANONICAL nested definition is a fixed point of expand(flatten(x)): non-empty
 // stages, the synthesised `manual` trigger, `enabled` mirroring `published`, no
 // system provenance. These prove the DESIGNER save/reload path.
 
-// The gateway threads the storage UUID (WorkflowDef.id) back through expand.
-const roundTrip = (def: WorkflowDef): WorkflowDef =>
-  expandDefinition(flattenDefinition(def), def.id);
+// The gateway threads the storage UUID (WorkflowDefinition.id) back through expand.
+const roundTrip = (definition: WorkflowDefinition): WorkflowDefinition =>
+  expandDefinition(flattenDefinition(definition), definition.id);
 
 // 1. Linear flow: pre-stage data step -> two work steps -> end-stage.
-const linearFlow: WorkflowDef = {
+const linearFlow: WorkflowDefinition = {
   description: "A straight-line flow.",
   enabled: true,
   id: "wf-lin-1",
@@ -163,7 +167,7 @@ const linearFlow: WorkflowDef = {
 //    (page -> record outcome -> end); the "no" lane rejoins it via an explicit
 //    merge. This is exactly the canonical form expand produces for a DAG whose
 //    two branch paths converge on one downstream step, so it is a fixed point.
-const decisionWithMerge: WorkflowDef = {
+const decisionWithMerge: WorkflowDefinition = {
   description: "Routes then merges.",
   enabled: true,
   id: "wf-dm-1",
@@ -262,12 +266,7 @@ describe("workflowMapper UI-authoring round-trip", () => {
     expect(engine.start).toBe("s-lin-seed");
     expect(engine.id).toBe("lin.flow"); // business id
     const backbone = engine.steps.map((s) => s.id);
-    expect(backbone).toEqual([
-      "s-lin-seed",
-      "s-lin-derive",
-      "s-lin-notify",
-      "s-lin-close",
-    ]);
+    expect(backbone).toEqual(["s-lin-seed", "s-lin-derive", "s-lin-notify", "s-lin-close"]);
     expect(engine.steps[0].next).toBe("s-lin-derive");
   });
 

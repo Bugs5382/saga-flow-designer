@@ -1,3 +1,18 @@
+/*
+ * Copyright 2026 Shane
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 // Workflow domain model + verb catalog for the Flow Designer.
 //
 // This mirrors the go-saga engine's WorkflowDefinition shape
@@ -247,7 +262,7 @@ export interface VerbSpec {
  *
  * @since 1.0.0
  */
-export interface WorkflowDef {
+export interface WorkflowDefinition {
   description?: string;
   // A disabled flow keeps its definition but never fires. Toggled at the
   // trigger. Undefined is treated as enabled (back-compat with older defs).
@@ -287,10 +302,7 @@ export type WorkflowStatus = "archived" | "draft" | "published";
  *
  * @since 1.0.0
  */
-export const RECORD_TYPES: Record<
-  string,
-  { fields: RecordField[]; label: string }
-> = {
+export const RECORD_TYPES: Record<string, { fields: RecordField[]; label: string }> = {
   change: {
     fields: [
       { label: "Change number", name: "number", type: "string" },
@@ -369,8 +381,7 @@ export const VERB_CATALOG: VerbSpec[] = [
     name: "entry",
     outputs: "entry.<name> for each declared input",
     source: "base",
-    summary:
-      "An entry point that declares a data contract for rejoining lanes.",
+    summary: "An entry point that declares a data contract for rejoining lanes.",
   },
   {
     description:
@@ -399,8 +410,7 @@ export const VERB_CATALOG: VerbSpec[] = [
     name: "cancel",
     outputs: "run cancelled + compensated (terminal)",
     source: "base",
-    summary:
-      "Cancel the saga (abort + compensation) — a terminal, distinct from End.",
+    summary: "Cancel the saga (abort + compensation) — a terminal, distinct from End.",
   },
 
   // Control ------------------------------------------------------------------
@@ -482,8 +492,7 @@ export const VERB_CATALOG: VerbSpec[] = [
     name: "parallel",
     outputs: "control resumes at the merged entry; aggregate → resultVar",
     source: "base",
-    summary:
-      "Fan out into concurrent branch trails; each ends or explicitly merges.",
+    summary: "Fan out into concurrent branch trails; each ends or explicitly merges.",
   },
   {
     description:
@@ -566,8 +575,7 @@ export const VERB_CATALOG: VerbSpec[] = [
     name: "while",
     outputs: "control → body lane repeatedly",
     source: "base",
-    summary:
-      "Repeat the body while a condition holds; the body loops back (rejoins).",
+    summary: "Repeat the body while a condition holds; the body loops back (rejoins).",
   },
   {
     description:
@@ -587,8 +595,7 @@ export const VERB_CATALOG: VerbSpec[] = [
     name: "try_catch",
     outputs: "control → try, then catch on error",
     source: "base",
-    summary:
-      "Two columns — Try | Catch. Try defaults to rejoin; Catch always ends.",
+    summary: "Two columns — Try | Catch. Try defaults to rejoin; Catch always ends.",
   },
 
   // Actions ------------------------------------------------------------------
@@ -638,8 +645,7 @@ export const VERB_CATALOG: VerbSpec[] = [
     name: "action",
     outputs: "action result (optional)",
     source: "base",
-    summary:
-      "Publish a registered action to RabbitMQ (notify, assign, escalate, …).",
+    summary: "Publish a registered action to RabbitMQ (notify, assign, escalate, …).",
   },
   {
     description:
@@ -750,8 +756,7 @@ export const VERB_CATALOG: VerbSpec[] = [
     name: "wait_until",
     outputs: "control (at time)",
     source: "base",
-    summary:
-      "Pause until an absolute timestamp, or a relative offset from now.",
+    summary: "Pause until an absolute timestamp, or a relative offset from now.",
   },
 
   // Signals ------------------------------------------------------------------
@@ -854,9 +859,7 @@ export const VERB_CATALOG: VerbSpec[] = [
   {
     description:
       "Pauses for a human decision gate assigned to a User, Group, or record-relative approver. Fans out three outcome lanes — Approved (continues), Rejected, and Timed-out. Decision rule is single / quorum N / unanimous. An optional pre-breach escalation notifies or reassigns before the due date routes to Timed-out.",
-    fields: [
-      { key: "dueIn", kind: "text", label: "Due in", placeholder: "48h" },
-    ],
+    fields: [{ key: "dueIn", kind: "text", label: "Due in", placeholder: "48h" }],
     group: "Human",
     icon: "🧑‍⚖️",
     inputs: "approvers (target), rule, dueIn, escalation",
@@ -869,13 +872,10 @@ export const VERB_CATALOG: VerbSpec[] = [
   {
     description:
       'Pauses and requests structured input from a person via a form. Form source is either a pre-authored form reference (formRef, e.g. "pir_review@2") or a set of inline fields defined in the step config. Fans out two outcome lanes — Submitted (continues, non-terminal) and Timed-out (terminal). An optional pre-breach escalation notifies or reassigns before the due date routes to Timed-out.',
-    fields: [
-      { key: "dueIn", kind: "text", label: "Due in", placeholder: "24h" },
-    ],
+    fields: [{ key: "dueIn", kind: "text", label: "Due in", placeholder: "24h" }],
     group: "Human",
     icon: "📝",
-    inputs:
-      "formRef OR inlineFields (JSON InlineField[]), assignee (target), dueIn, escalation",
+    inputs: "formRef OR inlineFields (JSON InlineField[]), assignee (target), dueIn, escalation",
     label: "Collect Input",
     name: "collect_input",
     outputs:
@@ -889,7 +889,7 @@ export const VERB_CATALOG: VerbSpec[] = [
     description:
       "Assigns one or MANY computed values / literals into workflow variables — commonly the record state (e.g. set state → Resolved). Each assignment is a {name, value} row; every declared name becomes a downstream pill.",
     // set_var stores its rows as a JSON string in config.assignments (see
-    // setVarAssignments / serializeAssignments). The legacy single {name,value}
+    // setVariableAssignments / serializeAssignments). The legacy single {name,value}
     // pair is still read for back-compat; the repeatable editor lives in
     // NodeConfigPanel. These field descriptors drive back-compat / single-row
     // reads only — the panel renders the multi-row editor.
@@ -946,8 +946,7 @@ export const VERB_CATALOG: VerbSpec[] = [
     summary: "Compute a new value from existing vars via an expression.",
   },
   {
-    description:
-      "Merges multiple objects or branch outputs into a single variable.",
+    description: "Merges multiple objects or branch outputs into a single variable.",
     fields: [
       {
         key: "sources",
@@ -1021,8 +1020,7 @@ export const VERB_CATALOG: VerbSpec[] = [
     name: "map",
     outputs: "resultVar; item.<as> per iteration",
     source: "base",
-    summary:
-      "Loop: project each collection item through an expression (optional body).",
+    summary: "Loop: project each collection item through an expression (optional body).",
   },
 
   // Flow (compositions) ------------------------------------------------------
@@ -1048,8 +1046,7 @@ export const VERB_CATALOG: VerbSpec[] = [
     summary: "Run another workflow inline and wait for it to finish.",
   },
   {
-    description:
-      "Starts another workflow fire-and-forget (does not wait for it).",
+    description: "Starts another workflow fire-and-forget (does not wait for it).",
     fields: [
       { key: "workflow", kind: "text", label: "Workflow key" },
       {
@@ -1071,8 +1068,7 @@ export const VERB_CATALOG: VerbSpec[] = [
 
   // Ops ----------------------------------------------------------------------
   {
-    description:
-      "Emits a metric data point (counter or gauge) to the observability pipeline.",
+    description: "Emits a metric data point (counter or gauge) to the observability pipeline.",
     fields: [
       { key: "metric", kind: "text", label: "Metric name" },
       {
@@ -1297,8 +1293,7 @@ export const THIRD_PARTY_CATALOG: VerbSpec[] = [
  *
  * @since 1.0.0
  */
-export const thirdPartyKey = (spec: VerbSpec): string =>
-  `${spec.vendor ?? "ext"}::${spec.label}`;
+export const thirdPartyKey = (spec: VerbSpec): string => `${spec.vendor ?? "ext"}::${spec.label}`;
 
 /**
  * The base catalog indexed by verb name.
@@ -1356,13 +1351,7 @@ export const BRANCH_VERBS = new Set<VerbName>(["decision", "switch"]);
  *
  * @since 1.0.0
  */
-export const FANOUT_VERBS = new Set<VerbName>([
-  "foreach",
-  "map",
-  "parallel",
-  "try_catch",
-  "while",
-]);
+export const FANOUT_VERBS = new Set<VerbName>(["foreach", "map", "parallel", "try_catch", "while"]);
 
 /**
  * Verbs that terminate their trail (nothing may run after them on that trail).
@@ -1428,10 +1417,7 @@ export type LaneSemantics = "end" | "forced-end" | "loop-back" | "merge";
  *
  * @since 1.0.0
  */
-export const laneRoleFor = (
-  ownerType: VerbName,
-  laneIndex: number,
-): LaneRole => {
+export const laneRoleFor = (ownerType: VerbName, laneIndex: number): LaneRole => {
   if (ownerType === "try_catch") return laneIndex === 0 ? "try" : "catch";
   return "branch";
 };
@@ -1445,10 +1431,7 @@ export const laneRoleFor = (
  *
  * @since 1.0.0
  */
-export const laneDefaultsTerminal = (
-  ownerType: VerbName,
-  role: LaneRole,
-): boolean => {
+export const laneDefaultsTerminal = (ownerType: VerbName, role: LaneRole): boolean => {
   if (ownerType === "try_catch") return role === "catch";
   if (LOOP_VERBS.has(ownerType)) return false;
   return true;
@@ -1514,17 +1497,14 @@ export interface Assignment {
  *
  * @since 1.0.0
  */
-export const setVarAssignments = (step: Step): Assignment[] => {
+export const setVariableAssignments = (step: Step): Assignment[] => {
   const raw = step.config.assignments;
   if (raw) {
     try {
       const parsed = JSON.parse(raw) as unknown;
       if (Array.isArray(parsed))
         return parsed
-          .filter(
-            (r): r is Record<string, unknown> =>
-              Boolean(r) && typeof r === "object",
-          )
+          .filter((r): r is Record<string, unknown> => Boolean(r) && typeof r === "object")
           .map((r) => ({
             name: String(r.name ?? ""),
             value: String(r.value ?? ""),
@@ -1544,8 +1524,7 @@ export const setVarAssignments = (step: Step): Assignment[] => {
  *
  * @since 1.0.0
  */
-export const serializeAssignments = (rows: Assignment[]): string =>
-  JSON.stringify(rows);
+export const serializeAssignments = (rows: Assignment[]): string => JSON.stringify(rows);
 
 /**
  * Who a human task is assigned to. `ref` meaning by kind:
@@ -1608,18 +1587,15 @@ const parseJson = <T>(raw: string | undefined): T | undefined => {
  *
  * @since 1.0.0
  */
-export const readAssignTarget = (
-  step: Step,
-  key: string,
-): AssignTarget | undefined => parseJson<AssignTarget>(step.config[key]);
+export const readAssignTarget = (step: Step, key: string): AssignTarget | undefined =>
+  parseJson<AssignTarget>(step.config[key]);
 
 /**
  * Serialize an AssignTarget to its JSON config string.
  *
  * @since 1.0.0
  */
-export const writeAssignTarget = (target: AssignTarget): string =>
-  JSON.stringify(target);
+export const writeAssignTarget = (target: AssignTarget): string => JSON.stringify(target);
 
 /**
  * Read the JSON-encoded Escalation from config.escalation.
@@ -1657,9 +1633,7 @@ export const readInlineFields = (step: Step): InlineField[] => {
   const parsed = parseJson<unknown>(step.config.inlineFields);
   if (!Array.isArray(parsed)) return [];
   return parsed
-    .filter(
-      (r): r is Record<string, unknown> => Boolean(r) && typeof r === "object",
-    )
+    .filter((r): r is Record<string, unknown> => Boolean(r) && typeof r === "object")
     .map((r) => ({
       label: r.label ? String(r.label) : undefined,
       name: String(r.name ?? ""),
@@ -1672,8 +1646,7 @@ export const readInlineFields = (step: Step): InlineField[] => {
  *
  * @since 1.0.0
  */
-export const writeInlineFields = (rows: InlineField[]): string =>
-  JSON.stringify(rows);
+export const writeInlineFields = (rows: InlineField[]): string => JSON.stringify(rows);
 
 /**
  * The ref strings a human-task step produces as variable outputs. Used by both
@@ -1682,7 +1655,7 @@ export const writeInlineFields = (rows: InlineField[]): string =>
  *
  * @since 1.0.0
  */
-export const humanTaskOutputRefs = (step: Step): string[] => {
+export const humanTaskOutputReferences = (step: Step): string[] => {
   if (step.type === "manual_approval") {
     return [
       `vars.${step.id}.decision`,
@@ -1693,12 +1666,12 @@ export const humanTaskOutputRefs = (step: Step): string[] => {
   }
   if (step.type === "collect_input") {
     const fields = readInlineFields(step);
-    const refs: string[] = fields
+    const references: string[] = fields
       .filter((f) => f.name)
       .map((f) => `vars.${step.id}.${f.name}`);
-    if (refs.length === 0 && step.config.formRef) refs.push(`vars.${step.id}`);
-    refs.push(`vars.${step.id}.submittedBy`, `vars.${step.id}.submittedAt`);
-    return refs;
+    if (references.length === 0 && step.config.formRef) references.push(`vars.${step.id}`);
+    references.push(`vars.${step.id}.submittedBy`, `vars.${step.id}.submittedAt`);
+    return references;
   }
   return [];
 };
@@ -1818,9 +1791,7 @@ export const composeIsoDuration = (parts: DurationParts): string => {
  *
  * @since 1.0.0
  */
-export const parseDurationParts = (
-  config: Record<string, string>,
-): DurationParts => ({
+export const parseDurationParts = (config: Record<string, string>): DurationParts => ({
   days: Number(config.duration_days) || 0,
   hours: Number(config.duration_hours) || 0,
   minutes: Number(config.duration_minutes) || 0,
@@ -1901,7 +1872,7 @@ export const stepSummary = (step: Step): string => {
       return `${step.children?.length ?? 0} trails · join ${c.join ?? "wait-all"}${c.join === "quorum" ? ` (${c.quorum ?? "?"})` : ""}`;
     }
     case "set_var": {
-      const rows = setVarAssignments(step).filter((r) => r.name.trim());
+      const rows = setVariableAssignments(step).filter((r) => r.name.trim());
       if (rows.length === 0) return "var → …";
       if (rows.length === 1) return `${rows[0].name} → ${rows[0].value || "…"}`;
       return `${rows.length} assignments · ${rows.map((r) => r.name).join(", ")}`;

@@ -1,25 +1,40 @@
+/*
+ * Copyright 2026 Shane
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import type { ValidationIssue, ValidationResult } from "./workflowGateway";
 
 import {
   type Branch,
   composeIsoDuration,
   durationExceedsCap,
-  humanTaskOutputRefs,
+  humanTaskOutputReferences,
   laneIsTerminal,
   laneRoleFor,
   laneSemantics,
   MERGEABLE_OWNERS,
   parseDurationParts,
-  setVarAssignments,
+  setVariableAssignments,
   type Step,
   TERMINAL_VERBS,
   VERB_BY_NAME,
   type VerbName,
-  type WorkflowDef,
+  type WorkflowDefinition,
 } from "./workflowData";
 import { entryPoints, referencedPills, triggerPills } from "./workflowScope";
 
-// STRUCTURAL validation of a WorkflowDef — no network, purely in-process. Shared
+// STRUCTURAL validation of a WorkflowDefinition — no network, purely in-process. Shared
 // by every gateway adapter so they can never drift: the same static checks run
 // whichever data source the host selects.
 
@@ -70,20 +85,20 @@ interface PathNode {
 
 const MAX_PATHS = 512;
 
-const varRef = (n: string): string => (n.startsWith("vars.") ? n : `vars.${n}`);
+const variableReference = (n: string): string => (n.startsWith("vars.") ? n : `vars.${n}`);
 
 const stepOutputs = (step: Step): string[] => {
   const c = step.config;
   switch (step.type) {
     case "collect_input":
     case "manual_approval": {
-      return humanTaskOutputRefs(step);
+      return humanTaskOutputReferences(step);
     }
     case "filter":
     case "http_request":
     case "merge":
     case "transform": {
-      return c.resultVar ? [varRef(c.resultVar)] : [];
+      return c.resultVar ? [variableReference(c.resultVar)] : [];
     }
     case "foreach": {
       return c.as ? [`item.${c.as}`] : [];
@@ -91,18 +106,18 @@ const stepOutputs = (step: Step): string[] => {
     case "map": {
       // map is a loop: exposes the result var AND the per-item var in the body.
       const outs: string[] = [];
-      if (c.resultVar) outs.push(varRef(c.resultVar));
+      if (c.resultVar) outs.push(variableReference(c.resultVar));
       if (c.as) outs.push(`item.${c.as}`);
       return outs;
     }
     case "parallel": {
-      return c.join === "aggregate" && c.resultVar ? [varRef(c.resultVar)] : [];
+      return c.join === "aggregate" && c.resultVar ? [variableReference(c.resultVar)] : [];
     }
     case "set_var": {
       // One OR many assignments — every named row becomes a pill.
-      return setVarAssignments(step)
+      return setVariableAssignments(step)
         .filter((r) => r.name.trim())
-        .map((r) => varRef(r.name));
+        .map((r) => variableReference(r.name));
     }
     default: {
       return [];
@@ -120,8 +135,9 @@ const enumerateSteps = (
   budget: { count: number },
 ): { scope: Set<string>; suffix: PathNode[]; terminated?: string }[] => {
   // Start with a single empty suffix and the incoming scope.
-  let paths: { scope: Set<string>; suffix: PathNode[]; terminated?: string }[] =
-    [{ scope: new Set(incomingScope), suffix: [] }];
+  let paths: { scope: Set<string>; suffix: PathNode[]; terminated?: string }[] = [
+    { scope: new Set(incomingScope), suffix: [] },
+  ];
 
   for (const step of steps) {
     const nextPaths: typeof paths = [];
@@ -157,18 +173,9 @@ const enumerateSteps = (
         // Fork: one continuation per branch. Every branch DEFAULTS TO END; a
         // branch only continues the trail when it explicitly merges/rejoins.
         for (const [laneIndex, branch] of branches.entries()) {
-          const terminal = laneIsTerminal(
-            step.type,
-            laneRoleFor(step.type, laneIndex),
-            branch,
-          );
+          const terminal = laneIsTerminal(step.type, laneRoleFor(step.type, laneIndex), branch);
           const branchLabel = `${label ? `${label}, ` : ""}${labelFor(step)}=${branch.caseLabel}`;
-          const sub = enumerateSteps(
-            branch.steps,
-            afterScope,
-            branchLabel,
-            budget,
-          );
+          const sub = enumerateSteps(branch.steps, afterScope, branchLabel, budget);
           for (const s of sub) {
             budget.count += 1;
             nextPaths.push({
@@ -180,8 +187,7 @@ const enumerateSteps = (
               // so it also ends this enumerated route.
               terminated: terminal
                 ? `${labelFor(step)} ${branch.caseLabel} branch ends`
-                : (s.terminated ??
-                  `${labelFor(step)} ${branch.caseLabel} branch merges`),
+                : (s.terminated ?? `${labelFor(step)} ${branch.caseLabel} branch merges`),
             });
           }
         }
@@ -202,17 +208,11 @@ const enumerateSteps = (
           const role = laneRoleFor(step.type, laneIndex);
           const terminal = laneIsTerminal(step.type, role, child);
           const childLabel = `${label ? `${label}, ` : ""}${labelFor(step)}/${child.caseLabel}`;
-          const sub = enumerateSteps(
-            child.steps,
-            afterScope,
-            childLabel,
-            budget,
-          );
+          const sub = enumerateSteps(child.steps, afterScope, childLabel, budget);
           for (const s of sub) {
             budget.count += 1;
             mergedSuffix = [...mergedSuffix, ...s.suffix];
-            if (!terminal && !s.terminated)
-              for (const p of s.scope) mainScope.add(p);
+            if (!terminal && !s.terminated) for (const p of s.scope) mainScope.add(p);
           }
         }
         nextPaths.push({ scope: mainScope, suffix: mergedSuffix });
@@ -227,20 +227,20 @@ const enumerateSteps = (
   return paths;
 };
 
-const labelFor = (step: Step): string =>
-  step.label || VERB_BY_NAME[step.type]?.label || step.type;
+const labelFor = (step: Step): string => step.label || VERB_BY_NAME[step.type]?.label || step.type;
 
 // Build all whole-workflow paths: thread the stages (pre → work → end) in order,
 // carrying scope across stage boundaries.
-const enumerateWorkflow = (workflow: WorkflowDef): Path[] => {
+const enumerateWorkflow = (workflow: WorkflowDefinition): Path[] => {
   const budget = { count: 0 };
   const initialScope = new Set(triggerPills(workflow).map((p) => p.ref));
 
   const workStages = workflow.stages.filter((s) => s.kind !== "pre-stage");
   const hasEndStage = workflow.stages.some((s) => s.kind === "end-stage");
 
-  let paths: { scope: Set<string>; suffix: PathNode[]; terminated?: string }[] =
-    [{ scope: initialScope, suffix: [] }];
+  let paths: { scope: Set<string>; suffix: PathNode[]; terminated?: string }[] = [
+    { scope: initialScope, suffix: [] },
+  ];
 
   for (const stage of workStages) {
     const nextPaths: typeof paths = [];
@@ -273,7 +273,7 @@ const enumerateWorkflow = (workflow: WorkflowDef): Path[] => {
  *
  * @since 1.0.0
  */
-export const validateWorkflow = (workflow: WorkflowDef): ValidationResult => {
+export const validateWorkflow = (workflow: WorkflowDefinition): ValidationResult => {
   const issues: ValidationIssue[] = [];
 
   // 0. Structural: exactly one pre-stage + one end-stage.
@@ -291,7 +291,7 @@ export const validateWorkflow = (workflow: WorkflowDef): ValidationResult => {
     });
 
   // Entry-point contracts, indexed by step id, for merge-target validation.
-  const entries = new Map(entryPoints(workflow).map((e) => [e.stepId, e]));
+  const entries = new Map(entryPoints(workflow).map((entry) => [entry.stepId, entry]));
 
   // 1. Per-node structural checks (across every stage/lane).
   const seen = new Set<string>();
@@ -392,7 +392,7 @@ export const validateWorkflow = (workflow: WorkflowDef): ValidationResult => {
     }
     // set_var: at least one assignment row with a name (D1).
     if (step.type === "set_var") {
-      const named = setVarAssignments(step).filter((r) => r.name.trim());
+      const named = setVariableAssignments(step).filter((r) => r.name.trim());
       if (named.length === 0)
         issues.push({
           level: "error",
@@ -442,17 +442,15 @@ export const validateWorkflow = (workflow: WorkflowDef): ValidationResult => {
     }
     // Per-lane merge/termination contract (branches AND children share indices
     // per their own arrays — role derives from owner type + index).
-    for (const [i, lane] of (step.branches ?? []).entries())
-      checkLaneMerge(step.id, step.type, lane, i);
-    for (const [i, lane] of (step.children ?? []).entries())
-      checkLaneMerge(step.id, step.type, lane, i);
+    for (const [index, lane] of (step.branches ?? []).entries())
+      checkLaneMerge(step.id, step.type, lane, index);
+    for (const [index, lane] of (step.children ?? []).entries())
+      checkLaneMerge(step.id, step.type, lane, index);
     for (const lane of [...(step.branches ?? []), ...(step.children ?? [])])
       for (const laneStep of lane.steps) checkStep(laneStep);
   };
-  for (const stage of workflow.stages)
-    for (const stageStep of stage.steps) checkStep(stageStep);
-  if (stepCount === 0)
-    issues.push({ level: "error", message: "Workflow has no steps." });
+  for (const stage of workflow.stages) for (const stageStep of stage.steps) checkStep(stageStep);
+  if (stepCount === 0) issues.push({ level: "error", message: "Workflow has no steps." });
 
   // 2. Path enumeration: for each concrete path verify End reachability,
   // required config, and pill scope.
@@ -493,15 +491,15 @@ export const validateWorkflow = (workflow: WorkflowDef): ValidationResult => {
       // Pill scope: every referenced pill must be in scope at this node ON THIS
       // PATH. record.* pills are always in scope (record is ambient); vars.* /
       // item.* must have been produced above.
-      for (const ref of referencedPills(step)) {
-        if (ref.startsWith("record.") || ref.startsWith("trigger.")) continue;
-        if (!pn.scope.has(ref)) {
-          const key = `${step.id}:${ref}:${tag}`;
+      for (const reference of referencedPills(step)) {
+        if (reference.startsWith("record.") || reference.startsWith("trigger.")) continue;
+        if (!pn.scope.has(reference)) {
+          const key = `${step.id}:${reference}:${tag}`;
           if (!reportedScope.has(key)) {
             reportedScope.add(key);
             issues.push({
               level: "error",
-              message: `Path ${tag} → ${labelFor(step)}: pill "${ref}" is not in scope here.`,
+              message: `Path ${tag} → ${labelFor(step)}: pill "${reference}" is not in scope here.`,
               stepId: step.id,
             });
           }
@@ -520,8 +518,6 @@ export const validateWorkflow = (workflow: WorkflowDef): ValidationResult => {
 };
 
 const describePath = (path: Path, index: number): string => {
-  const choices = [
-    ...new Set(path.nodes.map((n) => n.choiceLabel).filter(Boolean)),
-  ];
+  const choices = [...new Set(path.nodes.map((n) => n.choiceLabel).filter(Boolean))];
   return choices.length > 0 ? `[${choices.join("; ")}]` : `#${index + 1}`;
 };

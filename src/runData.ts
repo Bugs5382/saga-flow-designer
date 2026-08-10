@@ -1,9 +1,24 @@
+/*
+ * Copyright 2026 Shane
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 // Run / execution-history domain model for the Flow Designer.
 //
 // Mirrors the go-saga engine's RUNTIME shape: the engine executes a
 // WorkflowDefinition and produces a saga run — an ordered trail of executed
 // steps (StepRun), a run-level status, and an audit event log (RunEvent). Where
-// the WorkflowDef is the AUTHORED shape, a Run is one concrete EXECUTION of it:
+// the WorkflowDefinition is the AUTHORED shape, a Run is one concrete EXECUTION of it:
 // a single resolved path through the branches.
 //
 // The Runs surface reads these through the same gateway seam as definitions, so
@@ -26,7 +41,7 @@ export interface Run {
   status: RunStatus;
   stepRuns: StepRun[];
   trigger: RunTrigger;
-  workflowId: string; // FK → WorkflowDef.id
+  workflowId: string; // FK → WorkflowDefinition.id
   workflowKey: string; // denormalised for display (e.g. inc.triage)
 }
 
@@ -57,8 +72,7 @@ export interface RunEvent {
  *
  * @since 1.0.0
  */
-export type RunStatus =
-  "cancelled" | "failed" | "paused" | "running" | "succeeded";
+export type RunStatus = "cancelled" | "failed" | "paused" | "running" | "succeeded";
 
 /**
  * How the run was started.
@@ -69,7 +83,7 @@ export type RunTrigger = "cron" | "event" | "manual" | "record" | "replay";
 
 /**
  * One executed (or skipped) step within a run. `stepId` ties back to the
- * WorkflowDef Step.id so the canvas overlay can colour the matching card.
+ * WorkflowDefinition Step.id so the canvas overlay can colour the matching card.
  *
  * @since 1.0.0
  */
@@ -92,8 +106,7 @@ export interface StepRun {
  *
  * @since 1.0.0
  */
-export type StepRunStatus =
-  "failed" | "running" | "skipped" | "succeeded" | "waiting";
+export type StepRunStatus = "failed" | "running" | "skipped" | "succeeded" | "waiting";
 
 // --- HELPERS ---------------------------------------------------------------
 
@@ -161,5 +174,4 @@ export const absoluteTime = (iso: string): string =>
  *
  * @since 1.0.0
  */
-export const shortRunId = (id: string): string =>
-  id.length > 12 ? `…${id.slice(-8)}` : id;
+export const shortRunId = (id: string): string => (id.length > 12 ? `…${id.slice(-8)}` : id);

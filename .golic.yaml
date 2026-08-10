@@ -1,0 +1,35 @@
+# golic (Bugs5382's license-header tool) config for this repo.
+#
+# This package is Apache-2.0. golic's built-in apache2 template emits a "title"
+# line and no per-line ` * ` prefixes, so we define a custom `apache-short`
+# license whose body already carries the standard star-aligned Apache-2.0 short
+# header. Wrapped by the `/* ... */` rule below it lands byte-for-byte as the
+# canonical Apache-2.0 file header. The copyright year/holder is baked into the
+# body (golic does not template custom licenses), so no `-c` flag is required.
+#
+# Which files get a header is controlled by .licignore, not here.
+golic:
+  licenses:
+    apache-short: " * Copyright 2026 Shane\n *\n * Licensed under the Apache License, Version 2.0 (the \"License\");\n * you may not use this file except in compliance with the License.\n * You may obtain a copy of the License at\n *\n *     http://www.apache.org/licenses/LICENSE-2.0\n *\n * Unless required by applicable law or agreed to in writing, software\n * distributed under the License is distributed on an \"AS IS\" BASIS,\n * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n * See the License for the specific language governing permissions and\n * limitations under the License.\n"
+  rules:
+    .ts:
+      prefix: "/*"
+      suffix: " */"
+    .tsx:
+      prefix: "/*"
+      suffix: " */"
+    .mts:
+      prefix: "/*"
+      suffix: " */"
+    .cts:
+      prefix: "/*"
+      suffix: " */"
+    .mjs:
+      prefix: "/*"
+      suffix: " */"
+    .js:
+      prefix: "/*"
+      suffix: " */"
+    .cjs:
+      prefix: "/*"
+      suffix: " */"

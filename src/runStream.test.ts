@@ -1,3 +1,18 @@
+/*
+ * Copyright 2026 Shane
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { describe, expect, it } from "vitest";
 
 import { stepRunsById } from "./runData";
@@ -15,7 +30,7 @@ import {
 // into the exact Run the UI renders — status transitions, appended events,
 // per-step statuses, and the taken path.
 
-// A step resolver standing in for the loaded WorkflowDef.
+// A step resolver standing in for the loaded WorkflowDefinition.
 const resolve: StepResolver = (stepId) =>
   stepId === "s1" ? { label: "Fetch record", verb: "record.get" } : undefined;
 
@@ -77,12 +92,7 @@ describe("runStream fold", () => {
     expect(run.durationMs).toBe(4000);
 
     // Every frame appended one event, in order, with mapped kinds.
-    expect(run.events.map((e) => e.kind)).toEqual([
-      "started",
-      "step",
-      "step",
-      "completed",
-    ]);
+    expect(run.events.map((event) => event.kind)).toEqual(["started", "step", "step", "completed"]);
     expect(run.events[3].actor).toBe("engine");
     expect(run.events[0].actor).toBe("system");
     expect(run.events[1].message).toContain("s1");
@@ -157,11 +167,7 @@ describe("runStream fold", () => {
     expect(byStep.s9.status).toBe("failed");
     expect(byStep.s9.error).toBe("boom");
     // step.failed → error kind; run.failed → error kind.
-    expect(run.events.map((e) => e.kind)).toEqual([
-      "started",
-      "error",
-      "error",
-    ]);
+    expect(run.events.map((event) => event.kind)).toEqual(["started", "error", "error"]);
   });
 
   it("maps enums per the engine contract", () => {
