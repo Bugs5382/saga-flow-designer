@@ -26,5 +26,8 @@
 **/temp/**
 /docs/**
 **/docs/**
+# The docs site (Docusaurus) is a separate sub-project with its own tooling.
+/website/**
+**/website/**
 /.idea/**
 /.husky/**
