@@ -1,0 +1,27 @@
+name: Release Drafter
+# Keeps the draft GitHub Release notes current on every push to main, grouping
+# merged PRs by the categorizing label each one carries (see
+# .github/release-drafter.yml). Runs with the default GITHUB_TOKEN, so the draft
+# stays fresh even before the release App the Release Manager
+# (job-version-bump.yaml) needs is installed. Once the App is present the two
+# simply converge on the same draft.
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  Update_Draft:
+    name: 📝 Update release draft
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update the draft release
+        uses: release-drafter/release-drafter@v7
+        with:
+          commitish: main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
