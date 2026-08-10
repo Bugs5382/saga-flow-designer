@@ -1,32 +1,35 @@
 # 🕸️ @bugs5382/saga-flow-designer
 
-> Utilities and (soon) React components for visualising and editing
-> saga-orchestration **workflows** and **runs**.
+> React components and utilities for visualising and editing saga-orchestration
+> **workflows** and **runs**.
 
-Built to render and author saga workflows on top of
-[`@xyflow/react`](https://reactflow.dev/), shipped as ESM and CommonJS with
-first-class TypeScript types.
+An embeddable **Flow Designer**, run views, and the framework-agnostic logic
+that powers them — built on [`@xyflow/react`](https://reactflow.dev/) and shipped
+as ESM + CommonJS with first-class TypeScript types. The package is
+**engine-agnostic**: it makes no assumption about how your data is fetched or how
+your app is shelled. You implement one gateway; it renders the rest.
 
 ## ✨ Features
 
+- 🧩 **Components** — `FlowDesigner` (canvas, verb palette, node-config, condition
+  builder), `RunsList`, `RunDetail` (live run streaming), `WorkflowList`, plus the
+  composable pieces. All props-driven — you inject a gateway and callbacks.
+- 🔌 **`WorkflowGateway` seam** — the single interface a host implements to
+  connect the UI to a backend (definitions, runs, live subscribe, validate).
 - 🧱 **Domain model** — a strongly-typed `WorkflowDefinition` (stages, steps,
   branches, lanes, triggers) plus the run / execution-history model.
-- 📚 **Verb catalog** — the built-in verb specs (`VERB_CATALOG`, `VERB_BY_NAME`)
-  with palette metadata and per-verb config fields.
 - 🔀 **Flatten / expand mapper** — `flattenDefinition` / `expandDefinition`
-  convert losslessly between the engine-flat DAG and the UI-nested tree.
-- 🔌 **Gateway seam** — a `WorkflowGateway` port so the same UI runs against any
-  adapter (in-process or remote).
-- 🫧 **Pill scope + placement** — `pillsInScopeFor`, `referencedPills`, and
-  verb-legality helpers for positional reference scoping.
-- 📡 **Live run stream** — `foldFrames` accumulates streamed run frames into a
-  run, with engine-to-UI enum mappers.
-- ✅ **Structural validation** — in-process workflow validation with typed
-  issues.
+  convert losslessly between an engine-flat DAG and the UI-nested tree.
+- 📡 **Live run stream** — `seedRun` / `foldFrame` accumulate streamed run frames
+  into a `Run`, with engine-to-UI enum mappers.
+- 🧪 **`createMockGateway()`** — a fully in-memory gateway with example data, so
+  you can run the designer with **no backend** (it drives the Storybook + demo).
+- 🎨 **Swappable theming** — every colour resolves to a `--sfd-*` CSS variable
+  with the package's own default; a host rebrands by overriding the variables.
+- ✅ **Structural validation** — `validateWorkflow` with typed issues.
 
-Everything above is **pure TypeScript** — no React, no transport — so it is
-usable in a browser, a worker, or on a server. The React canvas components build
-on this core and land incrementally.
+The domain model, mapper, run-stream fold, and validation are **pure TypeScript**
+(no React) — usable in a browser, a worker, or on a server.
 
 ## 📦 Install
 
@@ -34,55 +37,95 @@ on this core and land incrementally.
 npm install @bugs5382/saga-flow-designer
 ```
 
-`react`, `react-dom`, and `@xyflow/react` are peer dependencies and must be
-present in the host application:
+`react`, `react-dom`, and `@xyflow/react` are peer dependencies:
 
 ```sh
 npm install react react-dom @xyflow/react
 ```
 
-## 🚀 Usage
+## 🚀 Quick start
+
+```tsx
+import { FlowDesigner, createMockGateway } from "@bugs5382/saga-flow-designer";
+import "@bugs5382/saga-flow-designer/theme.css";
+import "@xyflow/react/dist/style.css";
+
+const gateway = createMockGateway();
+
+export const Designer = () => (
+  <FlowDesigner gateway={gateway} definitionId="order.fulfillment" />
+);
+```
+
+The components use Tailwind utilities and the shipped token defaults — add the
+Tailwind preset and scan the package in your `content` (see **Theming** below).
+
+## 🔌 Connecting a backend
+
+Implement `WorkflowGateway` against your API and inject it — that is the only
+integration point:
 
 ```ts
-import {
-  VERB_CATALOG,
-  expandDefinition,
-  flattenDefinition,
-  type WorkflowDefinition,
-} from "@bugs5382/saga-flow-designer";
-
-// Expand an engine-flat definition into the UI-nested tree, edit it, then
-// flatten it back for the engine — the round-trip is lossless.
-const ui = expandDefinition(engineDefinition);
-const flat = flattenDefinition(ui);
-
-// The verb catalog drives the palette.
-console.log(VERB_CATALOG.map((verb) => verb.name));
+const gateway: WorkflowGateway = {
+  listWorkflows, getWorkflow, saveWorkflow, /* … */ subscribeRun, validateWorkflow,
+};
 ```
+
+- **[INTEGRATION.md](./INTEGRATION.md)** — mount the components inside your own
+  app shell + router (the package provides no shell).
+- **[USING_WITH_GO_SAGA.md](./USING_WITH_GO_SAGA.md)** — run a real
+  [go-saga](https://github.com/Bugs5382/go-saga-orchestration) engine standalone
+  and adapt it, with the runnable example in [`examples/httpGateway.ts`](./examples/httpGateway.ts).
+- Storybook **Guides → Gateway Contract** — the interface, live.
+
+## 🎨 Theming
+
+The package ships its **own** palette as `--sfd-*` CSS variables — independent of
+any brand. Import the defaults and add the Tailwind preset:
+
+```ts
+import "@bugs5382/saga-flow-designer/theme.css";
+```
+
+```js
+// tailwind.config.js
+module.exports = {
+  presets: [require("@bugs5382/saga-flow-designer/tailwind-preset")],
+  content: [
+    "./src/**/*.{ts,tsx}",
+    "./node_modules/@bugs5382/saga-flow-designer/dist/**/*.{js,cjs}",
+  ],
+};
+```
+
+To rebrand, override any `--sfd-*` variables in your own CSS — no dependency on
+the package's design system. The Storybook **Guides → Theming** page has a live
+brand-swap.
 
 ## 🛠 Development
 
 ```sh
 npm install
-npm run typecheck   # tsc --noEmit
-npm run lint        # eslint (@the-rabbit-hole/eslint-config)
-npm test            # vitest run
-npm run build       # tsup -> dist/
-npm run docs        # typedoc -> docs/api
+npm run typecheck        # tsc --noEmit
+npm run lint             # eslint (@the-rabbit-hole/eslint-config)
+npm test                 # vitest run (tests in tests/)
+npm run build            # tsup -> dist/
+npm run docs             # typedoc -> docs/api
+npm run storybook        # component gallery + guides
+npm run demo             # standalone FlowDesigner (mock; or VITE_GS_BASE for go-saga)
 ```
 
-License headers are managed with [golic](https://github.com/Bugs5382/golic) via
-[go-task](https://taskfile.dev): `task license` verifies them, `task
-license:fix` applies them.
+Source lives in `src/`, tests in `tests/`, Storybook stories + MDX guides in
+`stories/`, and the standalone demo in `examples/`. License headers are managed with
+[golic](https://github.com/Bugs5382/golic) via [go-task](https://taskfile.dev):
+`task license` verifies, `task license:fix` applies.
 
-## 📖 API docs
+## 📖 Docs
 
-API reference is generated from the source doc-comments with
-[TypeDoc](https://typedoc.org):
-
-```sh
-npm run docs
-```
+- **Storybook** — component gallery, autodocs (props tables), and the guides
+  (Introduction, Getting Started, Gateway Contract, Theming): `npm run storybook`.
+- **API reference** — generated from the source doc-comments with
+  [TypeDoc](https://typedoc.org): `npm run docs`.
 
 ## 📄 License
 

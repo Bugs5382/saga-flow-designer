@@ -16,8 +16,8 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
-import { type WorkflowDefinition } from "./workflowData";
-import { type EngineDefinition, expandDefinition, flattenDefinition } from "./workflowMapper";
+import { type WorkflowDefinition } from "../src/workflowData";
+import { type EngineDefinition, expandDefinition, flattenDefinition } from "../src/workflowMapper";
 
 // The REAL engine definitions (flat DAG shape) live in a TEST-ONLY fixture —
 // read here via fs so nothing imports it from a production code path. It carries

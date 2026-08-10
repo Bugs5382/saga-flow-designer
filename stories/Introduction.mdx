@@ -1,0 +1,54 @@
+import { Meta } from "@storybook/blocks";
+
+<Meta title="Introduction" />
+
+# 🧭 saga-flow-designer
+
+React components and utilities for **visualising and editing saga-orchestration
+workflows and runs** — an embeddable Flow Designer, run views, and the
+framework-agnostic logic that powers them. The package is engine-agnostic: it
+makes no assumption about how your data is fetched or how your app is shelled.
+
+## 📦 Install
+
+```bash
+npm install @bugs5382/saga-flow-designer
+```
+
+Peer dependencies (provided by your app):
+
+```bash
+npm install react react-dom @xyflow/react
+```
+
+## 🧩 What's inside
+
+- **Components** — `FlowDesigner`, `RunsList`, `RunDetail`, `WorkflowList`, plus
+  the composable pieces (`FlowCanvas`, `VerbPalette`, `NodeConfigPanel`,
+  `ConditionBuilder`). All props-driven: you inject a gateway and callbacks; the
+  package owns none of your routing or app shell.
+- **The `WorkflowGateway` seam** — the one interface your host implements to
+  connect the UI to a backend. See **Guides → Gateway Contract**.
+- **Logic core** — the definition model (`WorkflowDefinition`, stages/steps/
+  branches), the run model (`Run`/`RunEvent`/`StepRun`), the flat-DAG ↔ nested
+  mapper (`expandDefinition`/`flattenDefinition`), the run-stream fold
+  (`seedRun`/`foldFrame`), and `validateWorkflow`. Pure TypeScript, no React.
+- **`createMockGateway()`** — a fully in-memory gateway with example data, so
+  you can run the designer with zero backend (it drives this Storybook).
+
+## 🪄 Two faces
+
+1. A **library** you consume in your app with a real `WorkflowGateway` adapter.
+2. A **standalone harness** — this Storybook and the `demo/` app both run on the
+   mock gateway with no host or backend.
+
+## 🎨 Theming
+
+The components ship their **own** default palette (independent of any brand).
+Every colour resolves to a `--sfd-*` CSS variable with a shipped default, so a
+host restyles purely by overriding those variables — no dependency on the host's
+design system. See **Guides → Theming** for the full guide and
+**Guides → Getting Started** for setup.
+
+Start with **Guides → Getting Started**, then wire your backend via
+**Guides → Gateway Contract**.

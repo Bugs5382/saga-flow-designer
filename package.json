@@ -14,7 +14,14 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
-    }
+    },
+    "./tailwind-preset": {
+      "types": "./dist/tailwind.preset.d.ts",
+      "import": "./dist/tailwind.preset.js",
+      "require": "./dist/tailwind.preset.cjs"
+    },
+    "./theme.css": "./dist/theme.css",
+    "./package.json": "./package.json"
   },
   "files": [
     "dist"
@@ -46,8 +53,8 @@
     "docs": "typedoc",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "demo": "vite --config demo/vite.config.ts",
-    "build-demo": "vite build --config demo/vite.config.ts"
+    "demo": "vite --config examples/vite.config.ts",
+    "build-demo": "vite build --config examples/vite.config.ts"
   },
   "peerDependencies": {
     "@xyflow/react": ">=12",

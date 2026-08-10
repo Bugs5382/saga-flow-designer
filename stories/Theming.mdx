@@ -1,0 +1,88 @@
+import { Meta } from "@storybook/blocks";
+
+<Meta title="Guides/Theming" />
+
+# 🎨 Theming
+
+The components ship their **own** default palette and depend on **no external
+design system**. Every colour they use resolves to a `--sfd-*` CSS variable, and
+the package ships sensible default values for all of them. You restyle purely by
+overriding the variables you care about — no component, className, or build
+changes.
+
+## 🧩 Two files ship with the package
+
+- **`@bugs5382/saga-flow-designer/theme.css`** — a `:root` block defining every
+  `--sfd-*` variable with its default value (R G B channels).
+- **`@bugs5382/saga-flow-designer/tailwind-preset`** — a Tailwind preset that
+  maps each colour name (`slate`, `coral`, `teal`, …) to its variable in channel
+  form, so opacity modifiers such as `bg-slate-700/50` keep working.
+
+## 🚀 Setup
+
+Import the default tokens once in your app entry:
+
+```ts
+import "@bugs5382/saga-flow-designer/theme.css";
+import "@xyflow/react/dist/style.css"; // the React Flow canvas stylesheet
+```
+
+Add the preset to your Tailwind config and include the package in the content
+scan so its utility classes are generated:
+
+```js
+// tailwind.config.js
+module.exports = {
+  presets: [require("@bugs5382/saga-flow-designer/tailwind-preset")],
+  content: [
+    "./src/**/*.{ts,tsx}",
+    "./node_modules/@bugs5382/saga-flow-designer/dist/**/*.{js,cjs}",
+  ],
+};
+```
+
+With just this, the components render in their shipped default palette.
+
+## 🖌️ Override the variables
+
+To rebrand, redefine any `--sfd-*` variables — globally on `:root`, or scoped to
+a subtree. Values are space-separated **R G B channels** (no `rgb(...)` wrapper),
+which lets the preset compose them with Tailwind opacity modifiers.
+
+```css
+/* your app's stylesheet, loaded after theme.css */
+:root {
+  /* Recolour the accent to a violet brand */
+  --sfd-coral-500: 139 92 246;
+  --sfd-coral-600: 124 58 237;
+  --sfd-coral-700: 109 40 217;
+
+  /* Shift the neutral surfaces cooler */
+  --sfd-slate-50: 250 250 255;
+  --sfd-slate-900: 20 20 45;
+}
+```
+
+Any variable you leave alone keeps the package default, so you can override as
+few or as many as you like. Scope overrides to part of the page by setting the
+variables on a wrapper element instead of `:root`:
+
+```tsx
+<div style={{ "--sfd-coral-500": "139 92 246" } as React.CSSProperties}>
+  {/* FlowDesigner here renders with the violet accent */}
+</div>
+```
+
+## 🔍 See it live
+
+The **Guides → Theming → Live Swap** story renders the same components under the
+default palette and an alternate brand side by side. The **Brand** toolbar
+control (top of any story) flips the whole UI between the two by overriding the
+same variables — nothing else changes.
+
+## 📋 The variable set
+
+Variables follow `--sfd-<color>-<shade>`. The colours the components use are:
+`slate` and `zinc` (neutrals), `coral` (accent), `teal` (branch accent), and
+`emerald` / `rose` / `amber` / `sky` / `indigo` (status and secondary accents).
+See `theme.css` for the full list of shades and their default values.

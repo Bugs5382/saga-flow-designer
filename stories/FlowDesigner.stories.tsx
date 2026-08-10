@@ -15,34 +15,33 @@
  */
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { createMockGateway } from "../mock";
-import { RunDetail } from "./RunDetail";
+import { FlowDesigner } from "../src/components/FlowDesigner";
+import { createMockGateway } from "../src/mock";
 
-// A single run with the status overlay on the canvas, the step timeline, and
-// the event log. RunDetail subscribes to the gateway's run stream; the mock
-// replays the seeded run frame-by-frame, so the timeline and overlay fill in
-// live rather than snapping straight to the final result.
+// The full editor mounted against the in-memory mock gateway. Pass a
+// `definitionId` and the designer loads it through the gateway, owns its
+// working copy, and autosaves back to the mock store.
 const gateway = createMockGateway();
 
-const meta: Meta<typeof RunDetail> = {
+const meta: Meta<typeof FlowDesigner> = {
   args: { gateway },
-  component: RunDetail,
+  component: FlowDesigner,
   parameters: { layout: "fullscreen" },
-  title: "Flow Designer/RunDetail",
+  title: "Flow Designer/FlowDesigner",
 };
 
 export default meta;
 
-type Story = StoryObj<typeof RunDetail>;
+type Story = StoryObj<typeof FlowDesigner>;
 
-export const Succeeded: Story = {
-  args: { runId: "run-order-shipped-4821" },
+export const OrderFulfillment: Story = {
+  args: { definitionId: "wf-order-fulfillment" },
 };
 
-export const Paused: Story = {
-  args: { runId: "run-approval-paused-118" },
+export const ApprovalFlow: Story = {
+  args: { definitionId: "wf-approval-flow" },
 };
 
-export const Failed: Story = {
-  args: { runId: "run-report-failed-0705" },
+export const NightlyReport: Story = {
+  args: { definitionId: "wf-nightly-report" },
 };

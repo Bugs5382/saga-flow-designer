@@ -1,0 +1,77 @@
+import { Meta } from "@storybook/blocks";
+
+<Meta title="Guides/Getting Started" />
+
+# 🚀 Getting Started
+
+Mount the `FlowDesigner` with a gateway. The fastest way to see it working is
+the built-in mock gateway.
+
+## ▶️ With the mock gateway
+
+```tsx
+import { FlowDesigner, createMockGateway } from "@bugs5382/saga-flow-designer";
+
+const gateway = createMockGateway();
+
+export const Designer = () => (
+  <FlowDesigner
+    gateway={gateway}
+    definitionId="order.fulfillment"
+    onBack={() => history.back()}
+  />
+);
+```
+
+`createMockGateway()` returns a full in-memory `WorkflowGateway` seeded with
+example workflows and runs, including a `subscribeRun` that replays a run so
+`RunDetail` streams. Great for demos, tests, and Storybook.
+
+## 🧱 The run views
+
+```tsx
+import { RunsList, RunDetail } from "@bugs5382/saga-flow-designer";
+
+<RunsList runs={await gateway.listAllRuns()} onOpenRun={setRunId} />;
+<RunDetail runId={runId} gateway={gateway} onBack={() => setRunId(undefined)} />;
+```
+
+`RunDetail` subscribes to `gateway.subscribeRun(runId, …)` for live updates and
+unsubscribes on unmount — no polling.
+
+## 🎨 Styling
+
+The components use Tailwind utility classes, and every colour they use resolves
+to a `--sfd-*` CSS variable for which the package ships its own default. Two
+files ship for this: `theme.css` (the default variable values) and a Tailwind
+preset (maps the colour names to those variables).
+
+Import the default tokens and the React Flow stylesheet once in your app entry:
+
+```ts
+import "@bugs5382/saga-flow-designer/theme.css";
+import "@xyflow/react/dist/style.css";
+```
+
+Add the preset to your Tailwind config and include the package in the content
+scan:
+
+```js
+// tailwind.config.js
+module.exports = {
+  presets: [require("@bugs5382/saga-flow-designer/tailwind-preset")],
+  content: [
+    "./src/**/*.{ts,tsx}",
+    "./node_modules/@bugs5382/saga-flow-designer/dist/**/*.{js,cjs}",
+  ],
+};
+```
+
+That renders the shipped default palette. To rebrand, override any `--sfd-*`
+variables — the package depends on no external design system. See
+**Guides → Theming** for the full guide.
+
+## 🔌 Connecting a real backend
+
+The mock gateway is only for demos. For a real app, implement the
+`WorkflowGateway` interface against your API — see **Guides → Gateway Contract**.

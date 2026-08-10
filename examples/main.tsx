@@ -18,19 +18,28 @@ import { createRoot } from "react-dom/client";
 // The React Flow canvas stylesheet + the Tailwind utilities the components use.
 import "@xyflow/react/dist/style.css";
 
+// The package's own default theme tokens (the `--sfd-*` CSS variables).
+import "../src/styles/theme.css";
 import "./index.css";
 import { createMockGateway, FlowDesigner } from "../src";
+import { createHttpGateway } from "./httpGateway";
 
-// The whole demo: one in-memory gateway, one full-screen designer. No host, no
-// backend — the package running on its own.
-const gateway = createMockGateway();
+// Two ways to run the same designer:
+//   - default: the in-memory mock gateway (no backend).
+//   - VITE_GS_BASE set: a real go-saga engine over HTTP (proxied at that base).
+const environment = (import.meta as unknown as { env?: Record<string, string> }).env;
+const gsBase = environment?.VITE_GS_BASE;
+const gateway = gsBase ? createHttpGateway(gsBase) : createMockGateway();
+const definitionId = gsBase
+  ? (environment?.VITE_GS_DEF ?? "order.fulfillment")
+  : "wf-order-fulfillment";
 
 const container = document.querySelector("#root");
 if (container) {
   createRoot(container).render(
     <StrictMode>
       <div className="h-screen w-screen bg-slate-50 text-slate-900">
-        <FlowDesigner definitionId="wf-order-fulfillment" gateway={gateway} />
+        <FlowDesigner definitionId={definitionId} gateway={gateway} />
       </div>
     </StrictMode>,
   );

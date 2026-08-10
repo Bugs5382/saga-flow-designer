@@ -13,28 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// Tailwind config for the demo/storybook tooling ONLY. The library itself ships
-// no compiled CSS; this generates the utilities the components use when they are
-// rendered in Storybook or the standalone demo. The components reference a
-// custom `coral` accent palette (see src/components/README.md); every other
-// palette they use (slate, indigo, emerald, ...) is a Tailwind default.
+// Tailwind config for the Storybook + examples tooling ONLY. The library itself
+// ships no compiled CSS; this generates the utilities the components use when
+// they are rendered in Storybook or the standalone example app.
+//
+// It applies the package's OWN shipped preset (`tailwind.preset.ts`), so every
+// palette colour the components use — the `coral` accent plus the neutral/status
+// scales (slate, teal, emerald, ...) — resolves to a `--sfd-*` CSS variable. The
+// variables' default values load from `src/styles/theme.css` (imported by the
+// Storybook preview and the demo entry), so the rendered result is identical to
+// the pre-token palette. This mirrors exactly what a consumer does.
+import sfdPreset from "./tailwind.preset";
+
 export default {
-  content: ["./src/**/*.{ts,tsx}", "./.storybook/**/*.{ts,tsx}", "./demo/**/*.{html,ts,tsx}"],
+  content: [
+    "./src/**/*.{ts,tsx}",
+    "./stories/**/*.{ts,tsx}",
+    "./.storybook/**/*.{ts,tsx}",
+    "./examples/**/*.{html,ts,tsx}",
+  ],
   plugins: [],
-  theme: {
-    extend: {
-      colors: {
-        coral: {
-          100: "#ffe6df",
-          200: "#ffc9ba",
-          300: "#ffa48c",
-          400: "#ff7a57",
-          50: "#fff5f2",
-          500: "#ff5630",
-          600: "#ed4322",
-          700: "#c4321a",
-        },
-      },
-    },
-  },
+  presets: [sfdPreset],
 };
