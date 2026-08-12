@@ -53,7 +53,7 @@ import "@xyflow/react/dist/style.css";
 const gateway = createMockGateway();
 
 export const Designer = () => (
-  <FlowDesigner gateway={gateway} definitionId="order.fulfillment" />
+  <FlowDesigner gateway={gateway} definitionId="wf-order-fulfillment" />
 );
 ```
 
