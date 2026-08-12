@@ -1,6 +1,6 @@
 {
   "name": "@bugs5382/saga-flow-designer",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "React components and utilities for visualising and editing saga-orchestration workflows and runs.",
   "license": "Apache-2.0",
   "author": "Bugs5382",
