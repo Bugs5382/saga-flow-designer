@@ -1,0 +1,11 @@
+# Variable: MERGEABLE\_OWNERS
+
+> `const` **MERGEABLE\_OWNERS**: `Set`\<[`VerbName`](../type-aliases/VerbName.md)\>
+
+Defined in: [workflowData.ts:1379](https://github.com/Bugs5382/saga-flow-designer/blob/db92d05f5d63a42b6f0355e52df27789bfdcfb21/src/workflowData.ts#L1379)
+
+Verbs whose lanes can carry an explicit merge target (rejoin to a sub-entry).
+
+## Since
+
+1.0.0
