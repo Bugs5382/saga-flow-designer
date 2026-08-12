@@ -1,0 +1,759 @@
+{
+  "docs": [
+    "intro",
+    "gateway",
+    "model",
+    "integration",
+    "go-saga",
+    {
+      "type": "category",
+      "label": "API",
+      "link": {
+        "type": "doc",
+        "id": "api/index"
+      },
+      "items": [
+        {
+          "type": "category",
+          "label": "Classes",
+          "items": [
+            {
+              "type": "doc",
+              "id": "api/classes/MockWorkflowGateway",
+              "label": "MockWorkflowGateway"
+            }
+          ]
+        },
+        {
+          "type": "category",
+          "label": "Interfaces",
+          "items": [
+            {
+              "type": "doc",
+              "id": "api/interfaces/Assignment",
+              "label": "Assignment"
+            },
+            {
+              "type": "doc",
+              "id": "api/interfaces/AssignTarget",
+              "label": "AssignTarget"
+            },
+            {
+              "type": "doc",
+              "id": "api/interfaces/Branch",
+              "label": "Branch"
+            },
+            {
+              "type": "doc",
+              "id": "api/interfaces/CanvasCallbacks",
+              "label": "CanvasCallbacks"
+            },
+            {
+              "type": "doc",
+              "id": "api/interfaces/ConditionBuilderProps",
+              "label": "ConditionBuilderProps"
+            },
+            {
+              "type": "doc",
+              "id": "api/interfaces/ConditionParts",
+              "label": "ConditionParts"
+            },
+            {
+              "type": "doc",
+              "id": "api/interfaces/ConfigPanelProps",
+              "label": "ConfigPanelProps"
+            },
+            {
+              "type": "doc",
+              "id": "api/interfaces/DesignerNotice",
+              "label": "DesignerNotice"
+            },
+            {
+              "type": "doc",
+              "id": "api/interfaces/DurationParts",
+              "label": "DurationParts"
+            },
+            {
+              "type": "doc",
+              "id": "api/interfaces/EngineBranchPointer",
+              "label": "EngineBranchPointer"
+            },
+            {
+              "type": "doc",
+              "id": "api/interfaces/EngineDefinition",
+              "label": "EngineDefinition"
+            },
+            {
+              "type": "doc",
+              "id": "api/interfaces/EngineStep",
+              "label": "EngineStep"
+            },
+            {
+              "type": "doc",
+              "id": "api/interfaces/EntryPoint",
+              "label": "EntryPoint"
+            },
+            {
+              "type": "doc",
+              "id": "api/interfaces/Escalation",
+              "label": "Escalation"
+            },
+            {
+              "type": "doc",
+              "id": "api/interfaces/FlowCanvasRFProps",
+              "label": "FlowCanvasRFProps"
+            },
+            {
+              "type": "doc",
+              "id": "api/interfaces/FlowDesignerProps",
+              "label": "FlowDesignerProps"
+            },
+            {
+              "type": "doc",
+              "id": "api/interfaces/InlineField",
+              "label": "InlineField"
+            },
+            {
+              "type": "doc",
+              "id": "api/interfaces/InsertTarget",
+              "label": "InsertTarget"
+            },
+            {
+              "type": "doc",
+              "id": "api/interfaces/Legality",
+              "label": "Legality"
+            },
+            {
+              "type": "doc",
+              "id": "api/interfaces/MergeTarget",
+              "label": "MergeTarget"
+            },
+            {
+              "type": "doc",
+              "id": "api/interfaces/OperatorSpec",
+              "label": "OperatorSpec"
+            },
+            {
+              "type": "doc",
+              "id": "api/interfaces/PaletteProps",
+              "label": "PaletteProps"
+            },
+            {
+              "type": "doc",
+              "id": "api/interfaces/Pill",
+              "label": "Pill"
+            },
+            {
+              "type": "doc",
+              "id": "api/interfaces/RecordField",
+              "label": "RecordField"
+            },
+            {
+              "type": "doc",
+              "id": "api/interfaces/Run",
+              "label": "Run"
+            },
+            {
+              "type": "doc",
+              "id": "api/interfaces/RunDetailProps",
+              "label": "RunDetailProps"
+            },
+            {
+              "type": "doc",
+              "id": "api/interfaces/RunEvent",
+              "label": "RunEvent"
+            },
+            {
+              "type": "doc",
+              "id": "api/interfaces/RunOverlay",
+              "label": "RunOverlay"
+            },
+            {
+              "type": "doc",
+              "id": "api/interfaces/RunsListProps",
+              "label": "RunsListProps"
+            },
+            {
+              "type": "doc",
+              "id": "api/interfaces/SagaRunEventFrame",
+              "label": "SagaRunEventFrame"
+            },
+            {
+              "type": "doc",
+              "id": "api/interfaces/SagaRunFrame",
+              "label": "SagaRunFrame"
+            },
+            {
+              "type": "doc",
+              "id": "api/interfaces/SlotContext",
+              "label": "SlotContext"
+            },
+            {
+              "type": "doc",
+              "id": "api/interfaces/Stage",
+              "label": "Stage"
+            },
+            {
+              "type": "doc",
+              "id": "api/interfaces/Step",
+              "label": "Step"
+            },
+            {
+              "type": "doc",
+              "id": "api/interfaces/StepMeta",
+              "label": "StepMeta"
+            },
+            {
+              "type": "doc",
+              "id": "api/interfaces/StepRun",
+              "label": "StepRun"
+            },
+            {
+              "type": "doc",
+              "id": "api/interfaces/Trigger",
+              "label": "Trigger"
+            },
+            {
+              "type": "doc",
+              "id": "api/interfaces/ValidationIssue",
+              "label": "ValidationIssue"
+            },
+            {
+              "type": "doc",
+              "id": "api/interfaces/ValidationResult",
+              "label": "ValidationResult"
+            },
+            {
+              "type": "doc",
+              "id": "api/interfaces/VerbField",
+              "label": "VerbField"
+            },
+            {
+              "type": "doc",
+              "id": "api/interfaces/VerbSpec",
+              "label": "VerbSpec"
+            },
+            {
+              "type": "doc",
+              "id": "api/interfaces/WorkflowDefinition",
+              "label": "WorkflowDefinition"
+            },
+            {
+              "type": "doc",
+              "id": "api/interfaces/WorkflowGateway",
+              "label": "WorkflowGateway"
+            },
+            {
+              "type": "doc",
+              "id": "api/interfaces/WorkflowListProps",
+              "label": "WorkflowListProps"
+            }
+          ]
+        },
+        {
+          "type": "category",
+          "label": "Type Aliases",
+          "items": [
+            {
+              "type": "doc",
+              "id": "api/type-aliases/AssignTargetKind",
+              "label": "AssignTargetKind"
+            },
+            {
+              "type": "doc",
+              "id": "api/type-aliases/DecisionRule",
+              "label": "DecisionRule"
+            },
+            {
+              "type": "doc",
+              "id": "api/type-aliases/DesignerNoticeLevel",
+              "label": "DesignerNoticeLevel"
+            },
+            {
+              "type": "doc",
+              "id": "api/type-aliases/LaneRole",
+              "label": "LaneRole"
+            },
+            {
+              "type": "doc",
+              "id": "api/type-aliases/LaneSemantics",
+              "label": "LaneSemantics"
+            },
+            {
+              "type": "doc",
+              "id": "api/type-aliases/PillKind",
+              "label": "PillKind"
+            },
+            {
+              "type": "doc",
+              "id": "api/type-aliases/RunStatus",
+              "label": "RunStatus"
+            },
+            {
+              "type": "doc",
+              "id": "api/type-aliases/RunTrigger",
+              "label": "RunTrigger"
+            },
+            {
+              "type": "doc",
+              "id": "api/type-aliases/StageKind",
+              "label": "StageKind"
+            },
+            {
+              "type": "doc",
+              "id": "api/type-aliases/StepResolver",
+              "label": "StepResolver"
+            },
+            {
+              "type": "doc",
+              "id": "api/type-aliases/StepRunStatus",
+              "label": "StepRunStatus"
+            },
+            {
+              "type": "doc",
+              "id": "api/type-aliases/StreamFrame",
+              "label": "StreamFrame"
+            },
+            {
+              "type": "doc",
+              "id": "api/type-aliases/TriggerKind",
+              "label": "TriggerKind"
+            },
+            {
+              "type": "doc",
+              "id": "api/type-aliases/VerbGroup",
+              "label": "VerbGroup"
+            },
+            {
+              "type": "doc",
+              "id": "api/type-aliases/VerbName",
+              "label": "VerbName"
+            },
+            {
+              "type": "doc",
+              "id": "api/type-aliases/VerbSource",
+              "label": "VerbSource"
+            },
+            {
+              "type": "doc",
+              "id": "api/type-aliases/WorkflowStatus",
+              "label": "WorkflowStatus"
+            }
+          ]
+        },
+        {
+          "type": "category",
+          "label": "Variables",
+          "items": [
+            {
+              "type": "doc",
+              "id": "api/variables/BRANCH_VERBS",
+              "label": "BRANCH_VERBS"
+            },
+            {
+              "type": "doc",
+              "id": "api/variables/CONDITION_OPERATORS",
+              "label": "CONDITION_OPERATORS"
+            },
+            {
+              "type": "doc",
+              "id": "api/variables/DURATION_FIELDS",
+              "label": "DURATION_FIELDS"
+            },
+            {
+              "type": "doc",
+              "id": "api/variables/EMPTY_DURATION",
+              "label": "EMPTY_DURATION"
+            },
+            {
+              "type": "doc",
+              "id": "api/variables/exampleRuns",
+              "label": "exampleRuns"
+            },
+            {
+              "type": "doc",
+              "id": "api/variables/exampleWorkflows",
+              "label": "exampleWorkflows"
+            },
+            {
+              "type": "doc",
+              "id": "api/variables/FANOUT_VERBS",
+              "label": "FANOUT_VERBS"
+            },
+            {
+              "type": "doc",
+              "id": "api/variables/LOOP_VERBS",
+              "label": "LOOP_VERBS"
+            },
+            {
+              "type": "doc",
+              "id": "api/variables/MAX_DURATION_DAYS",
+              "label": "MAX_DURATION_DAYS"
+            },
+            {
+              "type": "doc",
+              "id": "api/variables/MAX_DURATION_SECONDS",
+              "label": "MAX_DURATION_SECONDS"
+            },
+            {
+              "type": "doc",
+              "id": "api/variables/MERGEABLE_OWNERS",
+              "label": "MERGEABLE_OWNERS"
+            },
+            {
+              "type": "doc",
+              "id": "api/variables/PAUSE_VERBS",
+              "label": "PAUSE_VERBS"
+            },
+            {
+              "type": "doc",
+              "id": "api/variables/RECORD_TYPES",
+              "label": "RECORD_TYPES"
+            },
+            {
+              "type": "doc",
+              "id": "api/variables/SIGNAL_WAIT_VERBS",
+              "label": "SIGNAL_WAIT_VERBS"
+            },
+            {
+              "type": "doc",
+              "id": "api/variables/TERMINAL_VERBS",
+              "label": "TERMINAL_VERBS"
+            },
+            {
+              "type": "doc",
+              "id": "api/variables/THIRD_PARTY_CATALOG",
+              "label": "THIRD_PARTY_CATALOG"
+            },
+            {
+              "type": "doc",
+              "id": "api/variables/VERB_BY_NAME",
+              "label": "VERB_BY_NAME"
+            },
+            {
+              "type": "doc",
+              "id": "api/variables/VERB_CATALOG",
+              "label": "VERB_CATALOG"
+            },
+            {
+              "type": "doc",
+              "id": "api/variables/VERB_GROUP_ORDER",
+              "label": "VERB_GROUP_ORDER"
+            },
+            {
+              "type": "doc",
+              "id": "api/variables/WHILE_DEFAULT_MAX_ITERATIONS",
+              "label": "WHILE_DEFAULT_MAX_ITERATIONS"
+            }
+          ]
+        },
+        {
+          "type": "category",
+          "label": "Functions",
+          "items": [
+            {
+              "type": "doc",
+              "id": "api/functions/absoluteTime",
+              "label": "absoluteTime"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/composeCondition",
+              "label": "composeCondition"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/composeIsoDuration",
+              "label": "composeIsoDuration"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/ConditionBuilder",
+              "label": "ConditionBuilder"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/createMockGateway",
+              "label": "createMockGateway"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/durationExceedsCap",
+              "label": "durationExceedsCap"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/durationTotalSeconds",
+              "label": "durationTotalSeconds"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/encodeVerbPayload",
+              "label": "encodeVerbPayload"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/entryDeclaredInputs",
+              "label": "entryDeclaredInputs"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/entryPoints",
+              "label": "entryPoints"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/eventMessage",
+              "label": "eventMessage"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/exampleSystemDefault",
+              "label": "exampleSystemDefault"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/expandDefinition",
+              "label": "expandDefinition"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/findEntryPoint",
+              "label": "findEntryPoint"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/flattenDefinition",
+              "label": "flattenDefinition"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/FlowCanvas",
+              "label": "FlowCanvas"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/FlowCanvasRF",
+              "label": "FlowCanvasRF"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/FlowDesigner",
+              "label": "FlowDesigner"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/foldFrame",
+              "label": "foldFrame"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/foldFrames",
+              "label": "foldFrames"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/formatDuration",
+              "label": "formatDuration"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/humanTaskOutputReferences",
+              "label": "humanTaskOutputReferences"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/isTerminalVerb",
+              "label": "isTerminalVerb"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/laneDefaultsTerminal",
+              "label": "laneDefaultsTerminal"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/laneIsTerminal",
+              "label": "laneIsTerminal"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/laneRoleFor",
+              "label": "laneRoleFor"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/laneSemantics",
+              "label": "laneSemantics"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/mapEventKind",
+              "label": "mapEventKind"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/mapRunState",
+              "label": "mapRunState"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/mapStepStatus",
+              "label": "mapStepStatus"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/NodeConfigPanel",
+              "label": "NodeConfigPanel"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/parseCondition",
+              "label": "parseCondition"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/parseDurationParts",
+              "label": "parseDurationParts"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/pillsInScopeFor",
+              "label": "pillsInScopeFor"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/readAssignTarget",
+              "label": "readAssignTarget"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/readEscalation",
+              "label": "readEscalation"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/readInlineFields",
+              "label": "readInlineFields"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/referencedPills",
+              "label": "referencedPills"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/relativeTime",
+              "label": "relativeTime"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/RunDetail",
+              "label": "RunDetail"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/RunsList",
+              "label": "RunsList"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/seedRun",
+              "label": "seedRun"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/serializeAssignments",
+              "label": "serializeAssignments"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/setVariableAssignments",
+              "label": "setVariableAssignments"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/shortRunId",
+              "label": "shortRunId"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/stageOfStep",
+              "label": "stageOfStep"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/stepOutputPills",
+              "label": "stepOutputPills"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/stepRunsById",
+              "label": "stepRunsById"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/stepSummary",
+              "label": "stepSummary"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/thirdPartyKey",
+              "label": "thirdPartyKey"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/triggerPills",
+              "label": "triggerPills"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/triggerSummary",
+              "label": "triggerSummary"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/validateWorkflow",
+              "label": "validateWorkflow"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/verbLegalAt",
+              "label": "verbLegalAt"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/VerbPalette",
+              "label": "VerbPalette"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/workflowHasEmitSignal",
+              "label": "workflowHasEmitSignal"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/WorkflowList",
+              "label": "WorkflowList"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/writeAssignTarget",
+              "label": "writeAssignTarget"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/writeEscalation",
+              "label": "writeEscalation"
+            },
+            {
+              "type": "doc",
+              "id": "api/functions/writeInlineFields",
+              "label": "writeInlineFields"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

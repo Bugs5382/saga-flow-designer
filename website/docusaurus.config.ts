@@ -47,6 +47,12 @@ const config: Config = {
         docs: {
           sidebarPath: "./sidebars.ts",
           editUrl: `${REPO}/tree/main/website/`,
+          // The live docs are the unreleased "next" line; released snapshots
+          // land in versioned_docs/ via `docusaurus docs:version`. Default to
+          // the latest stable (docusaurus.config's lastVersion default).
+          versions: {
+            current: { label: "Next 🚧", path: "next", banner: "unreleased" },
+          },
         },
         blog: false,
         theme: {
@@ -102,6 +108,7 @@ const config: Config = {
         },
         // Cross-link to the sibling engine docs site.
         { href: GO_SAGA_DOCS, label: "go-saga", position: "left" },
+        { type: "docsVersionDropdown", position: "right" },
         { href: REPO, label: "GitHub", position: "right" },
       ],
     },

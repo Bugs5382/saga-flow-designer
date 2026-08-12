@@ -1,0 +1,21 @@
+# Function: stepSummary()
+
+> **stepSummary**(`step`): `string`
+
+Defined in: [workflowData.ts:1820](https://github.com/Bugs5382/saga-flow-designer/blob/db92d05f5d63a42b6f0355e52df27789bfdcfb21/src/workflowData.ts#L1820)
+
+A one-line config summary shown on each canvas card.
+
+## Parameters
+
+### step
+
+[`Step`](../interfaces/Step.md)
+
+## Returns
+
+`string`
+
+## Since
+
+1.0.0
