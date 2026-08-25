@@ -24,6 +24,7 @@ import {
   type Trigger,
   VERB_BY_NAME,
   VERB_CATALOG,
+  type VerbName,
   type VerbSpec,
   type WorkflowDefinition,
   type WorkflowStatus,
@@ -142,7 +143,7 @@ type SaveState = "dirty" | "idle" | "saved" | "saving";
 // 3rd-party verbs by synthetic key.
 const specForPayload = (payload: string): undefined | VerbSpec => {
   const [, source, key] = payload.split(":");
-  if (source === "base") return VERB_BY_NAME[key as VerbSpec["name"]];
+  if (source === "base") return VERB_BY_NAME[key as VerbName];
   return THIRD_PARTY_CATALOG.find((s) => thirdPartyKey(s) === key);
 };
 

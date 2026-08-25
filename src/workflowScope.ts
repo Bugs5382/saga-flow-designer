@@ -243,7 +243,9 @@ export const verbLegalAt = (spec: VerbSpec, context: SlotContext): Legality => {
       reason:
         "The Pre-Stage accepts only data steps — set variables, transform, merge, filter, map.",
     };
-  if (TERMINAL_VERBS.has(spec.name) && context.hasFollowing)
+  // spec.name is the wider NodeName (a catalog overlay may add non-VerbName
+  // entries); TERMINAL_VERBS is still keyed by the strict base VerbName.
+  if (TERMINAL_VERBS.has(spec.name as VerbName) && context.hasFollowing)
     return {
       ok: false,
       reason: `${spec.label} is terminal — nothing may run after it on this trail.`,

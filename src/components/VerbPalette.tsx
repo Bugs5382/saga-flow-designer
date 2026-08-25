@@ -68,7 +68,10 @@ export interface PaletteProps {
 
 const GROUPED: Record<VerbGroup, VerbSpec[]> = {} as Record<VerbGroup, VerbSpec[]>;
 for (const verb of VERB_CATALOG) {
-  (GROUPED[verb.group] ??= []).push(verb);
+  // VERB_CATALOG is the base catalog: every entry's group is a real VerbGroup
+  // literal at runtime even though VerbSpec["group"] is now the wider
+  // NodeGroup (to admit a catalog overlay's custom groups elsewhere).
+  (GROUPED[verb.group as VerbGroup] ??= []).push(verb);
 }
 
 const InfoDialog = ({
