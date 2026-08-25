@@ -17,7 +17,12 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   test: {
+    // Pure-logic tests (`*.test.ts`) run in "node" — no DOM needed. Component
+    // tests (`*.test.tsx`) render with @testing-library/react, so they need a
+    // DOM; happy-dom supplies it (no bundled undici, so it runs on the CI Node
+    // version — jsdom's undici needs a newer Node than CI pins).
     environment: "node",
+    environmentMatchGlobs: [["tests/**/*.test.tsx", "happy-dom"]],
     include: ["tests/**/*.test.{ts,tsx}"],
   },
 });

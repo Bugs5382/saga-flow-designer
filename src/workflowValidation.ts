@@ -23,6 +23,7 @@ import {
   laneIsTerminal,
   laneRoleFor,
   laneSemantics,
+  LOOP_VERBS,
   MERGEABLE_OWNERS,
   parseDurationParts,
   setVariableAssignments,
@@ -173,7 +174,12 @@ const enumerateSteps = (
         // Fork: one continuation per branch. Every branch DEFAULTS TO END; a
         // branch only continues the trail when it explicitly merges/rejoins.
         for (const [laneIndex, branch] of branches.entries()) {
-          const terminal = laneIsTerminal(step.type, laneRoleFor(step.type, laneIndex), branch);
+          const terminal = laneIsTerminal(
+            step.type,
+            laneRoleFor(step.type, laneIndex),
+            branch,
+            LOOP_VERBS,
+          );
           const branchLabel = `${label ? `${label}, ` : ""}${labelFor(step)}=${branch.caseLabel}`;
           const sub = enumerateSteps(branch.steps, afterScope, branchLabel, budget);
           for (const s of sub) {
@@ -206,7 +212,7 @@ const enumerateSteps = (
         const mainScope = new Set(afterScope);
         for (const [laneIndex, child] of children.entries()) {
           const role = laneRoleFor(step.type, laneIndex);
-          const terminal = laneIsTerminal(step.type, role, child);
+          const terminal = laneIsTerminal(step.type, role, child, LOOP_VERBS);
           const childLabel = `${label ? `${label}, ` : ""}${labelFor(step)}/${child.caseLabel}`;
           const sub = enumerateSteps(child.steps, afterScope, childLabel, budget);
           for (const s of sub) {
@@ -305,7 +311,7 @@ export const validateWorkflow = (workflow: WorkflowDefinition): ValidationResult
     laneIndex: number,
   ): void => {
     const role = laneRoleFor(ownerType, laneIndex);
-    const semantics = laneSemantics(ownerType, role, branch);
+    const semantics = laneSemantics(ownerType, role, branch, LOOP_VERBS);
     // Only decision/switch/parallel/join lanes carry an explicit merge target.
     if (!MERGEABLE_OWNERS.has(ownerType)) {
       // A loop body / try lane must not smuggle a merge target.

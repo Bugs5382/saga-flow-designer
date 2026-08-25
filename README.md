@@ -24,6 +24,9 @@ your app is shelled. You implement one gateway; it renders the rest.
   into a `Run`, with engine-to-UI enum mappers.
 - 🧪 **`createMockGateway()`** — a fully in-memory gateway with example data, so
   you can run the designer with **no backend** (it drives the Storybook + demo).
+- 🗂️ **Catalog overlay** — `FlowDesigner`'s `catalogOverrides` prop lets a host
+  add its own verbs and/or hide base ones, on top of the built-in catalog
+  (base stays the default when omitted).
 - 🎨 **Swappable theming** — every colour resolves to a `--sfd-*` CSS variable
   with the package's own default; a host rebrands by overriding the variables.
 - ✅ **Structural validation** — `validateWorkflow` with typed issues.
@@ -79,6 +82,68 @@ const gateway: WorkflowGateway = {
   standalone and adapt it, with the runnable example in
   [`examples/httpGateway.ts`](./examples/httpGateway.ts).
 - Storybook **Guides → Gateway Contract** — the interface, live.
+
+## 🗂️ Catalog overlay
+
+The verb palette, canvas, and config panel all read the verb catalog from a
+`CatalogProvider` — `FlowDesigner` renders one internally, seeded from the
+package's own base catalog. A host overlays its own verbs (and/or hides base
+ones) via the `catalogOverrides` prop, without forking the base catalog:
+
+```tsx
+import { FlowDesigner, createMockGateway } from "@bugs5382/saga-flow-designer";
+
+const gateway = createMockGateway();
+
+export const Designer = () => (
+  <FlowDesigner
+    gateway={gateway}
+    definitionId="wf-order-fulfillment"
+    catalogOverrides={{
+      add: [
+        {
+          name: "custom_action",
+          group: "Custom",
+          label: "Custom Action",
+          icon: "🔧",
+          description: "A host-defined custom action.",
+          summary: "A host-defined custom action.",
+          inputs: "—",
+          outputs: "—",
+          source: "base",
+          fields: [],
+        },
+      ],
+      hide: ["http_request"],
+    }}
+  />
+);
+```
+
+- No `catalogOverrides` → the base catalog, unchanged (today's behavior).
+- `add` — extra `VerbSpec` entries, appended after the base catalog; an added
+  entry wins on a name collision with a base one.
+- `hide` — base verb names to drop. A base entry marked `behavior.required`
+  (e.g. `end`) is **never** actually hidden — a flow can't be validly
+  constructed without it.
+- Behavior sets (terminal/branch/fanout/…) are derived from the **resolved**
+  catalog's `behavior` hints, so overlays participate in placement legality
+  too, not just what renders in the palette.
+
+To wrap a standalone sub-component (e.g. `VerbPalette` outside of
+`FlowDesigner`) with the same overlay, use `CatalogProvider`/`useCatalog`
+directly — both are public exports:
+
+```tsx
+import { CatalogProvider, VerbPalette } from "@bugs5382/saga-flow-designer";
+
+<CatalogProvider overrides={{ hide: ["http_request"] }}>
+  <VerbPalette onAdd={handleAdd} selectedStepId={undefined} />
+</CatalogProvider>;
+```
+
+See the Storybook **Flow Designer → FlowDesigner → CatalogOverlay** story for
+a runnable example.
 
 ## 🎨 Theming
 

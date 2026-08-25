@@ -17,23 +17,19 @@ import { type DragEvent } from "react";
 
 import type { StepRun, StepRunStatus } from "../runData";
 
+import { useCatalog } from "../catalogContext";
 import { formatDuration } from "../runData";
 import {
   type Branch,
-  BRANCH_VERBS,
-  FANOUT_VERBS,
   type LaneRole,
   laneRoleFor,
   type LaneSemantics,
   laneSemantics,
-  LOOP_VERBS,
-  PAUSE_VERBS,
   type Stage,
   type Step,
   stepSummary,
   type Trigger,
   triggerSummary,
-  VERB_BY_NAME,
   type VerbName,
 } from "../workflowData";
 import {
@@ -347,26 +343,36 @@ const RunStepBadge = ({ sr }: { sr: StepRun | undefined }) => {
   );
 };
 
-const cardTone = (step: Step, selected: boolean): string => {
+// The behavior sets a step card's styling reads — resolved from the effective
+// catalog (useCatalog) by the caller and threaded in, so overlay-added/hidden
+// verbs tint correctly rather than depending on the hardcoded module globals.
+interface CardBehavior {
+  branch: Set<string>;
+  fanout: Set<string>;
+  pause: Set<string>;
+}
+
+const cardTone = (step: Step, selected: boolean, behavior: CardBehavior): string => {
   if (selected) return "border-coral-500 ring-2 ring-coral-300/60 bg-white";
   if (step.type === "entry") return "border-teal-300 bg-teal-50/70 hover:border-teal-400";
-  if (PAUSE_VERBS.has(step.type)) return "border-amber-300 bg-amber-50/60 hover:border-amber-400";
+  if (behavior.pause.has(step.type))
+    return "border-amber-300 bg-amber-50/60 hover:border-amber-400";
   // Cancel is an ABORT terminal — keep it rose/danger. End is normal success —
   // give it neutral slate so the two read as distinct.
   if (step.type === "cancel" || step.type === "error")
     return "border-rose-300 bg-rose-50/60 hover:border-rose-400";
   if (step.type === "end") return "border-slate-400 bg-slate-100/70 hover:border-slate-500";
-  if (BRANCH_VERBS.has(step.type) || FANOUT_VERBS.has(step.type))
+  if (behavior.branch.has(step.type) || behavior.fanout.has(step.type))
     return "border-indigo-300 bg-indigo-50/50 hover:border-indigo-400";
   return "border-slate-200 bg-white hover:border-slate-300";
 };
 
-const iconTone = (step: Step): string => {
+const iconTone = (step: Step, behavior: CardBehavior): string => {
   if (step.type === "entry") return "bg-teal-600";
-  if (PAUSE_VERBS.has(step.type)) return "bg-amber-500";
+  if (behavior.pause.has(step.type)) return "bg-amber-500";
   if (step.type === "cancel" || step.type === "error") return "bg-rose-500";
   if (step.type === "end") return "bg-slate-700";
-  if (BRANCH_VERBS.has(step.type) || FANOUT_VERBS.has(step.type)) return "bg-indigo-500";
+  if (behavior.branch.has(step.type) || behavior.fanout.has(step.type)) return "bg-indigo-500";
   return "bg-slate-500";
 };
 
@@ -383,7 +389,9 @@ const StepCard = ({
   step: Step;
   stepNumber: string;
 }) => {
-  const spec = VERB_BY_NAME[step.type];
+  const { branch, byName, fanout, pause } = useCatalog();
+  const behavior: CardBehavior = { branch, fanout, pause };
+  const spec = byName[step.type];
   const selected = step.id === selectedId;
   const collapsible = (step.branches?.length ?? 0) > 0 || (step.children?.length ?? 0) > 0;
   const runMode = Boolean(runOverlay);
@@ -399,7 +407,7 @@ const StepCard = ({
     <div
       className={cn(
         "relative w-[300px] rounded-xl border-2 px-4 py-3 text-left shadow-sm transition-colors",
-        runMode ? runCardTone(sr) : cn("cursor-pointer", cardTone(step, selected)),
+        runMode ? runCardTone(sr) : cn("cursor-pointer", cardTone(step, selected, behavior)),
       )}
       draggable={!runMode}
       onClick={runMode ? undefined : () => cb.onSelect(step.id)}
@@ -413,7 +421,7 @@ const StepCard = ({
         <span
           className={cn(
             "grid size-8 shrink-0 place-items-center rounded-lg text-sm text-white",
-            iconTone(step),
+            iconTone(step, behavior),
           )}
         >
           {spec?.icon ?? "•"}
@@ -436,7 +444,7 @@ const StepCard = ({
             </Tooltip>
           </TooltipProvider>
         ) : null}
-        {!runMode && PAUSE_VERBS.has(step.type) ? (
+        {!runMode && pause.has(step.type) ? (
           <span className="rounded-full bg-amber-200 px-2 py-0.5 text-[9px] font-bold uppercase text-amber-800">
             pause
           </span>
@@ -589,8 +597,9 @@ const Lane = ({
   showLoopEntry?: boolean;
   tone: "catch" | "false" | "neutral" | "true" | "try";
 }) => {
+  const { loop } = useCatalog();
   const chip = chipToneClass(tone);
-  const semantics: LaneSemantics = laneSemantics(ownerType, role, branch);
+  const semantics: LaneSemantics = laneSemantics(ownerType, role, branch, loop);
   // In run-mode, dim a lane whose steps were all skipped (the un-taken branch).
   const laneTaken =
     !runOverlay ||
@@ -758,6 +767,7 @@ const Sequence = ({
   selectedId: string | undefined;
   steps: Step[];
 }) => {
+  const { loop } = useCatalog();
   const runMode = Boolean(runOverlay);
   if (steps.length === 0)
     return runMode ? (
@@ -782,7 +792,7 @@ const Sequence = ({
         // In run-mode, always expand subtrees (never hide executed steps behind
         // an authored collapse state).
         const showSub = runMode || !step.collapsed;
-        const isLoop = LOOP_VERBS.has(step.type);
+        const isLoop = loop.has(step.type);
         const isTryCatch = step.type === "try_catch";
         return (
           <div className="flex flex-col items-center" key={step.id}>
@@ -1032,6 +1042,7 @@ export const FlowCanvas = ({
   trigger,
   ...callback
 }: CanvasProperties) => {
+  const { loop } = useCatalog();
   // Work stages get numbered 1..N in order (pre/end excluded from numbering).
   let workIndex = 0;
   const entryNames = collectEntryNames(stages);
@@ -1078,7 +1089,7 @@ export const FlowCanvas = ({
                     cb={callback}
                     entryNames={entryNames}
                     lanes={fanoutLanes}
-                    loopBody={LOOP_VERBS.has(fanoutStep.type)}
+                    loopBody={loop.has(fanoutStep.type)}
                     ownerJoin={fanoutStep.config.join}
                     ownerType={fanoutStep.type}
                     parentNumber={fanoutNumber}

@@ -74,6 +74,24 @@ export interface MergeTarget {
 }
 
 /**
+ * A node's group, widened to admit host-contributed groups (e.g. a catalog
+ * overlay's custom palette section) while still surfacing the known base
+ * `VerbGroup` literals for autocomplete.
+ *
+ * @since 1.0.0
+ */
+export type NodeGroup = ({} & string) | VerbGroup;
+
+/**
+ * A node's verb name, widened to admit host-contributed verb names (e.g. a
+ * catalog overlay's custom entries) while still surfacing the known base
+ * `VerbName` literals for autocomplete.
+ *
+ * @since 1.0.0
+ */
+export type NodeName = ({} & string) | VerbName;
+
+/**
  * A field of a record type, in scope as a pill under record.<name>.
  *
  * @since 1.0.0
@@ -147,6 +165,30 @@ export interface Trigger {
  * @since 1.0.0
  */
 export type TriggerKind = "cron" | "event" | "manual" | "record";
+
+/**
+ * Behavior hints for a verb, derived once from the base catalog's hardcoded
+ * membership sets (TERMINAL_VERBS, BRANCH_VERBS, …) so a catalog overlay can
+ * re-derive those sets from whatever specs are actually in play — base,
+ * added, or hidden — instead of depending on the module-global `Set`s
+ * (which only ever describe the shipped base catalog).
+ *
+ * `required` marks a spec that must survive a `hide` override: it is
+ * structurally necessary for a valid flow (e.g. `end`, the terminal every
+ * trail needs).
+ *
+ * @since 1.0.0
+ */
+export interface VerbBehavior {
+  branch?: boolean;
+  fanout?: boolean;
+  loop?: boolean;
+  mergeableOwner?: boolean;
+  pause?: boolean;
+  required?: boolean;
+  signalWait?: boolean;
+  terminal?: boolean;
+}
 
 /**
  * A config field descriptor that drives the RIGHT-hand node config form.
@@ -242,14 +284,17 @@ export type VerbSource = "base" | "third_party";
  * @since 1.0.0
  */
 export interface VerbSpec {
+  // Optional behavior hints (terminal/branch/fanout/…) a catalog overlay
+  // reads to derive its behavior sets. Unset on most base entries.
+  behavior?: VerbBehavior;
   // Catalog metadata surfaced in the palette ⓘ info dialog.
   description: string;
   fields: VerbField[];
-  group: VerbGroup;
+  group: NodeGroup;
   icon: string;
   inputs: string;
   label: string;
-  name: VerbName;
+  name: NodeName;
   outputs: string;
   source: VerbSource;
   summary: string;
@@ -384,6 +429,7 @@ export const VERB_CATALOG: VerbSpec[] = [
     summary: "An entry point that declares a data contract for rejoining lanes.",
   },
   {
+    behavior: { required: true, terminal: true },
     description:
       "Ends this trail with NORMAL, successful completion. Terminal — nothing runs after it on its trail. Distinct from Cancel: End is the happy-path finish, Cancel aborts with compensation.",
     fields: [],
@@ -397,6 +443,7 @@ export const VERB_CATALOG: VerbSpec[] = [
     summary: "Normal successful completion of this trail (terminal).",
   },
   {
+    behavior: { terminal: true },
     description:
       "Cancels the run (or a named sub-saga) and triggers COMPENSATION (abort semantics). Terminal — nothing runs after it on its trail. Distinct from End: End is normal success; Cancel unwinds already-completed work.",
     fields: [
@@ -415,6 +462,7 @@ export const VERB_CATALOG: VerbSpec[] = [
 
   // Control ------------------------------------------------------------------
   {
+    behavior: { branch: true, mergeableOwner: true },
     description:
       "Evaluates a boolean CEL condition and routes down the TRUE or FALSE lane. Each lane is its own trail: it either rejoins the main flow below the decision or terminates on its own end.",
     fields: [
@@ -442,6 +490,7 @@ export const VERB_CATALOG: VerbSpec[] = [
     summary: "Two-way branch on a boolean condition (true / false lanes).",
   },
   {
+    behavior: { branch: true, mergeableOwner: true },
     description:
       "Evaluates an expression and routes down the first case lane whose value matches, else the default lane. Each case lane is an independent trail.",
     fields: [
@@ -463,6 +512,7 @@ export const VERB_CATALOG: VerbSpec[] = [
     summary: "N-way branch: one lane per matching case, plus a default lane.",
   },
   {
+    behavior: { fanout: true, mergeableOwner: true },
     description:
       "Fans out into N independent branch trails that run concurrently. Each branch is an isolated trail — control never flows from one branch into a sibling. There is NO intrinsic join: every branch DEFAULTS TO END. Merging is an explicit, per-branch choice — a non-terminal branch names an entry point to rejoin and supplies its data contract. The join policy (wait-all / quorum N-of-M / aggregate) governs how the merging branches reconvene at their shared entry. Parallels may nest. To combine branch DATA into one value, use a merge verb after the entry.",
     fields: [
@@ -495,6 +545,7 @@ export const VERB_CATALOG: VerbSpec[] = [
     summary: "Fan out into concurrent branch trails; each ends or explicitly merges.",
   },
   {
+    behavior: { mergeableOwner: true },
     description:
       "A barrier that reconvenes streams an earlier step spawned INDEPENDENTLY (e.g. fire-and-forget spawn_saga children) before the run continues. Where parallel joins only its own direct branches, join waits on the children of a named set of upstream steps. Resolves per a strategy: wait for all watched children (default), or a quorum N. Aggregates their outputs into the run, then the main flow continues below. (go-saga v0.6.0.)",
     fields: [
@@ -529,6 +580,7 @@ export const VERB_CATALOG: VerbSpec[] = [
     summary: "Barrier: wait on independently-spawned streams, then merge back.",
   },
   {
+    behavior: { fanout: true, loop: true },
     description:
       "Iterates a collection, running the body lane once per item with the item bound to a variable. The body defaults to REJOIN — it loops back to the loop's entry node (rendered at the body head) each item. Bounded by the collection size.",
     fields: [
@@ -551,6 +603,7 @@ export const VERB_CATALOG: VerbSpec[] = [
     summary: "Run the body once per item; the body loops back (rejoins).",
   },
   {
+    behavior: { fanout: true, loop: true },
     description:
       "Repeats the body lane while a CEL condition holds. The body defaults to REJOIN — it loops back to the loop's entry node each iteration (rendered at the body head). A guardrail max-iterations bounds the loop (defaults to 50 when unset).",
     fields: [
@@ -578,6 +631,7 @@ export const VERB_CATALOG: VerbSpec[] = [
     summary: "Repeat the body while a condition holds; the body loops back (rejoins).",
   },
   {
+    behavior: { fanout: true },
     description:
       "Renders as two side-by-side columns: TRY and CATCH. Runs the try lane; if it raises an error, runs the catch lane for recovery or compensation. The TRY lane may rejoin OR end (defaults to REJOIN — continue after the try). The CATCH lane ALWAYS ends (forced terminal, not configurable).",
     fields: [
@@ -714,6 +768,7 @@ export const VERB_CATALOG: VerbSpec[] = [
 
   // Waits --------------------------------------------------------------------
   {
+    behavior: { pause: true },
     description:
       "Suspends the run for a fixed relative duration, then resumes. Authored as a structured combo (years/months/weeks/days/hours/minutes/seconds); the total is capped at 365 days. The composed value is stored as an ISO-8601 duration.",
     // The `duration` field is COMPOSED from the structured combo (see the
@@ -736,6 +791,7 @@ export const VERB_CATALOG: VerbSpec[] = [
     summary: "Pause the run for a fixed duration (up to 365 days).",
   },
   {
+    behavior: { pause: true },
     description:
       "Suspends the run until a target time. Two modes: (a) an ABSOLUTE datetime from a pill / CEL expression, or (b) a RELATIVE offset (years…seconds combo, ≤ 365 days) computed at execution time.",
     // `mode` selects absolute (uses `until`) vs relative (uses the combo). The
@@ -783,6 +839,7 @@ export const VERB_CATALOG: VerbSpec[] = [
     summary: "Send a signal to another run (or self).",
   },
   {
+    behavior: { pause: true, signalWait: true },
     description:
       "Blocks until a named signal is delivered to this run. Requires an emit_signal somewhere that can deliver it (self or another run).",
     fields: [
@@ -829,6 +886,7 @@ export const VERB_CATALOG: VerbSpec[] = [
     summary: "Publish a domain event onto the bus.",
   },
   {
+    behavior: { pause: true },
     description:
       "Blocks until a matching domain event is observed on the bus — the counterpart to emit_event.",
     fields: [
@@ -857,6 +915,7 @@ export const VERB_CATALOG: VerbSpec[] = [
 
   // Human --------------------------------------------------------------------
   {
+    behavior: { mergeableOwner: true, pause: true },
     description:
       "Pauses for a human decision gate assigned to a User, Group, or record-relative approver. Fans out three outcome lanes — Approved (continues), Rejected, and Timed-out. Decision rule is single / quorum N / unanimous. An optional pre-breach escalation notifies or reassigns before the due date routes to Timed-out.",
     fields: [{ key: "dueIn", kind: "text", label: "Due in", placeholder: "48h" }],
@@ -870,6 +929,7 @@ export const VERB_CATALOG: VerbSpec[] = [
     summary: "Human gate; fans out Approved / Rejected / Timed-out lanes.",
   },
   {
+    behavior: { mergeableOwner: true, pause: true },
     description:
       'Pauses and requests structured input from a person via a form. Form source is either a pre-authored form reference (formRef, e.g. "pir_review@2") or a set of inline fields defined in the step config. Fans out two outcome lanes — Submitted (continues, non-terminal) and Timed-out (terminal). An optional pre-breach escalation notifies or reassigns before the due date routes to Timed-out.',
     fields: [{ key: "dueIn", kind: "text", label: "Due in", placeholder: "24h" }],
@@ -995,6 +1055,7 @@ export const VERB_CATALOG: VerbSpec[] = [
     summary: "Keep (or drop) collection items matching a predicate.",
   },
   {
+    behavior: { fanout: true, loop: true },
     description:
       "A LOOP — like For Each, it iterates a collection per item. A plain map projects each item through the per-item expression into a new collection. An OPTIONAL child body sub-sequence runs per item for richer per-item work. The body loops back (rejoins) each item.",
     fields: [
@@ -1149,6 +1210,7 @@ export const VERB_CATALOG: VerbSpec[] = [
     summary: "Fail the run unless a condition holds.",
   },
   {
+    behavior: { terminal: true },
     description:
       "Raises a typed error, triggering catch / compensation. Terminal on its trail unless inside a try_catch.",
     fields: [
@@ -1429,17 +1491,27 @@ export const laneRoleFor = (ownerType: VerbName, laneIndex: number): LaneRole =>
  *   try_catch TRY                        → default REJOIN (false).
  *   try_catch CATCH                      → forced END (true).
  *
+ * `loop` is the set of loop-construct verb names (foreach/while/map for the base
+ * catalog). It is passed in — resolved from the effective catalog via
+ * `useCatalog().loop` (or the module-global `LOOP_VERBS` for the base) — so lane
+ * semantics reflect whatever catalog is actually in play, not a hardcoded set.
+ *
  * @since 1.0.0
  */
-export const laneDefaultsTerminal = (ownerType: VerbName, role: LaneRole): boolean => {
+export const laneDefaultsTerminal = (
+  ownerType: VerbName,
+  role: LaneRole,
+  loop: Set<string>,
+): boolean => {
   if (ownerType === "try_catch") return role === "catch";
-  if (LOOP_VERBS.has(ownerType)) return false;
+  if (loop.has(ownerType)) return false;
   return true;
 };
 
 /**
  * The EFFECTIVE terminal flag for a lane (owner-type default when unset; CATCH
- * is always terminal regardless of the stored flag).
+ * is always terminal regardless of the stored flag). `loop` — see
+ * {@link laneDefaultsTerminal}.
  *
  * @since 1.0.0
  */
@@ -1447,13 +1519,15 @@ export const laneIsTerminal = (
   ownerType: VerbName,
   role: LaneRole,
   branch: Pick<Branch, "terminal">,
+  loop: Set<string>,
 ): boolean => {
   if (ownerType === "try_catch" && role === "catch") return true;
-  return branch.terminal ?? laneDefaultsTerminal(ownerType, role);
+  return branch.terminal ?? laneDefaultsTerminal(ownerType, role, loop);
 };
 
 /**
- * The full semantics of a lane (drives canvas terminus + validation).
+ * The full semantics of a lane (drives canvas terminus + validation). `loop` —
+ * see {@link laneDefaultsTerminal}.
  *
  * @since 1.0.0
  */
@@ -1461,12 +1535,13 @@ export const laneSemantics = (
   ownerType: VerbName,
   role: LaneRole,
   branch: Pick<Branch, "terminal">,
+  loop: Set<string>,
 ): LaneSemantics => {
   if (ownerType === "try_catch" && role === "catch") return "forced-end";
-  if (laneIsTerminal(ownerType, role, branch)) return "end";
+  if (laneIsTerminal(ownerType, role, branch, loop)) return "end";
   // Non-terminal: loop constructs and the TRY lane loop back; everything else
   // must merge to an explicit sub-entry.
-  if (LOOP_VERBS.has(ownerType) || role === "try") return "loop-back";
+  if (loop.has(ownerType) || role === "try") return "loop-back";
   return "merge";
 };
 

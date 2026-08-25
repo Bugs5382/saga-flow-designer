@@ -18,6 +18,7 @@ import { useEffect, useState } from "react";
 import type { WorkflowDefinition } from "../workflowData";
 import type { WorkflowGateway } from "../workflowGateway";
 
+import { CatalogProvider } from "../catalogContext";
 import {
   absoluteTime,
   formatDuration,
@@ -315,13 +316,18 @@ export const RunDetail = ({ gateway, onBack, onOpenWorkflow, runId }: RunDetailP
               <span className="inline-block size-2 rounded-full bg-slate-300" /> skipped
             </span>
           </div>
-          <FlowCanvas
-            runOverlay={overlay}
-            selectedId={undefined}
-            stages={workflow.stages}
-            trigger={workflow.trigger}
-            {...INERT}
-          />
+          {/* The run-mode canvas reads the verb catalog/behavior via
+              useCatalog(); a bare provider supplies the base catalog (run detail
+              carries no overlay). */}
+          <CatalogProvider>
+            <FlowCanvas
+              runOverlay={overlay}
+              selectedId={undefined}
+              stages={workflow.stages}
+              trigger={workflow.trigger}
+              {...INERT}
+            />
+          </CatalogProvider>
         </main>
 
         <aside className="flex w-[380px] shrink-0 flex-col overflow-auto border-l border-slate-200 bg-white">

@@ -17,6 +17,7 @@ import {
   type Branch,
   type Stage,
   type Step,
+  type VerbName,
   type VerbSpec,
   WHILE_DEFAULT_MAX_ITERATIONS,
   type WorkflowDefinition,
@@ -37,7 +38,11 @@ export const nextId = (verb: string): string => {
 // reads immediately. A 3rd-party spec maps onto its base verb name but keeps its
 // own label + config seed.
 export const makeStep = (spec: VerbSpec): Step => {
-  const verb = spec.name;
+  // NOTE: spec.name is the wider NodeName (a catalog overlay may add
+  // non-VerbName entries — see catalogModel.ts). Step.type stays the strict
+  // engine VerbName; wiring an overlay's custom verbs through here is out of
+  // scope for this change.
+  const verb = spec.name as VerbName;
   const base: Step = {
     config: spec.source === "third_party" && spec.vendor ? { _vendor: spec.vendor } : {},
     id: nextId(verb),
