@@ -58,7 +58,7 @@ export const CatalogOverlay: Story = {
           description: "A toy custom action a host might register through catalogOverrides.add.",
           fields: [],
           group: "Custom",
-          icon: "🔧",
+          icon: "C",
           inputs: "—",
           label: "Custom Action",
           name: "custom_action",

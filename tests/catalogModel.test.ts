@@ -31,7 +31,7 @@ const custom = {
   description: "",
   fields: [],
   group: "Custom",
-  icon: "🔧",
+  icon: "C",
   inputs: "",
   label: "Custom X",
   name: "custom_x",
