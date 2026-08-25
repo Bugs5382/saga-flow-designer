@@ -45,3 +45,30 @@ export const ApprovalFlow: Story = {
 export const NightlyReport: Story = {
   args: { definitionId: "wf-nightly-report" },
 };
+
+// A toy, non-domain-specific verb added via `catalogOverrides.add`, alongside
+// a base verb hidden via `catalogOverrides.hide` — demonstrates the overlay
+// seam a host uses to graft its own catalog onto (or trim entries from) the
+// base one, without touching the package's built-in `VERB_CATALOG`.
+export const CatalogOverlay: Story = {
+  args: {
+    catalogOverrides: {
+      add: [
+        {
+          description: "A toy custom action a host might register through catalogOverrides.add.",
+          fields: [],
+          group: "Custom",
+          icon: "🔧",
+          inputs: "—",
+          label: "Custom Action",
+          name: "custom_action",
+          outputs: "—",
+          source: "base",
+          summary: "A host-defined custom action.",
+        },
+      ],
+      hide: ["http_request"],
+    },
+    definitionId: "wf-order-fulfillment",
+  },
+};

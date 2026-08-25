@@ -28,6 +28,18 @@
  * @since 1.0.0
  */
 
+// The React seam over the catalog overlay model: `CatalogProvider` /
+// `useCatalog`. Exposed so a host can wrap standalone sub-components (e.g.
+// `VerbPalette`) outside of `FlowDesigner`, which already provides one
+// internally.
+export * from "./catalogContext";
+
+// The catalog overlay model: `resolveCatalog` + the `CatalogOverrides` /
+// `ResolvedCatalog` types. Pure logic — lets a host build/typecheck an
+// overlay (e.g. for `FlowDesigner`'s `catalogOverrides` prop) without a React
+// tree.
+export * from "./catalogModel";
+
 // The React component layer: embeddable, props-driven Flow Designer surfaces.
 export * from "./components";
 

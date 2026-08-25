@@ -15,6 +15,7 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import type { CatalogOverrides } from "../catalogModel";
 import type { ValidationResult, WorkflowGateway } from "../workflowGateway";
 
 import { CatalogProvider, useCatalog } from "../catalogContext";
@@ -117,6 +118,11 @@ export type DesignerNoticeLevel = "error" | "info" | "success";
  * @since 1.0.0
  */
 export interface FlowDesignerProps {
+  // Overlay applied on top of the base verb catalog: `add` extra entries,
+  // `hide` base entries by name (required entries are never actually
+  // hidden). Passed straight through to the `CatalogProvider` this component
+  // renders. Omit to use the base catalog unchanged.
+  catalogOverrides?: CatalogOverrides;
   // Seed the editor with an already-loaded definition. Takes precedence over
   // `definitionId`. Treated as the initial working copy (edits are local).
   definition?: WorkflowDefinition;
@@ -160,7 +166,7 @@ const FlowDesignerInner = ({
   onNotify,
   onPublish,
   onSave,
-}: FlowDesignerProps) => {
+}: Omit<FlowDesignerProps, "catalogOverrides">) => {
   // The effective catalog index — the single source of truth for verb specs.
   const { byName } = useCatalog();
 
@@ -1019,15 +1025,16 @@ const FlowDesignerInner = ({
  * its working copy (undo/redo + debounced autosave through the injected
  * gateway); the host supplies navigation, notices, and persistence side effects.
  *
- * Provides a {@link CatalogProvider} (default base catalog) around its tree so
- * the palette, canvas, and config panel read the effective verb catalog +
+ * Provides a {@link CatalogProvider} around its tree — seeded with
+ * `catalogOverrides` when given, the base catalog unchanged otherwise — so the
+ * palette, canvas, and config panel read the effective verb catalog +
  * behavior via `useCatalog()` — the single source of truth — rather than the
  * module-global catalog.
  *
  * @since 1.0.0
  */
-export const FlowDesigner = (props: FlowDesignerProps) => (
-  <CatalogProvider>
+export const FlowDesigner = ({ catalogOverrides, ...props }: FlowDesignerProps) => (
+  <CatalogProvider overrides={catalogOverrides}>
     <FlowDesignerInner {...props} />
   </CatalogProvider>
 );
