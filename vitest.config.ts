@@ -17,7 +17,11 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   test: {
+    // Pure-logic tests (`*.test.ts`) run in "node" — no DOM needed. Component
+    // tests (`*.test.tsx`) render with @testing-library/react, so they need a
+    // DOM; jsdom supplies it.
     environment: "node",
+    environmentMatchGlobs: [["tests/**/*.test.tsx", "jsdom"]],
     include: ["tests/**/*.test.{ts,tsx}"],
   },
 });
