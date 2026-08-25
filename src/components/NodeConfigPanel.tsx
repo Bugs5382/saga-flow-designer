@@ -15,6 +15,7 @@
  */
 import { useState } from "react";
 
+import { useCatalog } from "../catalogContext";
 import {
   type Assignment,
   type AssignTarget,
@@ -32,7 +33,6 @@ import {
   laneRoleFor,
   laneSemantics,
   MAX_DURATION_DAYS,
-  MERGEABLE_OWNERS,
   parseDurationParts,
   readAssignTarget,
   readEscalation,
@@ -43,7 +43,6 @@ import {
   type Step,
   type Trigger,
   type TriggerKind,
-  VERB_BY_NAME,
   type VerbField,
   writeAssignTarget,
   writeEscalation,
@@ -469,6 +468,7 @@ const LaneMergeEditor = ({
   onLaneChange: (laneId: string, patch: Partial<Branch>) => void;
   step: Step;
 }) => {
+  const { loop } = useCatalog();
   const lanes = step.branches ?? step.children ?? [];
   return (
     <div className="grid gap-2 border-t border-slate-100 pt-3">
@@ -479,7 +479,7 @@ const LaneMergeEditor = ({
       </p>
       {lanes.map((lane, laneIndex) => {
         const role = laneRoleFor(step.type, laneIndex);
-        const semantics = laneSemantics(step.type, role, lane);
+        const semantics = laneSemantics(step.type, role, lane, loop);
         const merging = semantics === "merge";
         const entry = lane.merge
           ? entryPoints.find((e) => e.stepId === lane.merge?.entryId)
@@ -1376,6 +1376,10 @@ export const NodeConfigPanel = ({
   step,
   trigger,
 }: ConfigPanelProps) => {
+  // The effective catalog — spec lookup + which owners carry a merge target —
+  // read from context (single source of truth), not the module globals.
+  const { byName, mergeableOwners } = useCatalog();
+
   // A selected STAGE (clicked its band) -> rename panel, live updates.
   if (!step && selectedStage) {
     const stageLabel = stageKindLabel(selectedStage.kind);
@@ -1420,7 +1424,7 @@ export const NodeConfigPanel = ({
     );
   }
 
-  const spec = VERB_BY_NAME[step.type];
+  const spec = byName[step.type];
   const customKeys = CUSTOM_FIELDS[step.type];
   return (
     <aside className="flex w-80 shrink-0 flex-col border-l border-slate-200 bg-white">
@@ -1565,7 +1569,7 @@ export const NodeConfigPanel = ({
 
           {step.type === "entry" ? <EntryContractHint step={step} /> : null}
 
-          {MERGEABLE_OWNERS.has(step.type) &&
+          {mergeableOwners.has(step.type) &&
           ((step.branches?.length ?? 0) > 0 || (step.children?.length ?? 0) > 0) ? (
             <LaneMergeEditor entryPoints={entryPoints} onLaneChange={onLaneChange} step={step} />
           ) : null}

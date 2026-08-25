@@ -1491,17 +1491,27 @@ export const laneRoleFor = (ownerType: VerbName, laneIndex: number): LaneRole =>
  *   try_catch TRY                        → default REJOIN (false).
  *   try_catch CATCH                      → forced END (true).
  *
+ * `loop` is the set of loop-construct verb names (foreach/while/map for the base
+ * catalog). It is passed in — resolved from the effective catalog via
+ * `useCatalog().loop` (or the module-global `LOOP_VERBS` for the base) — so lane
+ * semantics reflect whatever catalog is actually in play, not a hardcoded set.
+ *
  * @since 1.0.0
  */
-export const laneDefaultsTerminal = (ownerType: VerbName, role: LaneRole): boolean => {
+export const laneDefaultsTerminal = (
+  ownerType: VerbName,
+  role: LaneRole,
+  loop: Set<string>,
+): boolean => {
   if (ownerType === "try_catch") return role === "catch";
-  if (LOOP_VERBS.has(ownerType)) return false;
+  if (loop.has(ownerType)) return false;
   return true;
 };
 
 /**
  * The EFFECTIVE terminal flag for a lane (owner-type default when unset; CATCH
- * is always terminal regardless of the stored flag).
+ * is always terminal regardless of the stored flag). `loop` — see
+ * {@link laneDefaultsTerminal}.
  *
  * @since 1.0.0
  */
@@ -1509,13 +1519,15 @@ export const laneIsTerminal = (
   ownerType: VerbName,
   role: LaneRole,
   branch: Pick<Branch, "terminal">,
+  loop: Set<string>,
 ): boolean => {
   if (ownerType === "try_catch" && role === "catch") return true;
-  return branch.terminal ?? laneDefaultsTerminal(ownerType, role);
+  return branch.terminal ?? laneDefaultsTerminal(ownerType, role, loop);
 };
 
 /**
- * The full semantics of a lane (drives canvas terminus + validation).
+ * The full semantics of a lane (drives canvas terminus + validation). `loop` —
+ * see {@link laneDefaultsTerminal}.
  *
  * @since 1.0.0
  */
@@ -1523,12 +1535,13 @@ export const laneSemantics = (
   ownerType: VerbName,
   role: LaneRole,
   branch: Pick<Branch, "terminal">,
+  loop: Set<string>,
 ): LaneSemantics => {
   if (ownerType === "try_catch" && role === "catch") return "forced-end";
-  if (laneIsTerminal(ownerType, role, branch)) return "end";
+  if (laneIsTerminal(ownerType, role, branch, loop)) return "end";
   // Non-terminal: loop constructs and the TRY lane loop back; everything else
   // must merge to an explicit sub-entry.
-  if (LOOP_VERBS.has(ownerType) || role === "try") return "loop-back";
+  if (loop.has(ownerType) || role === "try") return "loop-back";
   return "merge";
 };
 

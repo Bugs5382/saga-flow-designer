@@ -17,14 +17,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import type { ValidationResult, WorkflowGateway } from "../workflowGateway";
 
+import { CatalogProvider, useCatalog } from "../catalogContext";
 import {
   type Branch,
   THIRD_PARTY_CATALOG,
   thirdPartyKey,
   type Trigger,
-  VERB_BY_NAME,
-  VERB_CATALOG,
-  type VerbName,
   type VerbSpec,
   type WorkflowDefinition,
   type WorkflowStatus,
@@ -139,23 +137,22 @@ export interface FlowDesignerProps {
 
 type SaveState = "dirty" | "idle" | "saved" | "saving";
 
-// Resolve a palette drag/insert payload to its VerbSpec. Base verbs by name;
-// 3rd-party verbs by synthetic key.
-const specForPayload = (payload: string): undefined | VerbSpec => {
+// Resolve a palette drag/insert payload to its VerbSpec. Base verbs are looked
+// up in the EFFECTIVE catalog's `byName` (threaded from useCatalog by the
+// caller); 3rd-party verbs by synthetic key.
+const specForPayload = (
+  payload: string,
+  byName: Record<string, VerbSpec>,
+): undefined | VerbSpec => {
   const [, source, key] = payload.split(":");
-  if (source === "base") return VERB_BY_NAME[key as VerbName];
+  if (source === "base") return byName[key];
   return THIRD_PARTY_CATALOG.find((s) => thirdPartyKey(s) === key);
 };
 
-/**
- * The Flow Designer: an embeddable, props-driven workflow editor composing the
- * verb palette, the React Flow canvas, and the node configuration panel. It owns
- * its working copy (undo/redo + debounced autosave through the injected
- * gateway); the host supplies navigation, notices, and persistence side effects.
- *
- * @since 1.0.0
- */
-export const FlowDesigner = ({
+// The designer body. Rendered INSIDE a <CatalogProvider> (see FlowDesigner) so
+// it and every descendant read the effective catalog/behavior via useCatalog()
+// instead of the module-global VERB_CATALOG / VERB_BY_NAME.
+const FlowDesignerInner = ({
   definition,
   definitionId,
   gateway,
@@ -164,6 +161,9 @@ export const FlowDesigner = ({
   onPublish,
   onSave,
 }: FlowDesignerProps) => {
+  // The effective catalog index — the single source of truth for verb specs.
+  const { byName } = useCatalog();
+
   // Keep host callbacks in refs so the memoised helpers below stay stable.
   const onNotifyReference = useRef(onNotify);
   onNotifyReference.current = onNotify;
@@ -367,14 +367,14 @@ export const FlowDesigner = ({
         // pre-stage, which accepts only data-manipulation steps.
         if (!ownerInPreStage(workflow, target.ownerId)) return true;
         const moved = locateStep(workflow, payload.slice("move:".length));
-        return moved ? VERB_BY_NAME[moved.step.type]?.group === "Data" : false;
+        return moved ? byName[moved.step.type]?.group === "Data" : false;
       }
-      const spec = specForPayload(payload);
+      const spec = specForPayload(payload, byName);
       const context = slotContextFor(target);
       if (!spec || !context) return false;
       return verbLegalAt(spec, context).ok;
     },
-    [workflow, slotContextFor],
+    [workflow, slotContextFor, byName],
   );
 
   // --- edit ops -------------------------------------------------------------
@@ -434,10 +434,10 @@ export const FlowDesigner = ({
         notify.success("Moved node");
         return;
       }
-      const spec = specForPayload(payload);
+      const spec = specForPayload(payload, byName);
       if (spec) insertSpecAt(spec, target);
     },
-    [mutate, insertSpecAt, notify],
+    [mutate, insertSpecAt, notify, byName],
   );
 
   const handleInsertRelative = useCallback(
@@ -495,7 +495,7 @@ export const FlowDesigner = ({
       if (!target) return;
       const fresh = cloneStepFresh(buf);
       const context = slotContextFor(target);
-      const spec = VERB_CATALOG.find((s) => s.name === fresh.type);
+      const spec = byName[fresh.type];
       if (context && spec && !verbLegalAt(spec, context).ok) {
         notify.error("Can't paste here: " + (verbLegalAt(spec, context).reason ?? ""));
         return;
@@ -507,7 +507,7 @@ export const FlowDesigner = ({
       setSelectedId(fresh.id);
       notify.success("Pasted node");
     },
-    [workflow, mutate, slotContextFor, notify],
+    [workflow, mutate, slotContextFor, notify, byName],
   );
 
   const handleToggleCollapse = useCallback(
@@ -1012,3 +1012,22 @@ export const FlowDesigner = ({
     </div>
   );
 };
+
+/**
+ * The Flow Designer: an embeddable, props-driven workflow editor composing the
+ * verb palette, the React Flow canvas, and the node configuration panel. It owns
+ * its working copy (undo/redo + debounced autosave through the injected
+ * gateway); the host supplies navigation, notices, and persistence side effects.
+ *
+ * Provides a {@link CatalogProvider} (default base catalog) around its tree so
+ * the palette, canvas, and config panel read the effective verb catalog +
+ * behavior via `useCatalog()` — the single source of truth — rather than the
+ * module-global catalog.
+ *
+ * @since 1.0.0
+ */
+export const FlowDesigner = (props: FlowDesignerProps) => (
+  <CatalogProvider>
+    <FlowDesignerInner {...props} />
+  </CatalogProvider>
+);

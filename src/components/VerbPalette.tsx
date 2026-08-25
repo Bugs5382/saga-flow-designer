@@ -13,16 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { type DragEvent, useState } from "react";
+import { type DragEvent, useMemo, useState } from "react";
 
-import {
-  THIRD_PARTY_CATALOG,
-  thirdPartyKey,
-  VERB_CATALOG,
-  VERB_GROUP_ORDER,
-  type VerbGroup,
-  type VerbSpec,
-} from "../workflowData";
+import { useCatalog } from "../catalogContext";
+import { THIRD_PARTY_CATALOG, thirdPartyKey, type VerbSpec } from "../workflowData";
 import { DRAG_MIME } from "./FlowCanvas";
 import {
   cn,
@@ -64,14 +58,6 @@ export interface PaletteProps {
   legality?: (spec: VerbSpec) => { ok: boolean; reason?: string };
   onAdd: (spec: VerbSpec) => void;
   selectedStepId: string | undefined;
-}
-
-const GROUPED: Record<VerbGroup, VerbSpec[]> = {} as Record<VerbGroup, VerbSpec[]>;
-for (const verb of VERB_CATALOG) {
-  // VERB_CATALOG is the base catalog: every entry's group is a real VerbGroup
-  // literal at runtime even though VerbSpec["group"] is now the wider
-  // NodeGroup (to admit a catalog overlay's custom groups elsewhere).
-  (GROUPED[verb.group as VerbGroup] ??= []).push(verb);
 }
 
 const InfoDialog = ({
@@ -213,7 +199,18 @@ const VerbRow = ({
  * @since 1.0.0
  */
 export const VerbPalette = ({ legality, onAdd, selectedStepId }: PaletteProps) => {
-  const [collapsed, setCollapsed] = useState<Set<VerbGroup>>(new Set());
+  // The base palette is the EFFECTIVE catalog from context (a bare provider
+  // reproduces today's base catalog exactly) — grouped by section, listed in the
+  // resolved group order. This replaces the former module-global VERB_CATALOG /
+  // VERB_GROUP_ORDER reads so a catalog overlay flows straight through.
+  const { groupOrder, specs } = useCatalog();
+  const grouped = useMemo(() => {
+    const map: Record<string, VerbSpec[]> = {};
+    for (const verb of specs) (map[verb.group] ??= []).push(verb);
+    return map;
+  }, [specs]);
+
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
   const [infoSpec, setInfoSpec] = useState<undefined | VerbSpec>();
   const [infoOpen, setInfoOpen] = useState(false);
 
@@ -222,7 +219,7 @@ export const VerbPalette = ({ legality, onAdd, selectedStepId }: PaletteProps) =
     setInfoOpen(true);
   };
 
-  const toggle = (group: VerbGroup) =>
+  const toggle = (group: string) =>
     setCollapsed((previous) => {
       const next = new Set(previous);
       if (next.has(group)) next.delete(group);
@@ -251,8 +248,8 @@ export const VerbPalette = ({ legality, onAdd, selectedStepId }: PaletteProps) =
           className="min-h-0 flex-1 overflow-y-auto px-2 py-2 [scrollbar-gutter:stable]"
           value="base"
         >
-          {VERB_GROUP_ORDER.map((group) => {
-            const verbs = GROUPED[group] ?? [];
+          {groupOrder.map((group) => {
+            const verbs = grouped[group] ?? [];
             const isCollapsed = collapsed.has(group);
             return (
               <div className="mb-1" key={group}>

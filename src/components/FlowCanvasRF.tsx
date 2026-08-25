@@ -68,12 +68,12 @@ import {
   useState,
 } from "react";
 
+import { useCatalog } from "../catalogContext";
 import {
   type Branch,
   laneIsTerminal,
   type LaneRole,
   laneRoleFor,
-  LOOP_VERBS,
   type Stage,
   type Step,
   type Trigger,
@@ -327,6 +327,9 @@ const build = (
   callback: CanvasCallbacks,
   selectedId: string | undefined,
   runOverlay: RunOverlay | undefined,
+  // The loop-construct verb set from the effective catalog (useCatalog().loop),
+  // threaded in so lane termination reflects the catalog actually in play.
+  loop: Set<string>,
 ): { edges: Edge[]; multiContinue: boolean; nodes: Node[] } => {
   const entryNames = collectEntryNames(stages);
   const nodes: Node[] = [];
@@ -373,7 +376,7 @@ const build = (
         cb: callback,
         entryNames,
         hoistStepId: fanout?.id,
-        loopBody: LOOP_VERBS.has(ownerType),
+        loopBody: loop.has(ownerType),
         numberPrefix,
         ownerJoin,
         ownerType,
@@ -391,7 +394,7 @@ const build = (
     // A terminal lane ends here (its downstream is an End, handled by the caller
     // via the empty continuation set); a continuing lane propagates its
     // continuation point(s).
-    const laneTerminal = laneIsTerminal(ownerType, role, lane);
+    const laneTerminal = laneIsTerminal(ownerType, role, lane, loop);
 
     if (!fanout) return laneTerminal ? [] : [lane.id];
 
@@ -722,6 +725,9 @@ const Inner = ({
   trigger,
   ...callback
 }: FlowCanvasRFProps) => {
+  // Loop-construct verb set from the effective catalog — threaded into build()
+  // so lane termination/continuation reflects the catalog in play.
+  const { loop } = useCatalog();
   // Rebuild the TREE only when structure/run-overlay changes — NOT on selection
   // (selecting a node must not re-layout/re-fit the whole tree). Selection is
   // applied as a light data patch below.
@@ -731,8 +737,8 @@ const Inner = ({
   // data edit (rename/config) never rebuilds or reflows the tree (the flicker).
   const triggerKey = useMemo(() => JSON.stringify(trigger), [trigger]);
   const built = useMemo(
-    () => build(stages, trigger, callback as CanvasCallbacks, selectedId, runOverlay),
-    [structKey, triggerKey, runOverlay],
+    () => build(stages, trigger, callback as CanvasCallbacks, selectedId, runOverlay, loop),
+    [structKey, triggerKey, runOverlay, loop],
   );
   const initialNodes = useMemo(() => layoutTree(built.nodes, built.edges), [built]);
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
