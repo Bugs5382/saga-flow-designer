@@ -16,7 +16,16 @@
 import { describe, expect, it } from "vitest";
 
 import { resolveCatalog } from "../src/catalogModel";
-import { VERB_CATALOG } from "../src/workflowData";
+import {
+  BRANCH_VERBS,
+  FANOUT_VERBS,
+  LOOP_VERBS,
+  MERGEABLE_OWNERS,
+  PAUSE_VERBS,
+  SIGNAL_WAIT_VERBS,
+  TERMINAL_VERBS,
+  VERB_CATALOG,
+} from "../src/workflowData";
 
 const custom = {
   description: "",
@@ -30,6 +39,8 @@ const custom = {
   source: "base",
   summary: "",
 } as const;
+
+const asSorted = (s: Iterable<string>): string[] => [...s].toSorted();
 
 describe("resolveCatalog", () => {
   it("defaults to the base catalog with no overrides", () => {
@@ -49,5 +60,25 @@ describe("resolveCatalog", () => {
   it("never hides a required verb", () => {
     const r = resolveCatalog(VERB_CATALOG, { hide: ["end"] });
     expect(r.byName.end).toBeDefined();
+  });
+
+  // GUARD (drift): components read the resolveCatalog-DERIVED behavior sets via
+  // useCatalog(), while workflowValidation.ts reads the module-global Sets. For
+  // the base catalog those two sources MUST be identical — otherwise the canvas
+  // and the validator would disagree about lane termination / palette tinting.
+  it("derives base behavior sets identical to the module globals", () => {
+    const r = resolveCatalog(VERB_CATALOG);
+    const pairs: [Set<string>, Set<string>][] = [
+      [r.terminal, TERMINAL_VERBS],
+      [r.branch, BRANCH_VERBS],
+      [r.fanout, FANOUT_VERBS],
+      [r.loop, LOOP_VERBS],
+      [r.pause, PAUSE_VERBS],
+      [r.signalWait, SIGNAL_WAIT_VERBS],
+      [r.mergeableOwners, MERGEABLE_OWNERS],
+    ];
+    for (const [derived, global] of pairs) {
+      expect(asSorted(derived)).toEqual(asSorted(global));
+    }
   });
 });
