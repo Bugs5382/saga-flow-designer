@@ -58,6 +58,10 @@ export interface PaletteProps {
   legality?: (spec: VerbSpec) => { ok: boolean; reason?: string };
   onAdd: (spec: VerbSpec) => void;
   selectedStepId: string | undefined;
+  // Whether to show the 3rd-party (vendor extensions) tab. A host that ships only
+  // its own catalog passes false for a clean, single-catalog palette; the tab is
+  // also auto-hidden when there are no registered extensions. Defaults to true.
+  showThirdParty?: boolean;
 }
 
 const InfoDialog = ({
@@ -198,7 +202,12 @@ const VerbRow = ({
  *
  * @since 1.0.0
  */
-export const VerbPalette = ({ legality, onAdd, selectedStepId }: PaletteProps) => {
+export const VerbPalette = ({
+  legality,
+  onAdd,
+  selectedStepId,
+  showThirdParty = true,
+}: PaletteProps) => {
   // The base palette is the EFFECTIVE catalog from context (a bare provider
   // reproduces today's base catalog exactly) — grouped by section, listed in the
   // resolved group order. This replaces the former module-global VERB_CATALOG /
@@ -228,6 +237,10 @@ export const VerbPalette = ({ legality, onAdd, selectedStepId }: PaletteProps) =
     });
 
   const disabledHint = !selectedStepId && !legality;
+  // The 3rd-party tab is for hosts with vendor extensions; a host with none
+  // passes showThirdParty={false} and gets a single-catalog palette (no tabs).
+  // Also auto-hidden when there are no registered extensions.
+  const showThird = showThirdParty && THIRD_PARTY_CATALOG.length > 0;
 
   return (
     <aside className="flex w-64 shrink-0 flex-col border-r border-slate-200 bg-slate-50/60">
@@ -239,10 +252,12 @@ export const VerbPalette = ({ legality, onAdd, selectedStepId }: PaletteProps) =
         </div>
       </div>
       <Tabs className="flex min-h-0 flex-1 flex-col" defaultValue="base">
-        <TabsList className="mx-auto mt-2 w-fit">
-          <TabsTrigger value="base">Base</TabsTrigger>
-          <TabsTrigger value="third">3rd-party</TabsTrigger>
-        </TabsList>
+        {showThird ? (
+          <TabsList className="mx-auto mt-2 w-fit">
+            <TabsTrigger value="base">Base</TabsTrigger>
+            <TabsTrigger value="third">3rd-party</TabsTrigger>
+          </TabsList>
+        ) : null}
 
         <TabsContent
           className="min-h-0 flex-1 overflow-y-auto px-2 py-2 [scrollbar-gutter:stable]"
@@ -250,6 +265,9 @@ export const VerbPalette = ({ legality, onAdd, selectedStepId }: PaletteProps) =
         >
           {groupOrder.map((group) => {
             const verbs = grouped[group] ?? [];
+            // A group with no visible verbs (e.g. every verb hidden by a host's
+            // catalog overrides) shows no header — an empty section is noise.
+            if (verbs.length === 0) return null;
             const isCollapsed = collapsed.has(group);
             return (
               <div className="mb-1" key={group}>
@@ -286,34 +304,36 @@ export const VerbPalette = ({ legality, onAdd, selectedStepId }: PaletteProps) =
           })}
         </TabsContent>
 
-        <TabsContent
-          className="min-h-0 flex-1 overflow-y-auto px-2 py-2 [scrollbar-gutter:stable]"
-          value="third"
-        >
-          <div className="mb-1">
-            <div className="flex w-full items-center gap-1 rounded-md px-2 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-              Extensions
-              <span className="ml-auto text-slate-600">{THIRD_PARTY_CATALOG.length}</span>
+        {showThird ? (
+          <TabsContent
+            className="min-h-0 flex-1 overflow-y-auto px-2 py-2 [scrollbar-gutter:stable]"
+            value="third"
+          >
+            <div className="mb-1">
+              <div className="flex w-full items-center gap-1 rounded-md px-2 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                Extensions
+                <span className="ml-auto text-slate-600">{THIRD_PARTY_CATALOG.length}</span>
+              </div>
+              <div className="mt-1 grid gap-1">
+                {THIRD_PARTY_CATALOG.map((verb) => (
+                  <VerbRow
+                    disabledHint={disabledHint}
+                    key={thirdPartyKey(verb)}
+                    legality={legality?.(verb)}
+                    onAdd={onAdd}
+                    onInfo={openInfo}
+                    source="third"
+                    spec={verb}
+                  />
+                ))}
+              </div>
             </div>
-            <div className="mt-1 grid gap-1">
-              {THIRD_PARTY_CATALOG.map((verb) => (
-                <VerbRow
-                  disabledHint={disabledHint}
-                  key={thirdPartyKey(verb)}
-                  legality={legality?.(verb)}
-                  onAdd={onAdd}
-                  onInfo={openInfo}
-                  source="third"
-                  spec={verb}
-                />
-              ))}
-            </div>
-          </div>
-          <p className="mt-2 px-2 text-[10px] leading-snug text-slate-600">
-            Registered extension verbs contributed by vendor plug-ins; they map onto base dispatch
-            at runtime.
-          </p>
-        </TabsContent>
+            <p className="mt-2 px-2 text-[10px] leading-snug text-slate-600">
+              Registered extension verbs contributed by vendor plug-ins; they map onto base dispatch
+              at runtime.
+            </p>
+          </TabsContent>
+        ) : null}
       </Tabs>
 
       <InfoDialog onOpenChange={setInfoOpen} open={infoOpen} spec={infoSpec} />
