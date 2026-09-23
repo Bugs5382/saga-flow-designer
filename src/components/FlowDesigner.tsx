@@ -139,6 +139,10 @@ export interface FlowDesignerProps {
   onPublish?: (workflow: WorkflowDefinition) => void;
   // Invoked with the saved definition after each autosave.
   onSave?: (workflow: WorkflowDefinition) => void;
+  // Whether the palette shows the 3rd-party (vendor extensions) tab. A host that
+  // ships only its own catalog passes false for a single-catalog palette; also
+  // auto-hidden when there are no registered extensions. Defaults to true.
+  showThirdParty?: boolean;
 }
 
 type SaveState = "dirty" | "idle" | "saved" | "saving";
@@ -166,6 +170,7 @@ const FlowDesignerInner = ({
   onNotify,
   onPublish,
   onSave,
+  showThirdParty,
 }: Omit<FlowDesignerProps, "catalogOverrides">) => {
   // The effective catalog index — the single source of truth for verb specs.
   const { byName } = useCatalog();
@@ -887,6 +892,7 @@ const FlowDesignerInner = ({
               legality={activeSlot ? paletteLegality : undefined}
               onAdd={handleAdd}
               selectedStepId={selectedId}
+              showThirdParty={showThirdParty}
             />
           </div>
         ) : (
