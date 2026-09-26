@@ -34,3 +34,7 @@ jobs:
         run: npm test
       - name: Build
         run: npm run build
+      # Fails if the tarball would ship source maps or non-runtime folders, or
+      # grows past the size ceiling in scripts/checkPack.mjs.
+      - name: Check package contents
+        run: npm run check:pack

@@ -43,7 +43,11 @@ See `website/docs/go-saga.md` and `website/docs/integration.md` for worked integ
 
 ## Build, test, lint
 
-- Build: `npm run build` (tsup -> `dist/`; ships `index`, `tailwind.preset`, `theme.css`)
+- Build: `npm run build` (tsup -> `dist/`; ships `index`, `tailwind.preset`, `theme.css`; no
+  source maps)
+- Package check: `npm run check:pack` after a build. It fails if `npm pack --dry-run` would ship a
+  `.map` file or a non-runtime folder, or unpack past the ceiling in `scripts/checkPack.mjs`
+  (CI runs it in Node CI).
 - Test: `npm test` (vitest; the mapper round-trips fixtures under `tests/`)
 - Typecheck: `npm run typecheck` (tsc over `src`, `tests`, `stories`)
 - Lint: `npm run lint` (eslint, `@the-rabbit-hole/eslint-config`)
