@@ -16,7 +16,6 @@ permissions:
   contents: write
   pages: write
   id-token: write
-  packages: read
 concurrency:
   group: pages
   cancel-in-progress: false
@@ -44,14 +43,9 @@ jobs:
       - name: 📦 Install dependencies
         # website/package-lock.json is gitignored (see website/.gitignore) so
         # there is nothing for `npm ci` to lock against here; match the
-        # existing docs-build.yaml convention. website/.npmrc scopes
-        # @the-rabbit-hole-tech to GitHub Packages; reading that public
-        # package needs the ephemeral GITHUB_TOKEN below (no anonymous reads
-        # on GH Packages). If this ever fails cross-org, fall back to a PAT
-        # with read:packages stored as a secret.
+        # existing job-docs-build.yaml convention. The brand theme
+        # @the-rabbit-hole/docs-theme is on public npm, so no token is needed.
         working-directory: website
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm install --no-audit --no-fund
       - name: 📸 Cut versioned snapshot
         if: github.event_name == 'release'
