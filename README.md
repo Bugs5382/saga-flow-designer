@@ -1,6 +1,6 @@
-# 🕸️ @bugs5382/saga-flow-designer
+# @bugs5382/saga-flow-designer 🕸️
 
-> React components and utilities for visualising and editing saga-orchestration
+> 🎨 React components and utilities for visualising and editing saga-orchestration
 > **workflows** and **runs**.
 
 An embeddable **Flow Designer**, run views, and the framework-agnostic logic
