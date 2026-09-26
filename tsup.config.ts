@@ -37,6 +37,8 @@ export default defineConfig({
   onSuccess: async () => {
     copyFileSync("src/styles/theme.css", "dist/theme.css");
   },
-  sourcemap: true,
+  // No source maps. They were about 1.59 MB of a 2.4 MB tarball and are not
+  // published (#31); `npm run check:pack` fails if one comes back.
+  sourcemap: false,
   treeshake: true,
 });

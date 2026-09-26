@@ -46,6 +46,7 @@
   ],
   "scripts": {
     "build": "tsup",
+    "check:pack": "node scripts/checkPack.mjs",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
