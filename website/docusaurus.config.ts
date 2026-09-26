@@ -1,7 +1,7 @@
 import type { Config } from "@docusaurus/types";
 import type * as Preset from "@docusaurus/preset-classic";
 
-import { recommendedThemeConfig } from "@the-rabbit-hole-tech/docs-theme/config";
+import { recommendedThemeConfig } from "@the-rabbit-hole/docs-theme/config";
 
 // The shared brand theme owns the palette, fonts, dark-first colour mode, the
 // hideable docs sidebar, and the collapsible right-side table of contents. We
@@ -58,7 +58,7 @@ const config: Config = {
         theme: {
           // Brand tokens, navbar/footer borders, version banner/chip, TOC toggle.
           customCss: require.resolve(
-            "@the-rabbit-hole-tech/docs-theme/styles/custom.css",
+            "@the-rabbit-hole/docs-theme/styles/custom.css",
           ),
         },
       } satisfies Preset.Options,
@@ -67,7 +67,7 @@ const config: Config = {
 
   plugins: [
     // Contributes the collapsible right-side table of contents via @theme.
-    "@the-rabbit-hole-tech/docs-theme",
+    "@the-rabbit-hole/docs-theme",
     // Generates the API reference from the library's public surface. The entry
     // point is the package barrel; the "Since" sections come from the @since
     // tags on the exported symbols. Output lands in docs/api (gitignored) and

@@ -2,10 +2,8 @@ name: Docs Build
 # Build the Docusaurus documentation site (website/) on every PR and on push to
 # main, so the docs never break silently.
 #
-# The shared brand theme @the-rabbit-hole-tech/docs-theme is consumed from the
-# published GitHub Packages registry (website/.npmrc scopes
-# @the-rabbit-hole-tech to npm.pkg.github.com); the install step below
-# authenticates via NODE_AUTH_TOKEN.
+# The shared brand theme @the-rabbit-hole/docs-theme comes from the public npm
+# registry, so the install needs no registry config and no token.
 on:
   pull_request:
     branches: [main]
@@ -16,7 +14,6 @@ concurrency:
   cancel-in-progress: true
 permissions:
   contents: read
-  packages: read
 jobs:
   build:
     name: 📚 Build docs site
@@ -32,13 +29,6 @@ jobs:
         with:
           node-version: 20
       - name: Install
-        # Reads the public @the-rabbit-hole-tech/docs-theme package from GitHub
-        # Packages with the ephemeral GITHUB_TOKEN (GH Packages requires *a*
-        # token even for public packages, no anonymous reads). If this ever
-        # fails cross-org, fall back to a PAT with read:packages stored as a
-        # secret.
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm install --no-audit --no-fund
       - name: Build
         run: npm run build
