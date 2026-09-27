@@ -60,6 +60,14 @@ export const Designer = () => (
 );
 ```
 
+Both stylesheet imports are required, once, at your app entry. The package
+does not import any CSS itself, so it loads in plain Node (SSR, tests) and your
+bundler picks up the styles from these two lines:
+
+- `@bugs5382/saga-flow-designer/theme.css`: the default `--sfd-*` colour tokens.
+- `@xyflow/react/dist/style.css`: the React Flow canvas stylesheet. Without it
+  the canvas renders unstyled (no edges, handles or controls layout).
+
 The components use Tailwind utilities and the shipped token defaults — add the
 Tailwind preset and scan the package in your `content` (see **Theming** below).
 

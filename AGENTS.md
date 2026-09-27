@@ -22,6 +22,8 @@ Consumers implement `WorkflowGateway` and mount the components. Respect these:
 
 - The public surface is what `src/index.ts` re-exports. Do not export internals (`src/components/primitives/`, `src/components/internal/`).
 - `react`, `react-dom`, and `@xyflow/react` are **peer** dependencies — never bundle them.
+- The library imports no CSS. Hosts import `theme.css` and `@xyflow/react/dist/style.css` at their
+  app entry, which keeps the bundles loadable in plain Node. Do not add a stylesheet import to `src/`.
 - Colours resolve to `--sfd-*` CSS variables; the package ships defaults via `theme.css` + a Tailwind
   preset (`./tailwind-preset`). Do not hardcode brand colours or introduce a dependency on any host
   design system.
@@ -48,6 +50,11 @@ See `website/docs/go-saga.md` and `website/docs/integration.md` for worked integ
 - Package check: `npm run check:pack` after a build. It fails if `npm pack --dry-run` would ship a
   `.map` file or a non-runtime folder, or unpack past the ceiling in `scripts/checkPack.mjs`
   (CI runs it in Node CI).
+- Install check: `npm run check:install` after a build. It packs the tarball, installs it with the
+  peers in a throwaway folder, and loads every entry point in plain Node as ESM and CJS, with no
+  CSS stubbing. It fails if the bundle imports a stylesheet again (CI runs it in Node CI).
+- Types check: `npm run check:types` (attw, node16 profile) after a build. The `exports` map nests
+  `import`/`require`, each with its own `types` (`.d.ts` / `.d.cts`); keep it that way.
 - Test: `npm test` (vitest; the mapper round-trips fixtures under `tests/`)
 - Typecheck: `npm run typecheck` (tsc over `src`, `tests`, `stories`)
 - Lint: `npm run lint` (eslint, `@the-rabbit-hole/eslint-config`)

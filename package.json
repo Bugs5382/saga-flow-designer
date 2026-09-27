@@ -11,14 +11,24 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
     },
     "./tailwind-preset": {
-      "types": "./dist/tailwind.preset.d.ts",
-      "import": "./dist/tailwind.preset.js",
-      "require": "./dist/tailwind.preset.cjs"
+      "import": {
+        "types": "./dist/tailwind.preset.d.ts",
+        "default": "./dist/tailwind.preset.js"
+      },
+      "require": {
+        "types": "./dist/tailwind.preset.d.cts",
+        "default": "./dist/tailwind.preset.cjs"
+      }
     },
     "./theme.css": "./dist/theme.css",
     "./package.json": "./package.json"
@@ -45,8 +55,10 @@
     "react-flow"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "tsup && node scripts/fixPresetCjsTypes.mjs",
+    "check:install": "node scripts/checkInstall.mjs",
     "check:pack": "node scripts/checkPack.mjs",
+    "check:types": "attw --pack . --profile node16 --exclude-entrypoints ./theme.css",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
@@ -63,6 +75,7 @@
     "react-dom": ">=18"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.5",
     "@storybook/addon-essentials": "^8.6.0",
     "@storybook/addon-links": "^8.6.0",
     "@storybook/react": "^8.6.0",

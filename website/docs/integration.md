@@ -17,7 +17,10 @@ generic and lets it live inside any host.
 npm install @bugs5382/saga-flow-designer react react-dom @xyflow/react
 ```
 
-Import the token defaults and the canvas stylesheet once, at your app entry:
+Import the token defaults and the canvas stylesheet once, at your app entry.
+Both are required: the package imports no CSS itself, so it also loads in plain
+Node (SSR, tests), and without `@xyflow/react/dist/style.css` the canvas renders
+unstyled.
 
 ```ts
 import "@bugs5382/saga-flow-designer/theme.css";
