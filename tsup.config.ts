@@ -27,8 +27,9 @@ export default defineConfig({
   // `index` under `dist/src/` once a root-level entry joins it).
   entry: { index: "src/index.ts", "tailwind.preset": "tailwind.preset.ts" },
   // Keep peer deps external (never bundle them); the trailing regex also keeps
-  // subpath imports external — notably `@xyflow/react/dist/style.css`, so the
-  // consumer's bundler resolves and includes the canvas stylesheet.
+  // any `@xyflow/react/*` subpath import external. The library imports no CSS:
+  // hosts import `@xyflow/react/dist/style.css` themselves (README), so the
+  // bundles load in plain Node. `npm run check:install` fails if one comes back.
   external: ["react", "react-dom", "@xyflow/react", /^@xyflow\/react\//],
   format: ["esm", "cjs"],
   // The default theme tokens are plain CSS (not an importable module), so copy

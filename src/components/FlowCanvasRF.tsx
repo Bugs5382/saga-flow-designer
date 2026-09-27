@@ -38,7 +38,6 @@
 // frame, so connectors flex as nodes move. New nodes + first flow-load initialize
 // AT their target (no fly-in; the load settle is hidden by the loading overlay),
 // so the spring only animates real movement. prefers-reduced-motion snaps.
-import "@xyflow/react/dist/style.css";
 import {
   Background,
   BackgroundVariant,

@@ -58,9 +58,9 @@ To rebrand, override any `--sfd-*` variables (globally or scoped to a subtree).
 Any variable left alone keeps the package default. See the **Guides → Theming**
 Storybook page for the full guide and a live default-vs-alternate demo.
 
-The React Flow canvas additionally pulls in `@xyflow/react/dist/style.css`
-(imported by `FlowCanvasRF`), so consumers must be able to import CSS from
-dependencies (standard in Vite/Next/webpack setups).
+The React Flow canvas also needs `@xyflow/react/dist/style.css`. The library
+does not import it (a CSS import would stop the bundle loading in plain Node),
+so the host imports it once at the app entry, next to `theme.css`.
 
 ## Peer dependencies
 

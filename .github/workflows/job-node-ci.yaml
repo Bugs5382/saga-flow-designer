@@ -40,3 +40,11 @@ jobs:
       # grows past the size ceiling in scripts/checkPack.mjs.
       - name: Check package contents
         run: npm run check:pack
+      # Installs the packed tarball with its peers in a throwaway folder and
+      # loads every entry point in plain Node, as ESM and CJS, with no CSS
+      # stubbing. Fails if the bundle imports a stylesheet again.
+      - name: Install the packed tarball and import it (ESM and CJS)
+        run: npm run check:install
+      # attw: the CJS entry points must resolve .d.cts types, not the ESM .d.ts.
+      - name: Check published types
+        run: npm run check:types
