@@ -1,13 +1,13 @@
 name: Node CI
 # Build/lint/test gate for the npm package. Mirrors what the local pre-push hook
-# runs (lint/test), plus typecheck and build, so every PR and push is verified.
+# runs (lint/test), plus typecheck and build, so every PR is verified.
+#
+# Pull requests only, and not while the PR is a draft; the PR run covers what
+# merges, so nothing reruns on push to main or on branch pushes without a PR.
 on:
-  push:
-    paths-ignore:
-      - '**.md'
   pull_request:
-    branches:
-      - main
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -16,7 +16,9 @@ permissions:
 jobs:
   build-test:
     name: Build & Test
+    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v6
       - name: Setup Node

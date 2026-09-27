@@ -1,14 +1,16 @@
 name: Docs Build
-# Build the Docusaurus documentation site (website/) on every PR and on push to
-# main, so the docs never break silently.
+# Build the Docusaurus documentation site (website/) on every PR, so the docs
+# never break silently.
 #
 # The shared brand theme @the-rabbit-hole/docs-theme comes from the public npm
 # registry, so the install needs no registry config and no token.
+#
+# Pull requests only, and not while the PR is a draft; the PR run covers what
+# merges, so nothing reruns on push to main. Docs Publish builds again on release.
 on:
   pull_request:
     branches: [main]
-  push:
-    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
@@ -17,7 +19,9 @@ permissions:
 jobs:
   build:
     name: 📚 Build docs site
+    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: website

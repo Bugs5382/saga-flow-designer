@@ -18,6 +18,7 @@ jobs:
   Update_Draft:
     name: 📝 Update release draft
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Update the draft release
         uses: release-drafter/release-drafter@v7
