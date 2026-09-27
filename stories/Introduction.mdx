@@ -2,17 +2,17 @@ import { Meta } from "@storybook/blocks";
 
 <Meta title="Introduction" />
 
-# 🧭 saga-flow-designer
+# saga-flow-designer
 
 React components and utilities for **visualising and editing saga-orchestration
 workflows and runs** — an embeddable Flow Designer, run views, and the
 framework-agnostic logic that powers them. The package is engine-agnostic: it
 makes no assumption about how your data is fetched or how your app is shelled.
 
-## 📦 Install
+## Install
 
 ```bash
-npm install @bugs5382/saga-flow-designer
+npm install saga-flow-designer
 ```
 
 Peer dependencies (provided by your app):
@@ -21,7 +21,7 @@ Peer dependencies (provided by your app):
 npm install react react-dom @xyflow/react
 ```
 
-## 🧩 What's inside
+## What's inside
 
 - **Components** — `FlowDesigner`, `RunsList`, `RunDetail`, `WorkflowList`, plus
   the composable pieces (`FlowCanvas`, `VerbPalette`, `NodeConfigPanel`,
@@ -36,13 +36,13 @@ npm install react react-dom @xyflow/react
 - **`createMockGateway()`** — a fully in-memory gateway with example data, so
   you can run the designer with zero backend (it drives this Storybook).
 
-## 🪄 Two faces
+## Two faces
 
 1. A **library** you consume in your app with a real `WorkflowGateway` adapter.
 2. A **standalone harness** — this Storybook and the `demo/` app both run on the
    mock gateway with no host or backend.
 
-## 🎨 Theming
+## Theming
 
 The components ship their **own** default palette (independent of any brand).
 Every colour resolves to a `--sfd-*` CSS variable with a shipped default, so a

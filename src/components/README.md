@@ -34,9 +34,9 @@ they use resolves to a `--sfd-*` CSS variable for which the package ships its ow
 default value — so the palette is swappable without touching the components and
 depends on no external design system. Two files ship for this:
 
-- `@bugs5382/saga-flow-designer/theme.css` — a `:root` block with the default
+- `saga-flow-designer/theme.css` — a `:root` block with the default
   value of every `--sfd-*` variable.
-- `@bugs5382/saga-flow-designer/tailwind-preset` — a Tailwind preset mapping each
+- `saga-flow-designer/tailwind-preset` — a Tailwind preset mapping each
   colour name (`slate`, `coral`, `teal`, `indigo`, …) to its variable in channel
   form, so opacity modifiers keep working.
 
@@ -46,10 +46,10 @@ package in its Tailwind `content` scan so the utilities are generated:
 ```js
 // tailwind.config.js
 module.exports = {
-  presets: [require("@bugs5382/saga-flow-designer/tailwind-preset")],
+  presets: [require("saga-flow-designer/tailwind-preset")],
   content: [
     "./src/**/*.{ts,tsx}",
-    "./node_modules/@bugs5382/saga-flow-designer/dist/**/*.{js,cjs}",
+    "./node_modules/saga-flow-designer/dist/**/*.{js,cjs}",
   ],
 };
 ```

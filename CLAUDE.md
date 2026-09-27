@@ -1,6 +1,6 @@
 # CLAUDE.md - saga-flow-designer
 
-Working agreement for this repository. `@bugs5382/saga-flow-designer` is a
+Working agreement for this repository. `saga-flow-designer` is a
 public TypeScript React library: components and utilities for visualising and
 editing saga-orchestration workflows and runs. It is built with `tsup` and
 tested with `vitest`, and it ships to npm as ESM + CommonJS with types.

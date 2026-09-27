@@ -2,7 +2,7 @@ import { Meta } from "@storybook/blocks";
 
 <Meta title="Guides/Theming" />
 
-# 🎨 Theming
+# Theming
 
 The components ship their **own** default palette and depend on **no external
 design system**. Every colour they use resolves to a `--sfd-*` CSS variable, and
@@ -10,20 +10,20 @@ the package ships sensible default values for all of them. You restyle purely by
 overriding the variables you care about — no component, className, or build
 changes.
 
-## 🧩 Two files ship with the package
+## Two files ship with the package
 
-- **`@bugs5382/saga-flow-designer/theme.css`** — a `:root` block defining every
+- **`saga-flow-designer/theme.css`** — a `:root` block defining every
   `--sfd-*` variable with its default value (R G B channels).
-- **`@bugs5382/saga-flow-designer/tailwind-preset`** — a Tailwind preset that
+- **`saga-flow-designer/tailwind-preset`** — a Tailwind preset that
   maps each colour name (`slate`, `coral`, `teal`, …) to its variable in channel
   form, so opacity modifiers such as `bg-slate-700/50` keep working.
 
-## 🚀 Setup
+## Setup
 
 Import the default tokens once in your app entry:
 
 ```ts
-import "@bugs5382/saga-flow-designer/theme.css";
+import "saga-flow-designer/theme.css";
 import "@xyflow/react/dist/style.css"; // the React Flow canvas stylesheet
 ```
 
@@ -33,17 +33,17 @@ scan so its utility classes are generated:
 ```js
 // tailwind.config.js
 module.exports = {
-  presets: [require("@bugs5382/saga-flow-designer/tailwind-preset")],
+  presets: [require("saga-flow-designer/tailwind-preset")],
   content: [
     "./src/**/*.{ts,tsx}",
-    "./node_modules/@bugs5382/saga-flow-designer/dist/**/*.{js,cjs}",
+    "./node_modules/saga-flow-designer/dist/**/*.{js,cjs}",
   ],
 };
 ```
 
 With just this, the components render in their shipped default palette.
 
-## 🖌️ Override the variables
+## Override the variables
 
 To rebrand, redefine any `--sfd-*` variables — globally on `:root`, or scoped to
 a subtree. Values are space-separated **R G B channels** (no `rgb(...)` wrapper),
@@ -73,14 +73,14 @@ variables on a wrapper element instead of `:root`:
 </div>
 ```
 
-## 🔍 See it live
+## See it live
 
 The **Guides → Theming → Live Swap** story renders the same components under the
 default palette and an alternate brand side by side. The **Brand** toolbar
 control (top of any story) flips the whole UI between the two by overriding the
 same variables — nothing else changes.
 
-## 📋 The variable set
+## The variable set
 
 Variables follow `--sfd-<color>-<shade>`. The colours the components use are:
 `slate` and `zinc` (neutrals), `coral` (accent), `teal` (branch accent), and

@@ -14,7 +14,7 @@
  * unchanged: the neutral/accent scales are Tailwind's stock palette and `coral`
  * is the package's original custom accent scale.
  *
- * Import once in your app:  import "@bugs5382/saga-flow-designer/theme.css";
+ * Import once in your app:  import "saga-flow-designer/theme.css";
  */
 :root {
   /* Slate — primary neutral (text, surfaces, borders). */

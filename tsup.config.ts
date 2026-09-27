@@ -21,7 +21,7 @@ export default defineConfig({
   dts: true,
   // The library entry plus the Tailwind preset. Building the preset here emits
   // both ESM (`dist/tailwind.preset.js`) and CJS (`dist/tailwind.preset.cjs`)
-  // plus its types, so consumers can `require("@bugs5382/saga-flow-designer/
+  // plus its types, so consumers can `require("saga-flow-designer/
   // tailwind-preset")` from a CommonJS Tailwind config. The object form pins the
   // output basenames so both land flat in `dist/` (a plain array would nest
   // `index` under `dist/src/` once a root-level entry joins it).
@@ -34,7 +34,7 @@ export default defineConfig({
   format: ["esm", "cjs"],
   // The default theme tokens are plain CSS (not an importable module), so copy
   // them verbatim into `dist` after a successful build. They ship as
-  // `@bugs5382/saga-flow-designer/theme.css`.
+  // `saga-flow-designer/theme.css`.
   onSuccess: async () => {
     copyFileSync("src/styles/theme.css", "dist/theme.css");
   },

@@ -15,6 +15,7 @@
 
 #### 🐛 Bug Fixes
 
+- fix(package): publish as saga-flow-designer (unscoped) @Bugs5382 (#44)
 - fix(package): load in plain Node and ship correct CJS types @Bugs5382 (#38)
 - fix(build): stop shipping source maps in the npm package @Bugs5382 (#32)
 - fix(ci): install the docs theme from public npm @Bugs5382 (#29)

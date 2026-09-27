@@ -5,7 +5,7 @@ hook-enforced rules). Keep this file current when the build, layout, or public A
 
 ## What this is
 
-`@bugs5382/saga-flow-designer` is a public React library: components and utilities for visualising
+`saga-flow-designer` is a public React library: components and utilities for visualising
 and editing saga-orchestration workflows and runs. It ships as ESM + CommonJS with types, built with
 `tsup`. It is **engine-agnostic** — it never talks to a backend directly; a host implements one
 `WorkflowGateway` and injects it. Two things to understand before changing it:

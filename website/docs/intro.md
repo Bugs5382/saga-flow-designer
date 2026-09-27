@@ -50,7 +50,7 @@ core that exists today. Later slices add their own pages.
 ## 📦 Install
 
 ```sh
-npm install @bugs5382/saga-flow-designer
+npm install saga-flow-designer
 ```
 
 `react`, `react-dom`, and `@xyflow/react` are **peer dependencies** and must be
@@ -68,7 +68,7 @@ import {
   expandDefinition,
   flattenDefinition,
   type WorkflowDefinition,
-} from "@bugs5382/saga-flow-designer";
+} from "saga-flow-designer";
 
 // Expand an engine-flat definition into the UI-nested tree, edit it, then
 // flatten it back for the engine — the round-trip is lossless.
