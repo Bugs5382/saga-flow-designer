@@ -1,6 +1,9 @@
 import type { Config } from "@docusaurus/types";
 import type * as Preset from "@docusaurus/preset-classic";
 
+import { existsSync, readFileSync } from "node:fs";
+import path from "node:path";
+
 import { recommendedThemeConfig } from "@the-rabbit-hole/docs-theme/config";
 
 // The shared brand theme owns the palette, fonts, dark-first colour mode, the
@@ -10,6 +13,18 @@ import { recommendedThemeConfig } from "@the-rabbit-hole/docs-theme/config";
 
 const GO_SAGA_DOCS = "https://bugs5382.github.io/go-saga-orchestration/";
 const REPO = "https://github.com/Bugs5382/saga-flow-designer";
+
+// Released snapshots listed in versions.json. Docs Publish cuts one with
+// `docusaurus docs:version` when a release is published, right before it
+// builds. Until the first one exists, the live docs are the only version and
+// are served at /docs, so the landing page and footer links (/docs/intro and
+// so on) resolve. Once a release is snapshotted it takes /docs and the live
+// docs move to /docs/next.
+const VERSIONS_FILE = path.join(__dirname, "versions.json");
+const RELEASED_VERSIONS: string[] = existsSync(VERSIONS_FILE)
+  ? JSON.parse(readFileSync(VERSIONS_FILE, "utf8"))
+  : [];
+const HAS_RELEASE = RELEASED_VERSIONS.length > 0;
 
 const config: Config = {
   title: "saga-flow-designer",
@@ -49,9 +64,14 @@ const config: Config = {
           editUrl: `${REPO}/tree/main/website/`,
           // The live docs are the unreleased "next" line; released snapshots
           // land in versioned_docs/ via `docusaurus docs:version`. Default to
-          // the latest stable (docusaurus.config's lastVersion default).
+          // the latest stable (docusaurus.config's lastVersion default). With
+          // no snapshot yet, "next" is the only version and takes /docs.
           versions: {
-            current: { label: "Next 🚧", path: "next", banner: "unreleased" },
+            current: {
+              label: "Next 🚧",
+              path: HAS_RELEASE ? "next" : "",
+              banner: "unreleased",
+            },
           },
         },
         blog: false,

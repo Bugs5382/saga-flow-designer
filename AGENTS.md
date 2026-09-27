@@ -61,6 +61,12 @@ See `website/docs/go-saga.md` and `website/docs/integration.md` for worked integ
 - Storybook: `npm run storybook` / `npm run build-storybook`
 - Demo: `npm run demo` (add `VITE_GS_BASE=/gs` for a real go-saga backend)
 - License headers: `task license` (verify) / `task license:fix` (apply) — golic
+- Docs site: `npm install` then `npm run build` in `website/` (Docusaurus; the API reference is
+  generated from `src/index.ts`). Docs Publish cuts the versioned snapshot
+  (`docusaurus docs:version <tag>`) when a release is published, commits it to `main`, and deploys
+  to GitHub Pages. Never cut or commit `website/versioned_docs` by hand: a snapshot taken before
+  release goes stale and the workflow skips re-cutting a version that already exists. Until the
+  first snapshot, the live docs serve at `/docs`; after it, at `/docs/next`.
 
 ## Conventions and gotchas
 
