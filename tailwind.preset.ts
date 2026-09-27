@@ -19,7 +19,7 @@
  * package's `--sfd-*` CSS variables, in channel form so Tailwind's opacity
  * modifiers keep working (`bg-slate-700/50`, `text-coral-600`, ...).
  *
- * The variables' default values ship in `@bugs5382/saga-flow-designer/theme.css`
+ * The variables' default values ship in `saga-flow-designer/theme.css`
  * and equal the components' original palette, so adding this preset alone causes
  * no visual change. A host restyles by overriding the `--sfd-*` variables — the
  * package carries its own defaults and depends on no external design system.
@@ -29,10 +29,10 @@
  * ```js
  * // tailwind.config.js
  * module.exports = {
- *   presets: [require("@bugs5382/saga-flow-designer/tailwind-preset")],
+ *   presets: [require("saga-flow-designer/tailwind-preset")],
  *   content: [
  *     "./src/**\/*.{ts,tsx}",
- *     "./node_modules/@bugs5382/saga-flow-designer/dist/**\/*.{js,cjs}",
+ *     "./node_modules/saga-flow-designer/dist/**\/*.{js,cjs}",
  *   ],
  * };
  * ```

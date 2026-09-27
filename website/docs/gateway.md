@@ -22,7 +22,7 @@ import type {
   ValidationResult,
   WorkflowDefinition,
   WorkflowGateway,
-} from "@bugs5382/saga-flow-designer";
+} from "saga-flow-designer";
 
 interface WorkflowGateway {
   // --- Definitions ---------------------------------------------------------
@@ -101,7 +101,7 @@ import {
   type StreamFrame,
   type WorkflowDefinition,
   type WorkflowGateway,
-} from "@bugs5382/saga-flow-designer";
+} from "saga-flow-designer";
 
 // `transport` is whatever the host uses to reach the engine — a REST client, a
 // GraphQL client, an in-process store. The library does not care.

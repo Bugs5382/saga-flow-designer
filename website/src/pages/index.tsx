@@ -8,8 +8,8 @@ import styles from "./index.module.css";
 
 const REPO = "https://github.com/Bugs5382/saga-flow-designer";
 
-const quickstartCode = `import { FlowDesigner, createMockGateway } from "@bugs5382/saga-flow-designer";
-import "@bugs5382/saga-flow-designer/theme.css";
+const quickstartCode = `import { FlowDesigner, createMockGateway } from "saga-flow-designer";
+import "saga-flow-designer/theme.css";
 import "@xyflow/react/dist/style.css";
 
 // createMockGateway() seeds an in-memory WorkflowGateway — no backend needed.

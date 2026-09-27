@@ -2,7 +2,7 @@ import { Meta } from "@storybook/blocks";
 
 <Meta title="Guides/Gateway Contract" />
 
-# 🔌 The `WorkflowGateway` Contract
+# The `WorkflowGateway` Contract
 
 `WorkflowGateway` is the single seam between the UI and your backend. Implement
 it once, inject it into the components, and the package stays free of any
@@ -36,7 +36,7 @@ Every method is a plain async function (or, for `subscribeRun`, a subscription
 that returns its own teardown). Return `undefined` from the single-item getters
 when nothing matches.
 
-## 🗺️ Definitions: nested vs flat
+## Definitions: nested vs flat
 
 The components work with the **nested** `WorkflowDefinition` (stages → steps →
 branch/child lanes). Many engines persist a **flat** definition (a step list
@@ -44,7 +44,7 @@ with `next`/`branches` pointers). The package ships the mapper both ways, so
 your adapter can translate at the edge:
 
 ```ts
-import { expandDefinition, flattenDefinition } from "@bugs5382/saga-flow-designer";
+import { expandDefinition, flattenDefinition } from "saga-flow-designer";
 
 // engine → UI
 const uiDef = expandDefinition(engineDef, storageId);
@@ -52,13 +52,13 @@ const uiDef = expandDefinition(engineDef, storageId);
 const engineDef = flattenDefinition(uiDef);
 ```
 
-## 📡 Live runs
+## Live runs
 
 `subscribeRun` is how `RunDetail` shows a run progressing. Fold your backend's
 run snapshot + event stream into the `Run` model with the stream helpers:
 
 ```ts
-import { seedRun, foldFrame } from "@bugs5382/saga-flow-designer";
+import { seedRun, foldFrame } from "saga-flow-designer";
 
 subscribeRun(runId, onUpdate) {
   let run = seedRun(runId);
@@ -71,11 +71,11 @@ subscribeRun(runId, onUpdate) {
 }
 ```
 
-## 🧪 A minimal adapter sketch
+## A minimal adapter sketch
 
 ```ts
-import type { WorkflowGateway } from "@bugs5382/saga-flow-designer";
-import { expandDefinition, flattenDefinition, validateWorkflow } from "@bugs5382/saga-flow-designer";
+import type { WorkflowGateway } from "saga-flow-designer";
+import { expandDefinition, flattenDefinition, validateWorkflow } from "saga-flow-designer";
 
 export const createHttpGateway = (baseUrl: string): WorkflowGateway => ({
   listWorkflows: async () =>
@@ -99,5 +99,5 @@ export const createHttpGateway = (baseUrl: string): WorkflowGateway => ({
 Operations your backend doesn't support can throw a clear error; the UI hides or
 disables the corresponding affordances when a capability is absent.
 
-> 💡 For demos and tests, skip the adapter entirely and use
+> For demos and tests, skip the adapter entirely and use
 > `createMockGateway()` — a fully in-memory implementation of this interface.

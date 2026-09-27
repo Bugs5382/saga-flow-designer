@@ -40,7 +40,8 @@ jobs:
       - name: Build
         run: npm run build
 
-      # Scoped package -> --access public. --provenance signs the published
+      # --access public is the default for an unscoped package and is kept so a
+      # later move to a scope cannot publish privately. --provenance signs the published
       # tarball with the GitHub OIDC token (needs id-token: write). Idempotent:
       # skip if this exact version is already on the registry (retry-safe).
       - name: Publish

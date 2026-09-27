@@ -1,4 +1,4 @@
-# @bugs5382/saga-flow-designer 🕸️
+# saga-flow-designer 🕸️
 
 > 🎨 React components and utilities for visualising and editing saga-orchestration
 > **workflows** and **runs**.
@@ -37,7 +37,7 @@ The domain model, mapper, run-stream fold, and validation are **pure TypeScript*
 ## 📦 Install
 
 ```sh
-npm install @bugs5382/saga-flow-designer
+npm install saga-flow-designer
 ```
 
 `react`, `react-dom`, and `@xyflow/react` are peer dependencies:
@@ -49,8 +49,8 @@ npm install react react-dom @xyflow/react
 ## 🚀 Quick start
 
 ```tsx
-import { FlowDesigner, createMockGateway } from "@bugs5382/saga-flow-designer";
-import "@bugs5382/saga-flow-designer/theme.css";
+import { FlowDesigner, createMockGateway } from "saga-flow-designer";
+import "saga-flow-designer/theme.css";
 import "@xyflow/react/dist/style.css";
 
 const gateway = createMockGateway();
@@ -64,7 +64,7 @@ Both stylesheet imports are required, once, at your app entry. The package
 does not import any CSS itself, so it loads in plain Node (SSR, tests) and your
 bundler picks up the styles from these two lines:
 
-- `@bugs5382/saga-flow-designer/theme.css`: the default `--sfd-*` colour tokens.
+- `saga-flow-designer/theme.css`: the default `--sfd-*` colour tokens.
 - `@xyflow/react/dist/style.css`: the React Flow canvas stylesheet. Without it
   the canvas renders unstyled (no edges, handles or controls layout).
 
@@ -99,7 +99,7 @@ package's own base catalog. A host overlays its own verbs (and/or hides base
 ones) via the `catalogOverrides` prop, without forking the base catalog:
 
 ```tsx
-import { FlowDesigner, createMockGateway } from "@bugs5382/saga-flow-designer";
+import { FlowDesigner, createMockGateway } from "saga-flow-designer";
 
 const gateway = createMockGateway();
 
@@ -143,7 +143,7 @@ To wrap a standalone sub-component (e.g. `VerbPalette` outside of
 directly — both are public exports:
 
 ```tsx
-import { CatalogProvider, VerbPalette } from "@bugs5382/saga-flow-designer";
+import { CatalogProvider, VerbPalette } from "saga-flow-designer";
 
 <CatalogProvider overrides={{ hide: ["http_request"] }}>
   <VerbPalette onAdd={handleAdd} selectedStepId={undefined} />
@@ -159,16 +159,16 @@ The package ships its **own** palette as `--sfd-*` CSS variables — independent
 any brand. Import the defaults and add the Tailwind preset:
 
 ```ts
-import "@bugs5382/saga-flow-designer/theme.css";
+import "saga-flow-designer/theme.css";
 ```
 
 ```js
 // tailwind.config.js
 module.exports = {
-  presets: [require("@bugs5382/saga-flow-designer/tailwind-preset")],
+  presets: [require("saga-flow-designer/tailwind-preset")],
   content: [
     "./src/**/*.{ts,tsx}",
-    "./node_modules/@bugs5382/saga-flow-designer/dist/**/*.{js,cjs}",
+    "./node_modules/saga-flow-designer/dist/**/*.{js,cjs}",
   ],
 };
 ```

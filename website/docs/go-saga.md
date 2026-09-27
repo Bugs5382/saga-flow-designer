@@ -91,7 +91,7 @@ import {
   flattenDefinition,
   validateWorkflow,
   type WorkflowGateway,
-} from "@bugs5382/saga-flow-designer";
+} from "saga-flow-designer";
 
 export const createGoSagaGateway = (base: string): WorkflowGateway => ({
   listWorkflows: async () => {
@@ -124,7 +124,7 @@ export const createGoSagaGateway = (base: string): WorkflowGateway => ({
 ## 3. Mount it
 
 ```tsx
-import { FlowDesigner } from "@bugs5382/saga-flow-designer";
+import { FlowDesigner } from "saga-flow-designer";
 
 const gateway = createGoSagaGateway("/gs"); // proxied to the engine (avoid CORS)
 

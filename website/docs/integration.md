@@ -14,7 +14,7 @@ generic and lets it live inside any host.
 ## 1. Setup
 
 ```sh
-npm install @bugs5382/saga-flow-designer react react-dom @xyflow/react
+npm install saga-flow-designer react react-dom @xyflow/react
 ```
 
 Import the token defaults and the canvas stylesheet once, at your app entry.
@@ -23,7 +23,7 @@ Node (SSR, tests), and without `@xyflow/react/dist/style.css` the canvas renders
 unstyled.
 
 ```ts
-import "@bugs5382/saga-flow-designer/theme.css";
+import "saga-flow-designer/theme.css";
 import "@xyflow/react/dist/style.css";
 ```
 
@@ -32,10 +32,10 @@ Add the Tailwind preset and scan the package in your Tailwind `content`:
 ```js
 // tailwind.config.js
 module.exports = {
-  presets: [require("@bugs5382/saga-flow-designer/tailwind-preset")],
+  presets: [require("saga-flow-designer/tailwind-preset")],
   content: [
     "./src/**/*.{ts,tsx}",
-    "./node_modules/@bugs5382/saga-flow-designer/dist/**/*.{js,cjs}",
+    "./node_modules/saga-flow-designer/dist/**/*.{js,cjs}",
   ],
 };
 ```
@@ -62,7 +62,7 @@ import {
   RunsList,
   RunDetail,
   WorkflowList,
-} from "@bugs5382/saga-flow-designer";
+} from "saga-flow-designer";
 import { Routes, Route, useNavigate, useParams } from "react-router-dom";
 
 import { AppShell } from "@/your-app/AppShell"; // YOUR shell

@@ -1,5 +1,5 @@
 {
-  "name": "@bugs5382/saga-flow-designer",
+  "name": "saga-flow-designer",
   "version": "1.0.0",
   "description": "React components and utilities for visualising and editing saga-orchestration workflows and runs.",
   "license": "Apache-2.0",
