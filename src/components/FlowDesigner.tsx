@@ -37,7 +37,7 @@ import {
   workflowHasEmitSignal,
 } from "../workflowScope";
 import { type CanvasCallbacks, type InsertTarget } from "./FlowCanvas";
-import { FlowCanvasRF } from "./FlowCanvasRF";
+import { FlowCanvasRF } from "./FlowCanvasRf";
 import {
   addMapBody,
   addStage,

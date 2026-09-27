@@ -37,7 +37,7 @@ export {
   parseCondition,
 } from "./ConditionBuilder";
 export { type CanvasCallbacks, FlowCanvas, type InsertTarget, type RunOverlay } from "./FlowCanvas";
-export { FlowCanvasRF, type FlowCanvasRFProps } from "./FlowCanvasRF";
+export { FlowCanvasRF, type FlowCanvasRFProps } from "./FlowCanvasRf";
 export {
   type DesignerNotice,
   type DesignerNoticeLevel,
