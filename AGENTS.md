@@ -65,3 +65,4 @@ See `website/docs/go-saga.md` and `website/docs/integration.md` for worked integ
   are functional palette data (the one place emoji live in source).
 - Tests and stories live outside `src/` (in `tests/`/`stories/`) but are typechecked via
   `tsconfig.json`'s `include`.
+- Open every PR as a draft. CI skips drafts, so run the full checks locally, push once they pass, and mark the PR ready when the work is finished; see CLAUDE.md "CI and Actions minutes".
