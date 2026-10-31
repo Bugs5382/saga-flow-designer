@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.0.1 - 2026-10-31
+
+### What Changed 👀
+
+#### 🐛 Bug Fixes
+
+- fix(ci): read npm pack output from npm 12 in the pack checks @Bugs5382 (#51)
+
+### Extra
+
+**Full Changelog**: https://github.com/Bugs5382/saga-flow-designer/compare/v1.0.0...v1.0.1
+
 ## v1.0.0 - 2026-09-27
 
 ### What Changed 👀
