@@ -221,9 +221,11 @@ console.log(`check:install: throwaway folder ${work}`);
 let status;
 let report;
 try {
-  const [pack] = JSON.parse(
+  // npm 12 prints an object keyed by package name; earlier versions print an array.
+  const parsed = JSON.parse(
     run("npm", ["pack", "--json", "--ignore-scripts", "--pack-destination", work], process.cwd()),
   );
+  const [pack] = Array.isArray(parsed) ? parsed : Object.values(parsed);
   const tarball = path.resolve(work, pack.filename);
   console.log(`check:install: packed ${pack.filename} (${pack.size} bytes)`);
 
