@@ -66,7 +66,9 @@
         "next": "done",
         "action": "notify_escalation",
         "inputs": {
-          "audience": ["{{approver_audience}}"],
+          "audience": [
+            "{{approver_audience}}"
+          ],
           "override_prefs": false,
           "record_ref": "{{record_ref}}",
           "template_id": "review_reminder"
@@ -96,11 +98,16 @@
           "form_schema": {
             "properties": {
               "decision": {
-                "enum": ["approve", "reject"],
+                "enum": [
+                  "approve",
+                  "reject"
+                ],
                 "type": "string"
               }
             },
-            "required": ["decision"],
+            "required": [
+              "decision"
+            ],
             "type": "object"
           }
         },
@@ -130,7 +137,9 @@
         "next": "escalate_wait",
         "action": "notify_escalation",
         "inputs": {
-          "audience": ["{{approver_role}}"],
+          "audience": [
+            "{{approver_role}}"
+          ],
           "override_prefs": true,
           "record_ref": "{{record_ref}}",
           "template_id": "deadline_coming_up"
@@ -150,7 +159,9 @@
         "next": "re_request_approval",
         "action": "notify_escalation",
         "inputs": {
-          "audience": ["{{escalation_group}}"],
+          "audience": [
+            "{{escalation_group}}"
+          ],
           "override_prefs": true,
           "record_ref": "{{record_ref}}",
           "template_id": "escalation_overdue"
@@ -250,11 +261,16 @@
           "form_schema": {
             "properties": {
               "decision": {
-                "enum": ["approve", "reject"],
+                "enum": [
+                  "approve",
+                  "reject"
+                ],
                 "type": "string"
               }
             },
-            "required": ["decision"],
+            "required": [
+              "decision"
+            ],
             "type": "object"
           }
         },
@@ -284,7 +300,9 @@
         "next": "re_request_approval",
         "action": "notify_escalation",
         "inputs": {
-          "audience": ["{{escalation_group}}"],
+          "audience": [
+            "{{escalation_group}}"
+          ],
           "record_ref": "{{record_ref}}",
           "template_id": "escalation_overdue"
         }

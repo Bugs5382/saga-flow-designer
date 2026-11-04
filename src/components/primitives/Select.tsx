@@ -70,7 +70,9 @@ export const Select = ({ children, onValueChange, value }: SelectProps) => {
   const register = useCallback((itemValue: string, label: ReactNode) => {
     setLabels((previous) => {
       if (previous.has(itemValue)) return previous;
-      return new Map([...previous, [itemValue, label]]);
+      const next = new Map(previous);
+      next.set(itemValue, label);
+      return next;
     });
   }, []);
 

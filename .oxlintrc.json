@@ -19,20 +19,18 @@
     "unicorn/filename-case": [
       "warn",
       {
-        "cases": { "camelCase": true, "kebabCase": true, "pascalCase": true },
+        "cases": {
+          "camelCase": true,
+          "kebabCase": true,
+          "pascalCase": true
+        },
         "ignore": ["^__\\w+__$"]
       }
     ],
     "unicorn/no-null": "off",
     "unicorn-js/prefer-https": "off",
-    "unicorn-js/prevent-abbreviations": "off"
-  },
-  "overrides": [
-    {
-      "files": ["tailwind.preset.ts"],
-      "rules": {
-        "import/no-default-export": "off"
-      }
-    }
-  ]
+    "unicorn-js/prevent-abbreviations": "off",
+    "import/no-default-export": "off",
+    "unicorn/no-immediate-mutation": "off"
+  }
 }

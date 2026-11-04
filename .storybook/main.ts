@@ -19,7 +19,10 @@ const config: StorybookConfig = {
   addons: ["@storybook/addon-essentials", "@storybook/addon-links"],
   docs: { defaultName: "Docs" },
   framework: { name: "@storybook/react-vite", options: {} },
-  stories: ["../stories/**/*.mdx", "../stories/**/*.stories.@(ts|tsx)"],
+  stories: [
+    "../stories/**/*.mdx",
+    "../stories/**/*.stories.@(ts|tsx)",
+  ],
   // Extract prop tables from the TypeScript types so autodocs shows each
   // component's real props (names, types, required, JSDoc) rather than inferred
   // runtime shapes.
