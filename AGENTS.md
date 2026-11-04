@@ -57,7 +57,7 @@ See `website/docs/go-saga.md` and `website/docs/integration.md` for worked integ
   `import`/`require`, each with its own `types` (`.d.ts` / `.d.cts`); keep it that way.
 - Test: `npm test` (vitest; the mapper round-trips fixtures under `tests/`)
 - Typecheck: `npm run typecheck` (tsc over `src`, `tests`, `stories`)
-- Lint: `npm run lint` (eslint, `@the-rabbit-hole/eslint-config`)
+- Lint: `npm run lint` (Oxlint, `@bugs5382/node-oxlint-config`); format: `npm run format` (oxfmt)
 - Storybook: `npm run storybook` / `npm run build-storybook`
 - Demo: `npm run demo` (add `VITE_GS_BASE=/gs` for a real go-saga backend)
 - License headers: `task license` (verify) / `task license:fix` (apply) — golic

@@ -1,0 +1,36 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "extends": ["./node_modules/@bugs5382/node-oxlint-config/configs/base.json"],
+  "ignorePatterns": [
+    "dist/**",
+    "coverage/**",
+    "docs/**",
+    "node_modules/**",
+    "website/**",
+    "storybook-static/**",
+    ".storybook/**"
+  ],
+  "settings": {
+    "react": {
+      "version": "19.2"
+    }
+  },
+  "rules": {
+    "unicorn/filename-case": [
+      "warn",
+      {
+        "cases": {
+          "camelCase": true,
+          "kebabCase": true,
+          "pascalCase": true
+        },
+        "ignore": ["^__\\w+__$"]
+      }
+    ],
+    "unicorn/no-null": "off",
+    "unicorn-js/prefer-https": "off",
+    "unicorn-js/prevent-abbreviations": "off",
+    "import/no-default-export": "off",
+    "unicorn/no-immediate-mutation": "off"
+  }
+}
