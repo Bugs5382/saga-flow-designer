@@ -47,10 +47,7 @@ package in its Tailwind `content` scan so the utilities are generated:
 // tailwind.config.js
 module.exports = {
   presets: [require("saga-flow-designer/tailwind-preset")],
-  content: [
-    "./src/**/*.{ts,tsx}",
-    "./node_modules/saga-flow-designer/dist/**/*.{js,cjs}",
-  ],
+  content: ["./src/**/*.{ts,tsx}", "./node_modules/saga-flow-designer/dist/**/*.{js,cjs}"],
 };
 ```
 
