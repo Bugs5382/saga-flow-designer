@@ -70,7 +70,7 @@ fast during a wave of PRs. The shipped workflows are shaped around that:
 - `dist/` - build output (gitignored); the only thing shipped to npm (`files`).
 - `tsup.config.ts` - build config (ESM + CJS, dts, `react`/`react-dom`/
   `@xyflow/react` are external peers, never bundled).
-- `eslint.config.js` - flat config on `typescript-eslint` recommended.
+- `.oxlintrc.json` - Oxlint config extending `@bugs5382/node-oxlint-config`; `oxfmt.config.ts` - formatter settings.
 
 ## Scripts
 
@@ -78,7 +78,7 @@ fast during a wave of PRs. The shipped workflows are shaped around that:
 - `npm run dev` - tsup in watch mode.
 - `npm run typecheck` - `tsc --noEmit`.
 - `npm test` - `vitest run`.
-- `npm run lint` - eslint.
+- `npm run lint` - Oxlint (`lint:fix` to fix); `npm run format` / `format:check` - oxfmt.
 
 ## Workflow
 

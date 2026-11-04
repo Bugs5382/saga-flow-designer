@@ -83,7 +83,8 @@ export type StepResolver = (stepId: string) => StepMeta | undefined;
  * @since 1.0.0
  */
 export type StreamFrame =
-  { data: SagaRunEventFrame; type: "event" } | { data: SagaRunFrame; type: "run" };
+  | { data: SagaRunEventFrame; type: "event" }
+  | { data: SagaRunFrame; type: "run" };
 
 // --- Enum mappers (engine → UI) --------------------------------------------
 

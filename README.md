@@ -78,7 +78,11 @@ integration point:
 
 ```ts
 const gateway: WorkflowGateway = {
-  listWorkflows, getWorkflow, saveWorkflow, /* … */ subscribeRun, validateWorkflow,
+  listWorkflows,
+  getWorkflow,
+  saveWorkflow,
+  /* … */ subscribeRun,
+  validateWorkflow,
 };
 ```
 
@@ -166,10 +170,7 @@ import "saga-flow-designer/theme.css";
 // tailwind.config.js
 module.exports = {
   presets: [require("saga-flow-designer/tailwind-preset")],
-  content: [
-    "./src/**/*.{ts,tsx}",
-    "./node_modules/saga-flow-designer/dist/**/*.{js,cjs}",
-  ],
+  content: ["./src/**/*.{ts,tsx}", "./node_modules/saga-flow-designer/dist/**/*.{js,cjs}"],
 };
 ```
 
@@ -182,7 +183,7 @@ brand-swap.
 ```sh
 npm install
 npm run typecheck        # tsc --noEmit
-npm run lint             # eslint (@the-rabbit-hole/eslint-config)
+npm run lint             # oxlint (@bugs5382/node-oxlint-config)
 npm test                 # vitest run (tests in tests/)
 npm run build            # tsup -> dist/
 npm run docs             # typedoc -> docs/api
